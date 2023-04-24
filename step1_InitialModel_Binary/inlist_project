@@ -1,0 +1,38 @@
+795&binary_job
+
+   inlist_names(1) = 'inlist1'
+   inlist_names(2) = 'inlist2'
+
+   evolve_both_stars = .false.
+
+/ ! end of binary_job namelist
+
+&binary_controls
+
+   m1 = 12.0d0  ! donor mass in Msun
+   m2 = 1.4d0 ! companion mass in Msun
+   initial_period_in_days = -1d0
+   initial_separation_in_Rsuns =  972.
+
+	!RL/a = 0.565832221003
+   !R1_init = 550
+   !transfer efficiency controls
+   mass_transfer_alpha = 0.0d0
+   mass_transfer_beta = 0.0d0
+   mass_transfer_delta = 0.0d0
+   mass_transfer_gamma = 0.0d0
+   do_jdot_missing_wind = .true.
+   limit_retention_by_mdot_edd = .true.
+   terminate_if_initial_overflow = .true.
+   terminate_if_L2_overflow = .true.
+   mdot_scheme = 'Kolb'
+   max_explicit_abs_mdot = 1d99
+
+   do_jdot_mb = .false.
+
+   max_tries_to_achieve = -1
+
+
+  ! write_header_frequency = 1
+
+/ ! end of binary_controls namelist
