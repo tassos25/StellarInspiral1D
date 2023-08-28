@@ -1,0 +1,221 @@
+&star_job
+
+!!! output
+   show_log_description_at_start = .false.  ! enable initial terminal output;                            default: .true.      | turned off
+   show_net_species_info = .true.           ! enable to show list of isotope species in the nuclear net; default: .false.     | turned on
+  !save_model_number = 1                    ! save a specific model number;                              default: -111        | taken care at run_binary_extras.f
+   save_model_when_terminate = .true.       ! enable to save a model on termination;                     default: .false.     | turned on
+   save_model_filename = 'model2.mod'       ! filename to save model;                                    default: 'undefined' | name get changed from Scotti's script
+   write_profile_when_terminate = .false.   ! enable to write profiles on termination;                   default: .false.     | this is done in the run_binary_extras.f
+  !report_retries = .false.                 ! additional output for debugging retries;                   default: .false.     |
+
+!!! modifications to model
+   set_initial_age = .true.                 ! enable to set an initial age;                         default: .false. | reset initial age
+   initial_age = 0.0d0                      ! value of intial age;                                  default: 0       | set initial age to 0
+   set_initial_model_number = .true.        ! enable to set initial model number;                   default: .false. | reset initial model number
+   initial_model_number = 0                 ! value of initial model number;                        default: 0       | set initial model number to 0
+  !relax_tau_factor = .true.                ! enable to have a different optical depth as surface;  default: .false. |
+  !relax_to_this_tau_factor = 10d0          ! optical depth value at surface;                       default: 1       | set this optical depth
+  !dlogtau_factor = 0.05d0                  ! maximum change log10(tau_factor) per relaxation step; default: 0.1d0   | have smaller changes on relaxation
+   new_rotation_flag = .true.               ! enable rotation;                                      default: .false. | allow for rotation
+   change_rotation_flag = .true.            ! copy enabled rotation;                                default: .false. | copy rotation flag
+   new_surface_rotation_v = 0.0d0           ! value of initial rotation in km/sec;                  default: 0       | no initial rotation
+   set_initial_surface_rotation_v = .true.  ! enable to set the initial rotation;                   default: .false. | set new surface velocity
+   num_steps_to_relax_rotation = 50         ! number to steps to acchieve new rotation;             default: 100     | enforce quicker relaxation in rotation
+
+!!! nuclear reactions
+   change_net = .true.            ! enable to set the reaction network;  default: .false. | use different reaction network
+   new_net_name = 'approx21.net'  ! name of predefined reaction network; default: ''      |
+
+/ ! end of star_job namelist
+
+&eos
+
+!!! equation of state (EOS)
+   use_PC = .true.                           !?What does PC stand for? enable PC;                      default: .false. |
+   mass_fraction_limit_for_PC = 1d-3         ! minimum isotope mass fraction to be considdered in EOS; default: 1d-4    | consider less isotopes for PC EOS
+   logRho1_PC_limit = 2.999d0                ! no PC below this density;                               default: 2.999d0 | keep < logRho2_OPAL_SCVH_limit
+   logRho2_PC_limit = 2.8d0                  ! only PC above this density;                             default: 2.8d0   | must be >~ 2.8 to avoid NaN's from PC
+   PC_use_Gamma_limit_instead_of_T = .true.  ! enable to use limit on Gamma_e instead of temperature;  default: .true.  | needed for next two values
+   log_Gamma_e_all_HELM = 1.0d0              ! no PC below this electron Coulomb coupling parameter;   default: -1.8d0  |?why those values?
+   log_Gamma_e_all_PC = 1.3010299956d0       ! only PC below this electron Coulomb coupling parameter; default: -1.7d0  |?why those values?
+
+/ ! end of eos namelist
+
+&kap
+
+!!! opacities
+   Zbase = 1.42d-2                    ! base metallicity for opacity tables;                         default: -1      | set solar value
+   use_Type2_opacities = .true.       ! enable type2 opcacities;                                     default: .true.  | type2 opacities are designed for high temperatures of C and O rich material
+   kap_Type2_full_off_X = 1.0d-3      ! use type2 only if the hydrogen abunance is below this value; default: 1d-3    | >= use type1 only; < use type1 and type2
+   kap_Type2_full_on_X = 1.0d-6       ! use no type1 if the hydrogen abunance is below this value;   default: 1d-6    | <= use type 2 only; > use type1 and type2
+   cubic_interpolation_in_X = .true.  ! enable cubic interpolation in hydrogen abundance;            default: .false. | use cubic instead of linear interpolation
+   cubic_interpolation_in_Z = .true.  ! enable cubic interpolation in metallicity;                   default: .false. | use cubic instead of linear interpolation
+
+/ ! end of kap namelist
+
+&controls
+
+!!! starting model
+   initial_z = 1.42d-2  ! initial metallicity; default: 0.02d0 | can be any value in the range [0,0.04]
+
+!!! output controls
+   terminal_interval = 10                         ! interval for terminal outputs;                  default: 1                   | get less outputs
+   write_header_frequency = 10                    ! frequency to repeat the header every X outputs; default: 10                  |
+   photo_directory = 'photos2'                    ! where to save photos;                           default: 'photos'            | use a different directory for each star
+  !photo_interval = 50                            ! interval for writing photos;                    default: 50                  | set in binary_controls
+  !photo_digits = 5                               ! number of digits in photo's filename;           default: 3                   | set in binary_controls
+   log_directory = 'LOGS2'                        ! where to save logs;                             default: 'LOGS'              | use a different directory for each star
+   history_interval = 1                           ! interval for writing to star's history;         default: 5                   | save all steps in history
+   star_history_name = 'history.data'             ! name of history output;                         default: 'history.data'      |
+   star_history_dbl_format = '(1pes32.16e3, 1x)'  ! format to write reals to history;               default: '(1pes40.16e3, 1x)' | use less space
+   star_history_int_format = '(i32, 1x)'          ! format to write integers to history;            default: '(i40, 1x)'         | use less space
+   star_history_txt_format = '(a32, 1x)'          ! format to write charaters to history;           default: '(a40, 1x)'         | use less space
+   write_profiles_flag = .false.                  ! enables to write out profiles;                  default: .true.              | no profiles
+   mixing_D_limit_for_log = 1d-50                 ! diffusion limit to exclude a convective zone;   default: 1d4                 | lower value gets more zones written to log
+
+!!! core boundaries
+   he_core_boundary_h1_fraction = 1d-1        ! helium-core boundary at outermost location;                  default: 0.1d0 | requires X_H1<=this value
+   co_core_boundary_he4_fraction = 1d-1       ! carbon-oxygen core boundary at outermost location;           default: 0.1d0 | requires X_He4<=this value and X_C12+X_O16>=min_boundary_fraction
+   one_core_boundary_he4_c12_fraction = 1d-1  ! oxygen-neon core boundary at outermost location;             default: 0.1d0 | requires X_He4+X_C12<=this value and X_O16+X_Ne20>=min_boundary_fraction
+   min_boundary_fraction = 1d-1               ! minimum value of element (group) defining any core boundary; default: 0.1d0 | reauires core material of at least this amount at boundary
+
+!!! when to stop                                                                 | additional stopping criteria set in binary_controls and run_binary_extras.f
+   max_age = 1.4e10           ! maximum age in the simulation;     default: 1d36 | avoid to evolve too far beyond the Hubble time
+   gamma_center_limit = 10d0  ! stopping based on adiabatic index; default: 1d99 | crystallization begins ==> white dwarf formation
+
+!!! mixing (and convection)
+   mixing_length_alpha = 1.93d0                     ! factor to local pressure scale height;                                                  default: 2       |
+   use_ledoux_criterion = .true.                    ! use Ledoux instead of Schwarzschild criterion for convective stability;                 default: .false. | use Ledoux criterion
+   num_cells_for_smooth_gradL_composition_term = 0  ! number of cells to smooth the composition term in the gradient;                         default: 3       | off to not smooth out stabilizing composition gradients
+   alpha_semiconvection = 0d0                       ! efficiency of semiconvection;                                                           default: 0       |
+   thermohaline_coeff = 17.5d0                      ! efficiency of thermohaline mixing;                                                      default: 0       | 2/3 * 8/3 * pi^2 for aspect ratio 1 of the fingers, using eq. 4 of Charbonel+2007 and eq. 14 in Paxton+2013
+   mlt_use_rotation_correction = .false.            ! enable to correct radiative gradient in case of rotation;                               default: .true.  | turned off
+   MLT_option = 'Mihalas'                           ! mlt scheme;                                                                             default: 'TDC'   | Mihalas 1978, Kurucz 1979
+   okay_to_reduce_gradT_excess = .true.             ! enable MLT++;                                                                           default: .false. | use MLT++
+   overshoot_scheme(1) = 'exponential'              ! kind of overshooting beyond convective zone;                                            default: ''      | options: 'exponential', 'step', 'other'
+   overshoot_zone_type(1) = 'any'                   ! zone type to apply overshooting;                                                        default: ''      | options: 'burn_H', 'burn_He', 'burn_Z', 'nonburn', 'any'
+   overshoot_zone_loc(1) = 'core'                   ! location of overshooting;                                                               default: ''      | options: 'core', 'shell', 'any'
+   overshoot_bdy_loc(1) = 'any'                     ! defines at which boundary of the convective zone the overshooting is applied;           default: ''      | options: 'bottom', 'top', 'any'
+   overshoot_f(1) = 4.15d-2                         ! overshooting size in units of pressure scale height;                                    default: 0d0     | reminder: f0 defines where the zero point of the overshooting is instead of the boundary of the convective zone
+   overshoot_f0(1) = 8.0d-3                         ! defines how far inside the convective zone the overshooting starts;                     default: 0d0     | as a fraction on pressure scale height; the mixing coefficient is taken from that point
+   do_conv_premix = .true.                          ! enable convective premixing;                                                            default: .false. |
+   conv_premix_avoid_increase = .true.              ! try to avoid to increase abundance of burning material due to mixing within a timestep; default: .false. | the mixing change should be smaller or equal to the loss due to burning
+
+!!! rotation controls
+   am_D_mix_factor = 0.0333333d0             ! scaling of rotational mixing;                                                              default: 0       | f_c in Heger+2000
+   am_nu_factor = 1.0d0                      ! scaling of angular momentum diffusion coefficient;                                         default: 1       |
+   am_nu_non_rotation_factor = 1.0d0         ! scaling of non-rotating part of angular momentum diffusion coefficient;                    default: 1       |
+   am_nu_ST_factor = 1.0d0                   ! scaling of Spruit-Tayler dynamo;                                                           default: -1      | 0: no ST, 1: ST 
+   am_nu_visc_factor = 0.333d0               ! scaling of viscosity on angular momentum diffusion;                                        default: 1       | less efficient
+   D_DSI_factor = 1.0d0                      ! scaling the element mixing due to dynamical shear instability;                             default: 0       | used for am_nu_DSI_factor, too
+   D_SH_factor = 0.0d0                       ! scaling the element mixing due to Solberg-Hoiland;                                         default: 0       | used for am_nu_SH_factor, too; this is different from MIST2
+   D_SSI_factor = 1.0d0                      ! scaling the element mixing due to secular shear instability;                               default: 0       | used for am_nu_SSI_factor, too
+   D_ES_factor = 1.0d0                       ! scaling the element mixing due to Eddington-Sweet circulation;                             default: 0       | used for am_nu_ES_factor, too
+   D_GSF_factor = 1.0d0                      ! scaling the element mixing due to Goldreich-Schubert-Fricke;                               default: 0       | used for am_nu_GSF_factor, too
+   D_ST_factor = 0.0d0                       ! scaling the element mixing due to Spruit-Tayler dynamo;                                    default: 0       | no element mixing
+   D_visc_factor = 0.0d0                     ! scaling the element mixing due to viscosity;                                               default: 0       | no element mixing
+   am_gradmu_factor = 0.05d0                 ! scaling of composition gradient's influence on angular momentum diffusion;                 default: 0.05d0  | f_mu = 0.05 in Heger+2000, 0.1 in Yoon+2006
+   premix_omega = .true.                     ! enable to do half of the angular-momentum transport before and after the structure update; default: .true.  |
+   recalc_mixing_info_each_substep = .true.  ! enable to recalculate omega mixing coefficients after each substep;                        default: .false. | update more often
+   fitted_fp_ft_i_rot = .true.               ! enable to limit fp and ft by w_div_wcrit;                                                  default: ?       |
+   w_div_wcrit_max = 0.9d0                   ! limit fp and ft at when this value is reached;                                             default: 0.90d0  | at 90% critical rotation
+
+!!! atmosphere boundary conditions
+   atm_option == 'T_tau'              ! define the surface boundary condition;         default: 'T_tau'     | by solving the T(tau) relation
+   Pextra_factor = 2.0d0              ! allows additional radiation pressure at tau=0; default: 1           | double it
+   atm_T_tau_relation == 'Eddington'  ! defines, which T(tau) relation is used;        default: 'Eddington' | grey Eddington T(tau) relation
+   atm_T_tau_opacity = 'fixed'        ! defines the opacity at the surface;            default: 'fixed'     | use value of outermost cell
+      
+!!! mass gain or loss
+   max_mdot_jump_for_rotation = 10.0d0       ! for smooth transition from mass accretion to mass loss;                                                 default: 2      | being more generous
+   rotational_mdot_boost_fac = 1d10          !?what is that exactly?;                                                                                  default: 1d5    |
+   rotational_mdot_kh_fac = 1d10             !?what is that exactly?;                                                                                  default: 0.3d0  |
+   surf_avg_tau_min = 0.0                    ! starting optical depth to get mass averaged tau at the surface;                                         default: 1      |
+   surf_avg_tau = 10.0                       ! stopping optical depth to get mass averaged tau at the surface;                                         default: 100    |
+   hot_wind_scheme = 'Dutch'                 ! hot wind scheme: hot of all stars;                                                                      default: ''     |
+   cool_wind_RGB_scheme = 'Dutch'            ! cool wind scheme: cool of high mass stars (Minit>10Msun);                                               default: ''     | it gets replaced in run_star_extras by 'Reimers' for cool low mass stars
+   cool_wind_AGB_scheme = 'Blocker'          ! cool wind scheme: cool for low mass stars in AGB;                                                       default: ''     |
+   cool_wind_full_on_T = 0.8d4               ! use cool wind scheme below this photosphere temperature;                                                default: 0.8d4  | otherwise interpolate between cool and hot scheme
+   hot_wind_full_on_T = 1.2d4                ! use hot wind scheme above this photosphere temperature;                                                 default: 1.2d4  | otherwise interpolate between cool and hot scheme
+   RGB_to_AGB_wind_switch = 1.0d-4           ! central helium abundance threshold to switch between RGB and AGB;                                       default: 1d-4   | hydrogen must be below 0.01
+   Reimers_scaling_factor = 0.1d0            ! scaling factor for Reimers wind scheme;                                                                 default: 0      |
+   Blocker_scaling_factor = 0.2d0            ! scaling factor for Blocker wind scheme;                                                                 default: 0      |
+   Dutch_scaling_factor = 1.0d0              ! scaling factor for Dutch wind scheme;                                                                   default: 0d0    |
+   max_mdot_redo_cnt = 200                   ! number of redos to find implicit wind mass loss;                                                        default: 0      | 0=explicit
+   min_years_dt_for_redo_mdot = 0.0          !?what is that exactly?;                                                                                  default: 0      |
+   surf_omega_div_omega_crit_limit = 0.99d0  ! limit to which the surface rotation is reduced by implicit mass loss in units of the critical rotation; default: 0.99d0 | 99% critical rotation
+   surf_omega_div_omega_crit_tol = 0.05d0    ! tolerance to find implecit mdot;                                                                        default: 0.05d0 | 5% critical
+   mdot_revise_factor = 1.2d0                ! revise factor;                                                                                          default: 1.1d0  |
+   implicit_mdot_boost = 0.1d0               ! adjustment fraction of initial mdot;                                                                    default: 0.1d0  |
+
+!!! mesh adjustment
+   max_allowed_nz = 20000         ! maximum number of zones;                                                                   default: 8000  |
+   mesh_delta_coeff = 1.0d0       ! coefficient to determine the difference between two zones before a new zone is requested;  default: 1.0d0 |
+   max_dq = 2d-3                  ! maximum mass in a zone relative to total mass;                                             default: 1d-2  | the star has at least 1/max_dq zones
+  !convective_bdy_weight = 0.5d0  ! weight of convective boundary in enhancing the resolution there;                           default: 0     |
+
+!!! element diffusion
+   do_element_diffusion = .false.        ! enables element diffusion;                                                                                    default: .false. | different from MIST2
+   diffusion_dt_limit = 3.15d9           ! turn off element diffusion below this time step limt;                                                         default: 3.15d7  | in seconds
+   diffusion_min_dq_at_surface = 1.0d-3  ! treat several cells at surface as one until they contain at least this mass in units of the total mass;       default: 1d-9    |
+   diffusion_min_T_at_surface = 1.0d3    ! treat several cells at surface as one until at least one of them has a temperature equal or above this value; default: 1d4     |
+   diffusion_gamma_full_off = 175d0      ! switch off diffusion for regions with gamma larger then this value;                                           default: 1d99    |
+   diffusion_gamma_full_on = 165d0       ! gradually switch off the diffusion if gamma is larger then this value;                                        default: 1d99    |
+   diffusion_use_full_net = .true.       ! enable to have diffusion for each isotope instead of element classes;                                         default: .false. | more detailed
+
+!!! structure equations
+  !energy_eqn_option = 'eps_grav'  ! defines which energy equation should be used; default: 'dedt' | options: 'dedt' (see https://ui.adsabs.harvard.edu/abs/2019ApJS..243...10P/abstract) or 'eps_grav' (see https://ui.adsabs.harvard.edu/abs/2018ApJS..234...34P/abstract)
+
+!!! solver controls
+   use_gold_tolerances = .false.  ! enable to use gold tolerances; default: false |
+
+!!! timestep controls (limits reduce next timestep, hard limits causes retry)
+   max_timestep_factor = 1.2d0            ! relative maximum increase of timestep;                                             default: 1.2d0   |
+   timestep_factor_for_retries = 0.75d0   ! reduction factor of timestep before retry;                                         default: 0.5d0   | less change in case of retry
+   varcontrol_target = 1d-3               ! target value of relative changes in the structure between steps;                   default: 1d-3    |
+   solver_iters_timestep_limit = 20       ! maximum number of solver iterations before timestep gets reduced;                  default: 7       | try to avoid too many timestep changes
+   delta_lgRho_limit = 0.5d0              ! limit for change in log10 of the density;                                          default: 1.0     | from Frank's suggestions
+   delta_lgT_limit = 0.025d0              ! limit for change in log10 of the temperature;                                      default: 0.5     | from Frank's suggestions
+   delta_lgL_He_limit = 0.1d0             ! limit for change in log10 of the luminosity from He burning;                       default: 0.025d0 | care less about He luminosity
+   delta_HR_ds_L = 0.125d0                ! limit on luminosity;                                                               default: 1       | care more about total luminosity
+   delta_HR_ds_Teff = 2.0d0               ! limit on effective temperature;                                                    default: 1       | care less about effective temperature
+   delta_HR_limit = 0.1d0                 ! limit on dHR = sqrt((delta_HR_ds_L*dlgL)**2 + (delta_HR_ds_Teff*dlgTeff)**2);      default: -1      | check dominating uncertainty between luminosity and effective temperature
+   delta_HR_hard_limit = 0.2d0            ! hard limit on dHR = sqrt((delta_HR_ds_L*dlgL)**2 + (delta_HR_ds_Teff*dlgTeff)**2); default: -1      | check dominating uncertainty between luminosity and effective temperature
+   delta_lgT_cntr_limit = 0.005d0         ! limit for change in log10 of central temperatur;                                   default: 0.01    | from Frank's suggestions
+   delta_lgRho_cntr_limit = 0.025d0       ! limit for change in log10 of central density;                                      default: 0.05    | from Frank's suggestions
+  !delta_lg_XH_cntr_min = -3.0d0          ! ignore changes in log10 of the central hydrogen abundance below this value;        default: -6      | better resolution of the Henyey hook
+  !delta_lg_XH_cntr_max = -1.0d0          ! ignore changes in log10 of the central hydrogen abundance above this value;        default: 0       | better resolution of the Henyey hook
+  !delta_lg_XH_cntr_limit = 0.1d0         ! limit for change in log10 of central hydrogen abundance;                           default: 0.05d0  | better resolution of the Henyey hook
+  !delta_lg_XH_cntr_hard_limit = -1       ! hard limit for change in log10 of central hydrogen abundance;                      default: -1      | better resolution of the Henyey hook
+   delta_lg_XHe_cntr_min = -4.0d0         ! ignore changes in log10 of the central helium abundance below this value;          default: -6      | ignore earlier
+   delta_lg_XHe_cntr_max = 0.0d0          ! ignore changes in log10 of the central helium abundance above this value;          default: 0       |
+   delta_lg_XHe_cntr_limit = 0.01d0       ! limit for change in log10 of central helium abundance;                             default: 0.1d0   |
+   delta_lg_XHe_cntr_hard_limit = 0.02d0  ! hard limit for change in log10 of central helium abundance;                        default: -1      | double the soft limit
+   delta_lg_XC_cntr_min = -2.0d0          ! ignore changes in log10 of the central carbon abundance below this value;          default: -5      | ignore earlier
+   delta_lg_XC_cntr_max = 0.0d0           ! ignore changes in log10 of the central carbon abundance above this value;          default: 0       |
+   delta_lg_XC_cntr_limit = 0.01d0        ! limit for change in log10 of central carbon abundance;                             default: 0.1d0   |
+   delta_lg_XC_cntr_hard_limit = 0.02d0   ! hard limit for change in log10 of central carbon abundance;                        default: -1      | double the soft limit
+   delta_lg_XO_cntr_min = -3.0d0          ! ignore changes in log10 of the central oxygen abundance below this value;          default: -5      | ignore earlier
+   delta_lg_XO_cntr_max = 0.0d0           ! ignore changes in log10 of the central oxygen abundance above this value;          default: 0       |
+   delta_lg_XO_cntr_limit = 0.01d0        ! limit for change in log10 of central oxygen abundance;                             default: 1d99    | use similar limit like for lighter elements
+   delta_lg_XO_cntr_hard_limit = 0.02d0   ! hard limit for change in log10 of central oxygen abundance;                        default: -1      | double the soft limit
+   delta_XH_cntr_limit = 0.005d0          ! limit for change in central hydrogen abundance;                                    default: 0.01d0  | be more restricktive
+   delta_XH_cntr_hard_limit = -1          ! hard limit for change in central hydrogen abundance;                               default: -1      |
+   delta_XHe_cntr_limit = 0.01d0          ! limit for change in central helium abundance;                                      default: 0.01d0  |
+   delta_XHe_cntr_hard_limit = -1         ! hard limit for change in central helium abundance;                                 default: -1      |
+   delta_XC_cntr_limit = 0.002d0          ! limit for change in central carbon abundance;                                      default: 0.01d0  | be more restricktive
+   delta_XC_cntr_hard_limit = -1          ! hard limit for change in central carbon abundance;                                 default: -1      |
+
+!!! miscellaneous controls
+   warn_when_large_rel_run_E_err = 1d99           ! gives warning, if the relative cumulative energy error is above this value; default: 0.1d0                | a large value suppresses all warnings
+   zams_filename = './zams_z1.42m2_y0.2703.data'  ! name of file with ZAMS data;                                                default: 'zams_z2m2_y28.data' | POSYDON ZAMS file
+ !! hooks
+   use_other_wind=.true.                          ! enable other wind prescription;          default: .false. | combination of Dutch and Reimers, with Z=Zbase for the scaling
+  !use_other_am_mixing = .true.                   ! enable other mixing by angular momentum; default: .false. | use this if you want to use the enhanced FULLER et al. TAYLER-SPRUIT
+ !! extra parameters
+   x_logical_ctrl(1) = .false.  ! for single stars stars, the control needs to be true, so that the carbon exhaustion check happens in run_star_extras.f
+   x_logical_ctrl(2) = .false.  ! for formation of He single stars, before they later evolve in a CO-HeMS binary or in a He Star
+   x_logical_ctrl(3) = .false.  ! turn on eq.8 Belczynski+2010 LBV2 winds  with factor 1 (10-4 Msun/yr) to replace other winds for postMS stars in Humphreys-Davidson limit
+
+/ ! end of controls namelist
