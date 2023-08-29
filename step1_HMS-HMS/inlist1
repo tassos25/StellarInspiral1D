@@ -143,7 +143,7 @@
    Blocker_scaling_factor = 0.2d0            ! scaling factor for Blocker wind scheme;                                                                 default: 0      |
    Dutch_scaling_factor = 1.0d0              ! scaling factor for Dutch wind scheme;                                                                   default: 0d0    |
    max_mdot_redo_cnt = 200                   ! number of redos to find implicit wind mass loss;                                                        default: 0      | 0=explicit
-   min_years_dt_for_redo_mdot = 0.0          !?what is that exactly?;                                                                                  default: 0      |
+   min_years_dt_for_redo_mdot = 0.0          ! an enforced timestep limit during the mdot calculation                                                  default: 0      | no limit
    surf_omega_div_omega_crit_limit = 0.99d0  ! limit to which the surface rotation is reduced by implicit mass loss in units of the critical rotation; default: 0.99d0 | 99% critical rotation
    surf_omega_div_omega_crit_tol = 0.05d0    ! tolerance to find implecit mdot;                                                                        default: 0.05d0 | 5% critical
    mdot_revise_factor = 1.2d0                ! revise factor;                                                                                          default: 1.1d0  |

@@ -32,13 +32,13 @@
 &eos
 
 !!! equation of state (EOS)
-   use_PC = .true.                           !?What does PC stand for? enable PC;                      default: .false. |
+   use_PC = .true.                           ! enable to use Potekhin & Chabrier (2010) EOS, too;      default: .false. | use more than one EOS depending on physical conditions
    mass_fraction_limit_for_PC = 1d-3         ! minimum isotope mass fraction to be considdered in EOS; default: 1d-4    | consider less isotopes for PC EOS
    logRho1_PC_limit = 2.999d0                ! no PC below this density;                               default: 2.999d0 | keep < logRho2_OPAL_SCVH_limit
    logRho2_PC_limit = 2.8d0                  ! only PC above this density;                             default: 2.8d0   | must be >~ 2.8 to avoid NaN's from PC
    PC_use_Gamma_limit_instead_of_T = .true.  ! enable to use limit on Gamma_e instead of temperature;  default: .true.  | needed for next two values
-   log_Gamma_e_all_HELM = 1.0d0              ! no PC below this electron Coulomb coupling parameter;   default: -1.8d0  |?why those values?
-   log_Gamma_e_all_PC = 1.3010299956d0       ! only PC below this electron Coulomb coupling parameter; default: -1.7d0  |?why those values?
+   log_Gamma_e_all_HELM = 1.0d0              ! no PC below this electron Coulomb coupling parameter;   default: -1.8d0  | suggested by Paxton (see old email to Tassos/Jeff)
+   log_Gamma_e_all_PC = 1.3010299956d0       ! only PC below this electron Coulomb coupling parameter; default: -1.7d0  | suggested by Paxton (see old email to Tassos/Jeff)
 
 / ! end of eos namelist
 
@@ -143,7 +143,7 @@
    Blocker_scaling_factor = 0.2d0            ! scaling factor for Blocker wind scheme;                                                                 default: 0      |
    Dutch_scaling_factor = 1.0d0              ! scaling factor for Dutch wind scheme;                                                                   default: 0d0    |
    max_mdot_redo_cnt = 200                   ! number of redos to find implicit wind mass loss;                                                        default: 0      | 0=explicit
-   min_years_dt_for_redo_mdot = 0.0          !?what is that exactly?;                                                                                  default: 0      |
+   min_years_dt_for_redo_mdot = 0.0          ! an enforced timestep limit during the mdot calculation                                                  default: 0      | no limit
    surf_omega_div_omega_crit_limit = 0.99d0  ! limit to which the surface rotation is reduced by implicit mass loss in units of the critical rotation; default: 0.99d0 | 99% critical rotation
    surf_omega_div_omega_crit_tol = 0.05d0    ! tolerance to find implecit mdot;                                                                        default: 0.05d0 | 5% critical
    mdot_revise_factor = 1.2d0                ! revise factor;                                                                                          default: 1.1d0  |

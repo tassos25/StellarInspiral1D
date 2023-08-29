@@ -998,11 +998,15 @@
    
    
             !remove gradL_composition term after MS, it can cause the convective helium core to recede
-            if (b% point_mass_i /= 1 .and. b% s1% center_h1 < 1.0d-6) then
-               b% s1% num_cells_for_smooth_gradL_composition_term = 0
+            if (b% point_mass_i /= 1) then
+               if (b% s1% center_h1 < 1.0d-6) then
+                  b% s1% num_cells_for_smooth_gradL_composition_term = 0
+               end if
             end if
-            if (b% point_mass_i /= 2 .and. b% s2% center_h1 < 1.0d-6) then
-               b% s2% num_cells_for_smooth_gradL_composition_term = 0
+            if (b% point_mass_i /= 2) then
+               if (b% s2% center_h1 < 1.0d-6) then
+                  b% s2% num_cells_for_smooth_gradL_composition_term = 0
+               end if
             end if
    
             !check if mass transfer rate reached maximun, assume unstable regime if it happens

@@ -54,7 +54,7 @@
    mass_transfer_gamma = 0d0              ! radius of the circumbinary coplanar toroid;                                              default: 0.0d0    | no toroid size
    mass_transfer_delta = 0d0              ! fraction of mass lost from circumbinary coplanar toroid;                                 default: 0.0d0    | no transfer to toroid
    limit_retention_by_mdot_edd = .false.  ! Eddington limited accretion;                                                             default: .false.  | turned-on for accretion onto compact objects in run_binary_extras
-   mdot_scheme = "contact"                ! mass transfer scheme;                                                                    default: 'Ritter' | 'contact' switches to 'Kolb' after one of the two stars reaches TAMS
+   mdot_scheme = "roche_lobe"                ! mass transfer scheme;                                                                 default: 'Ritter' | adopts mdot to keep star in Roche lobe
    max_tries_to_achieve = 200             ! maximum number of tries to converge on and implicit mass transfer;                       default: 20       |
    implicit_scheme_tolerance = 1d-4       ! required accuracy to accept the mass transfer rate;                                      default: 1d-2     |
    initial_change_factor = 1.2d0          ! initial change factor;                                                                   default: 1.5d0    |
