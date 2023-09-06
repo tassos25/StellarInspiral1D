@@ -57,7 +57,8 @@
 &controls
 
 !!! starting model
-   initial_z = 1.42d-2  ! initial metallicity; default: 0.02d0 | can be any value in the range [0,0.04]
+   initial_z = 1.42d-2   ! initial metallicity;      default: 0.02d0 | can be any value in the range [0,0.04]
+   initial_y = 2.703d-1  ! initial helium abundance; default: -1     | <0 means initial_y=0.24+2*initial_z
 
 !!! output controls
    terminal_interval = 10                         ! interval for terminal outputs;                  default: 1                   | get less outputs
@@ -118,13 +119,12 @@
    am_gradmu_factor = 0.05d0                 ! scaling of composition gradient's influence on angular momentum diffusion;                 default: 0.05d0  | f_mu = 0.05 in Heger+2000, 0.1 in Yoon+2006
    premix_omega = .true.                     ! enable to do half of the angular-momentum transport before and after the structure update; default: .true.  |
    recalc_mixing_info_each_substep = .true.  ! enable to recalculate omega mixing coefficients after each substep;                        default: .false. | update more often
-   fitted_fp_ft_i_rot = .true.               ! enable to limit fp and ft by w_div_wcrit;                                                  default: ?       |
    w_div_wcrit_max = 0.9d0                   ! limit fp and ft at when this value is reached;                                             default: 0.90d0  | at 90% critical rotation
 
 !!! atmosphere boundary conditions
-   atm_option == 'T_tau'              ! define the surface boundary condition;         default: 'T_tau'     | by solving the T(tau) relation
+   atm_option = 'T_tau'              ! define the surface boundary condition;         default: 'T_tau'     | by solving the T(tau) relation
    Pextra_factor = 2.0d0              ! allows additional radiation pressure at tau=0; default: 1           | double it
-   atm_T_tau_relation == 'Eddington'  ! defines, which T(tau) relation is used;        default: 'Eddington' | grey Eddington T(tau) relation
+   atm_T_tau_relation = 'Eddington'  ! defines, which T(tau) relation is used;        default: 'Eddington' | grey Eddington T(tau) relation
    atm_T_tau_opacity = 'fixed'        ! defines the opacity at the surface;            default: 'fixed'     | use value of outermost cell
       
 !!! mass gain or loss
@@ -217,5 +217,6 @@
    x_logical_ctrl(1) = .false.  ! for single stars stars, the control needs to be true, so that the carbon exhaustion check happens in run_star_extras.f
    x_logical_ctrl(2) = .false.  ! for formation of He single stars, before they later evolve in a CO-HeMS binary or in a He Star
    x_logical_ctrl(3) = .false.  ! turn on eq.8 Belczynski+2010 LBV2 winds  with factor 1 (10-4 Msun/yr) to replace other winds for postMS stars in Humphreys-Davidson limit
+   x_ctrl(1) = 1.0d0            ! factor to boost Eddington rate
 
 / ! end of controls namelist
