@@ -12,10 +12,18 @@
    m1 = 12.d0
    m2 = 1.4d0
    initial_period_in_days = -1d0
-   initial_separation_in_Rsuns = 972
+   initial_separation_in_Rsuns = 972d0
 
 
-   photo_interval = 0
+   !!! output controls
+   history_interval = 1                           ! interval for writing to binary history;                                   default: 5      | save all steps in history
+   append_to_star_history = .true.                ! define whether the binary history is appended to the star's history, too; default: .true. | allows to plot stellar and binary data from same file
+   photo_interval = 50                            ! interval for writing photos;                                              default: 50     | overwrites value in inlist of the components
+   photo_digits = 5                               ! number of digits in photo's filename;                                     default: 3      | overwrites value in inlist of the components
+   terminal_interval = 10                         ! interval for terminal outputs;                                            default: 1      | get less outputs
+   write_header_frequency = 10                    ! frequency to repeat the header every X outputs;                           default: 10     |
+   extra_binary_terminal_output_file = 'out.txt'  ! writes terminal output to this file, too;  
+   
    do_jdot_mb = .false.
    do_jdot_missing_wind = .true.
    do_j_accretion = .true. ! according to De Mink et al. 2013
