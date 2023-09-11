@@ -30,6 +30,10 @@
          use binary_def
          use math_lib !use crlibm_lib
          use utils_lib
+
+         USE, INTRINSIC :: IEEE_ARITHMETIC ! isnan() was not working
+
+
    
          implicit none
    
@@ -446,7 +450,7 @@
                    E2 = exp10(-0.42_dp)*pow(s% r(i)/r_phot,7.5_dp)! H-rich stars
                 !write(*,*) E2, s% r(i)
                 end if
-                if (isnan(E2)) then  !maybe this won't be used.
+                if (IEEE_IS_NAN(E2)) then  !maybe this won't be used.
                     k_div_T = 1d-20
                 else
                    k_div_T = sqrt(standard_cgrav*m*r_phot*r_phot/pow5(osep)/(Msun/pow3(Rsun)))
@@ -575,6 +579,7 @@
             real(dp), dimension (max_num_mixing_regions) :: cz_bot_mass_posydon
             real(dp) :: cz_bot_radius_posydon(max_num_mixing_regions)
             real(dp), dimension (max_num_mixing_regions) :: cz_top_mass_posydon, cz_top_radius_posydon
+
    
             ! k/T computed as in Hurley, J., Tout, C., Pols, O. 2002, MNRAS, 329, 897
             ! Kudos to Francesca Valsecchi for help implementing and testing this
@@ -661,7 +666,7 @@
               end if
            end if
    
-                if (isnan(E2)) then  !maybe this won't be used.
+                if ( IEEE_IS_NAN(E2) ) then  !maybe this won't be used.
                     k_div_T_posydon = 1d-99
                 else
                    k_div_T_posydon = sqrt(standard_cgrav*m*r_phot*r_phot/pow5(osep)/(Msun/pow3(Rsun)))
