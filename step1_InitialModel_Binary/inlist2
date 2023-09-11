@@ -67,6 +67,7 @@
 &controls
       zams_filename = './zams_z1.42m2_y0.2703.data' !POSYDON ZAMS files
       initial_z = 1.42d-2
+      initial_y = 2.7029999999999998D-01
 
       warn_when_large_rel_run_E_err = 1d99
       !warn_when_stop_checking_residuals = .false.
@@ -268,3 +269,4 @@ delta_HR_ds_L = 0.125d0
       x_logical_ctrl(3) = .false.
 
 / ! end of controls namelist
+
