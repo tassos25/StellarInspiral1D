@@ -1,0 +1,523 @@
+!default inlist
+
+&star_job
+      show_log_description_at_start = .false.
+
+      write_profile_when_terminate = .false. !this is done in the run_binary_extras.f
+      !save_model_number = 1 ! taken care at run_binary_extras.f
+
+      save_model_when_terminate = .true.
+      save_model_filename = 'model1.mod' ! name get changed from Scotti's script
+
+
+      ! set initial age and model number to 0 again
+      set_initial_age = .true.
+      initial_age = 0.0d0
+      set_initial_model_number = .true.
+      initial_model_number = 0
+
+      !OPACITY, NETWORK, RATE, etc.
+      !network
+      change_net = .true.
+      new_net_name = 'approx21.net'
+      show_net_species_info = .true.
+
+      !relax_tau_factor = .true.
+      !relax_to_this_tau_factor = 10d0
+      !dlogtau_factor = 0.05d0
+
+      new_rotation_flag = .true.
+      change_rotation_flag = .true.
+      set_initial_surface_rotation_v = .true.
+      new_surface_rotation_v = 0.0d0
+      num_steps_to_relax_rotation = 50
+
+      !use jina
+      !set_rates_preference = .true.
+      !new_rates_preference = 2
+      pgstar_flag = .true.
+
+/ ! end of star_job namelist
+
+&eos
+      !EOS
+      eosDT_use_linear_interp_for_X = .false.
+      eosDT_use_linear_interp_to_HELM = .false.
+
+      use_PC = .true.
+      mass_fraction_limit_for_PC = 1d-3
+      logRho1_PC_limit = 2.999d0
+      logRho2_PC_limit = 2.8d0
+      log_Gamma_e_all_HELM = 1.0d0
+      log_Gamma_e_all_PC = 1.3010299956d0
+
+/ ! end of eos namelist
+
+&kap
+      Zbase = 1.42d-2
+
+      use_Type2_opacities = .true.
+      kap_Type2_full_off_X = 1.0d-3
+      kap_Type2_full_on_X = 1.0d-6
+      cubic_interpolation_in_X = .true.
+      cubic_interpolation_in_Z = .true.
+
+      !logQ_max_FreeEOS_hi = 5.6d0
+/ ! end of kap namelist
+
+&controls
+      zams_filename = './zams_z1.42m2_y0.2703.data' !POSYDON ZAMS files
+      initial_z = 1.42d-2
+      initial_y = 2.7029999999999998D-01
+
+      warn_when_large_rel_run_E_err = 1d99
+      !warn_when_stop_checking_residuals = .false.
+
+      use_gold_tolerances = .false.
+      !use_dedt_form_of_energy_eqn = .false.
+      !use_eosELM = .false.
+      !use_eosDT2 = .false.
+
+      !OUTPUT OPTIONS
+      photo_directory = 'photos1'
+      log_directory = 'LOGS1'
+      history_interval = 1
+      terminal_interval = 10
+      write_header_frequency = 100
+      photo_digits = 5
+      photo_interval = 0
+
+      ! H core overshoot !NEW OVERSHOOTING
+      overshoot_scheme(1) = 'exponential'
+      overshoot_zone_type(1) = 'any' ! 'burn_H'
+      overshoot_zone_loc(1) = 'core'
+      overshoot_bdy_loc(1) = 'any'
+
+      overshoot_f(1) = 4.15d-2
+      overshoot_f0(1) = 8.0d-3
+
+      star_history_dbl_format = '(1pes32.16e3, 1x)'
+      star_history_int_format = '(i32, 1x)'
+      star_history_txt_format = '(a32, 1x)'
+
+      star_history_name = 'history.data'
+      write_profiles_flag = .false.
+
+      !WHEN TO STOP
+      gamma_center_limit = 10d0 ! Crystallization begins ==> white dwarf
+      max_age = 1.4e10 ! Hubble time
+
+      !PHYSICS
+      !which_atm_option = 'simple_photosphere'
+      !which_atm_off_table_option = 'simple_photosphere'
+      Pextra_factor = 2.0d0
+
+      !CONVECTION + MIXING
+      do_conv_premix = .true.
+      conv_premix_avoid_increase = .true.
+
+      mixing_length_alpha = 1.93d0
+      mlt_option = 'Mihalas'
+      mlt_use_rotation_correction = .false.
+      okay_to_reduce_gradT_excess = .true.
+
+      use_ledoux_criterion = .true.
+      alpha_semiconvection = 0d0
+      thermohaline_coeff = 17.5d0 ! 2/3 * 8/3 * pi^2 for aspect ratio 1 of the fingers, using eq. 4 of Charbonel+2007 and eq. 14 in Paxton+2013
+      mixing_D_limit_for_log = 1d-50
+      num_cells_for_smooth_gradL_composition_term = 0
+
+      !ROTATION
+      !fitted_fp_ft_i_rot = .true.
+      w_div_wcrit_max = 0.9d0
+
+      max_mdot_redo_cnt = 200 !DEF: 0 (explicit).
+      surf_avg_tau_min = 0.0 !DEF: 1
+      surf_avg_tau = 10.0 !DEF: 100
+      min_years_dt_for_redo_mdot = 0.0 !DEF:0
+      surf_omega_div_omega_crit_limit = 0.99d0 !DEF:0.99
+      surf_omega_div_omega_crit_tol = 0.05d0 !DEF:0.05
+      rotational_mdot_boost_fac = 1d10 !DEF:1d5
+      rotational_mdot_kh_fac = 1d10 !DEF: 0.3d0
+      mdot_revise_factor = 1.2d0 !DEF:1.1
+      implicit_mdot_boost = 0.1d0 !DEF:0.1
+      max_mdot_jump_for_rotation = 10.0d0  ! for smooth transition from mass accretion to mass loss
+
+      D_visc_factor = 0.0d0
+      D_ST_factor = 0.0d0
+      D_SH_factor = 0.0d0 !this is different from MIST2
+      D_GSF_factor = 1.0d0
+      D_ES_factor = 1.0d0
+      D_SSI_factor = 1.0d0
+      D_DSI_factor = 1.0d0
+      am_D_mix_factor = 0.0333333d0 ! f_c in Heger+2000
+      am_gradmu_factor = 0.05d0 !f_mu = 0.05 in Heger+2000, 0.1 in Yoon+2006
+
+      am_nu_ST_factor = 1.0d0 ! 0:noTS, 1:TS
+      use_other_am_mixing = .true. ! use this if you want to use the enhanced FULLER et al. TAYLER-SPRUIT
+      !am_time_average = .true.
+      premix_omega = .true.
+      recalc_mixing_info_each_substep = .true.
+      am_nu_factor = 1.0d0
+      am_nu_non_rotation_factor = 1.0d0
+      am_nu_visc_factor = 0.333d0 !
+      !angsml = 0.0d0 !
+
+      !MASS LOSS
+      use_other_wind=.true. ! combination of Dutch and Reimers, with Z=Zbase for the scaling
+      cool_wind_full_on_T = 0.8d4
+      hot_wind_full_on_T = 1.2d4
+      RGB_to_AGB_wind_switch = 1.0d-4
+      hot_wind_scheme = 'Dutch' ! hot of all stars
+      cool_wind_RGB_scheme ='Dutch'  ! cool of high mass stars (Minit>10Msun),
+           !it gets replaced in run_star_extras by 'Reimers' for cool low mass stars
+      cool_wind_AGB_scheme = 'Blocker' ! cool for low mass stars in AGB
+      Dutch_scaling_factor = 1.0d0
+      Blocker_scaling_factor = 0.2d0
+      Reimers_scaling_factor = 0.1d0
+      !max_wind = 1.0d-3 ! different from MIST2, to allow mass transfer and mass loss > 10^-3 Msun/yr
+
+      !DIFFUSION
+      do_element_diffusion = .false. ! different from MIST2
+      diffusion_dt_limit = 3.15d9 !seconds
+      diffusion_min_T_at_surface = 1.0d3
+      diffusion_min_dq_at_surface = 1.0d-3
+      diffusion_gamma_full_on = 165d0
+      diffusion_gamma_full_off = 175d0
+      diffusion_use_full_net = .true.
+      !do_Ne22_sedimentation_heating = .true.
+
+      !CORE MASS DEFINITION
+      he_core_boundary_h1_fraction = 1d-2
+      co_core_boundary_he4_fraction = 1d-1
+      one_core_boundary_he4_c12_fraction = 1d-1
+      min_boundary_fraction = 1d-1
+
+      !MESH AND TIMESTEP PARAMETERS
+      mesh_delta_coeff = 1.0d0
+      !convective_bdy_weight = 0.5d0
+      varcontrol_target = 1d-3
+      max_timestep_factor = 1.2d0
+      max_allowed_nz = 20000
+      max_dq = 2d-3
+
+      solver_iters_timestep_limit = 20
+
+      delta_XH_cntr_limit = 0.005d0
+      delta_XH_cntr_hard_limit = -1
+
+      delta_XHe_cntr_limit = 0.01d0
+      delta_XHe_cntr_hard_limit = -1
+
+      delta_XC_cntr_limit = 0.002d0
+      delta_XC_cntr_hard_limit = -1
+
+      !better resolution of the Henyey hook
+      !delta_lg_XH_cntr_max = -1.0d0
+      !delta_lg_XH_cntr_min = -3.0d0
+      !delta_lg_XH_cntr_limit = 0.1d0
+      !delta_lg_XH_cntr_hard_limit = -1
+
+      !delta_lg_XHe_cntr_max = -1.0d0
+      !delta_lg_XHe_cntr_min = -3.0d0
+      !delta_lg_XHe_cntr_limit = 0.1d0
+      !delta_lg_XHe_cntr_hard_limit = -1
+
+      ! From Frank's suggestions
+      delta_lgT_cntr_limit   = 0.005d0   ! default 0.01
+      delta_lgT_limit = 0.025d0         ! default 0.5
+      delta_lgRho_cntr_limit = 0.025d0   ! default 0.05
+      delta_lgRho_limit = 0.5d0          ! default 1.0
+
+      delta_lgL_He_limit = 0.1d0
+
+      ! time step resolution on fuel depletion
+      !delta_lg_XH_cntr_limit = 0.01d0
+      !delta_lg_XH_cntr_max   = 0.0d0
+      !delta_lg_XH_cntr_min   = -4.0d0
+      !delta_lg_XH_cntr_hard_limit = 0.02d0
+      delta_lg_XHe_cntr_limit = 0.01d0
+      delta_lg_XHe_cntr_max   = 0.0d0
+      delta_lg_XHe_cntr_min   = -4.0d0
+      delta_lg_XHe_cntr_hard_limit = 0.02d0
+      delta_lg_XC_cntr_limit = 0.01d0
+      delta_lg_XC_cntr_max   = 0.0d0
+      delta_lg_XC_cntr_min   = -2.0d0 ! -3.0d0
+      delta_lg_XC_cntr_hard_limit = 0.02d0
+      delta_lg_XO_cntr_limit = 0.01d0
+      delta_lg_XO_cntr_max   = 0.0d0
+      delta_lg_XO_cntr_min   = -3.0d0
+      delta_lg_XO_cntr_hard_limit = 0.02d0
+
+! limit changes in the timestep
+     timestep_factor_for_retries = 0.75d0
+
+! HRD, Radius resolution
+delta_HR_ds_L = 0.125d0
+ delta_HR_ds_Teff = 2.0d0
+    !### delta_HR_limit
+    !### delta_HR_hard_limit
+    ! limit for dHR (negative means no limit)
+    !     dHR = sqrt((delta_HR_ds_L*dlgL)**2 + (delta_HR_ds_Teff*dlgTeff)**2)
+ delta_HR_limit = 0.1d0
+ delta_HR_hard_limit = 0.2d0
+
+      ! for single stars stars, the control below needs to be true, so that the carbon exhaustion check happens in run_star_extras.f
+      x_logical_ctrl(1) = .false.
+      ! for formation of He single stars, before they later evolve in a CO-HeMS binary or in a He Star
+      x_logical_ctrl(2) = .false.
+      ! Turn on eq.8 Belczynski+2010 LBV2 winds  with factor 1 (10-4 Msun/yr) to replace other winds for postMS stars in Humphreys-Davidson limit
+      x_logical_ctrl(3) = .false.
+
+/ ! end of controls namelist
+
+&pgstar
+    ! pause = .true.
+    pgstar_show_age_in_years = .true. 
+    pgstar_show_title = .false.
+
+    ! *********************************
+    ! ***** general grid controls *****
+    ! *********************************
+             
+    !file_white_on_black_flag = .false.
+    !win_white_on_black_flag = .false.
+    Grid2_win_flag = .true.
+    Grid2_num_cols = 16 ! divide plotting region into this many equal width cols
+    Grid2_num_plots = 8
+    Grid2_num_rows = 9 
+    Grid2_win_width = 16
+    ! Grid2_win_width = 19
+    Grid2_win_aspect_ratio = 0.65 ! aspect_ratio = height/width
+    Grid2_xleft = 0.04 ! fraction of full window width for margin on left
+    Grid2_xright = 0.96 ! fraction of full window width for margin on right
+    Grid2_ybot = 0.02 ! fraction of full window width for margin on bottom
+    Grid2_ytop = 0.95 ! fraction of full window width for margin on top
+    Grid2_file_flag = .true.
+    Grid2_file_dir = 'png2'
+    Grid2_file_prefix = 'Grid2'
+    Grid2_file_interval = 30 
+    Grid2_file_width = 21
+    Grid2_file_aspect_ratio = 0.6
+
+
+    ! ***********************************
+    ! ***** central conditions plot *****
+    ! ***********************************
+    Grid2_plot_name(1) = 'TRho_Profile'
+    Grid2_plot_row(1) = 7
+    Grid2_plot_rowspan(1) = 3
+    Grid2_plot_col(1) = 9 
+    Grid2_plot_colspan(1) = 3 
+    Grid2_plot_pad_left(1) = 0.0
+    Grid2_plot_pad_right(1) = 0.0
+    Grid2_plot_pad_top(1) = 0.06
+    Grid2_plot_pad_bot(1) = 0.03
+    Grid2_txt_scale_factor(1) = 0.5 
+    show_TRho_Profile_legend = .true.      
+    show_TRho_Profile_eos_regions = .true.=.false.
+    show_TRho_annotation1 = .true.
+    show_TRho_annotation2 = .true.
+    show_TRho_annotation3 = .true.
+    show_TRho_degeneracy_line = .true.    
+
+ 
+    ! **********************
+    ! ***** HR diagram *****
+    ! **********************
+    Grid2_plot_name(2) = 'HR'
+    Grid2_plot_row(2) = 5
+    Grid2_plot_rowspan(2) = 5
+    Grid2_plot_col(2) = 1
+    Grid2_plot_colspan(2) = 5
+    Grid2_plot_pad_left(2) = 0.0
+    Grid2_plot_pad_right(2) = 0.03
+    Grid2_plot_pad_top(2) = 0.05
+    Grid2_plot_pad_bot(2) = 0.05
+    Grid2_txt_scale_factor(2) = 0.5
+
+
+
+    ! ******************************
+    ! ***** Kippenhahn diagram *****
+    ! ******************************
+
+    Grid2_plot_name(3) = 'Kipp'
+    Grid2_plot_row(3) = 0
+    Grid2_plot_rowspan(3) = 5
+    Grid2_plot_col(3) = 1 
+    Grid2_plot_colspan(3) = 5
+    Grid2_plot_pad_left(3) = 0.00
+    Grid2_plot_pad_right(3) = 0.02
+    Grid2_plot_pad_top(3) = 0.06
+    Grid2_plot_pad_bot(3) = 0.05
+    Grid2_txt_scale_factor(3) = 0.5
+
+    !Grid2_Kipp_show_burn(3) = .true.
+
+
+
+    ! **************************
+    ! ***** Text summaries *****
+    ! **************************
+
+    Grid2_plot_name(4) = 'Text_Summary1'
+    Grid2_plot_row(4) =0 
+    Grid2_plot_rowspan(4) = 3
+    Grid2_plot_col(4) = 6
+    Grid2_plot_colspan(4) = 2
+    Grid2_plot_pad_left(4) = 0.0
+    Grid2_plot_pad_right(4) =0.0
+    Grid2_plot_pad_top(4) = 0.05
+    Grid2_plot_pad_bot(4) = 0.0
+    Grid2_txt_scale_factor(4) = 0.14 
+    Text_Summary1_num_rows = 12
+    Text_Summary1_num_cols = 1
+    Text_Summary1_name(:,:) = ''
+
+    Text_Summary1_name(1,1) = 'model_number'
+    Text_Summary1_name(2,1) = 'log_star_age'
+    Text_Summary1_name(3,1) = 'log_dt'
+    Text_Summary1_name(4,1) = 'num_zones'
+    Text_Summary1_name(5,1) = 'num_retries'
+    ! Text_Summary1_name(6,1) = 'num_backups'
+    Text_Summary1_name(7,1) = 'star_mass'
+    Text_Summary1_name(8,1) = 'log_abs_mdot'
+    Text_Summary1_name(9,1) = 'log_L'
+    Text_Summary1_name(10,1) = 'log_Teff'
+    Text_Summary1_name(11,1) = 'log_R'
+    Text_Summary1_name(12,1) = 'log_g'
+
+    Grid2_plot_name(5) = 'Text_Summary2'
+    Grid2_plot_row(5) =3 
+    Grid2_plot_rowspan(5) = 3
+    Grid2_plot_col(5) = 6
+    Grid2_plot_colspan(5) = 2
+    Grid2_plot_pad_left(5) = 0.0
+    Grid2_plot_pad_right(5) =0.0
+    Grid2_plot_pad_top(5) = 0.05
+    Grid2_plot_pad_bot(5) = 0.0
+    Grid2_txt_scale_factor(5) = 0.14 
+    Text_Summary2_num_rows = 12
+    Text_Summary2_num_cols = 1
+    Text_Summary2_name(:,:) = ''
+
+    Text_Summary2_name(1,1) = 'log_Lnuc'
+    Text_Summary2_name(2,1) = 'log_Lneu'
+    Text_Summary2_name(3,1) = 'log_LHe'
+    Text_Summary2_name(4,1) = 'log_LZ'
+    Text_Summary2_name(5,1) = 'log_cntr_T'
+    Text_Summary2_name(6,1) = 'center_h1'
+    Text_Summary2_name(7,1) = 'center_he4'
+    Text_Summary2_name(8,1) = 'surf_avg_omega_div_omega_crit'
+    Text_Summary2_name(9,1) = 'surf_avg_Lrad_div_Ledd'
+    Text_Summary2_name(10,1) = 'center_c12'
+    Text_Summary2_name(11,1) = 'center_o16'
+    Text_Summary2_name(12,1) = ''
+
+    Grid2_plot_name(6) = 'Text_Summary3'
+    Grid2_plot_row(6) =6 
+    Grid2_plot_rowspan(6) = 3
+    Grid2_plot_col(6) = 6
+    Grid2_plot_colspan(6) = 2
+    Grid2_plot_pad_left(6) = 0.0
+    Grid2_plot_pad_right(6) =0.0
+    Grid2_plot_pad_top(6) = 0.05
+    Grid2_plot_pad_bot(6) = 0.0
+    Grid2_txt_scale_factor(6) = 0.14 
+    Text_Summary3_num_rows = 12
+    Text_Summary3_num_cols = 1
+    Text_Summary3_name(:,:) = ''
+
+    Text_Summary3_name(1,1) = 'surf_avg_omega'
+    Text_Summary3_name(2,1) = 'v_surf'
+    Text_Summary3_name(3,1) = 'log_L_div_Ledd'
+    Text_Summary3_name(4,1) = ''
+    Text_Summary3_name(5,1) = ''
+    Text_Summary3_name(6,1) = ''
+    Text_Summary3_name(7,1) = 'surface_he4'
+    Text_Summary3_name(8,1) = 'surface_n14'
+    Text_Summary3_name(9,1) = 'surface_c12'
+    Text_Summary3_name(10,1) = ''
+    Text_Summary3_name(11,1) = ''
+    Text_Summary3_name(12,1) = ''
+        
+
+        
+
+    ! ****************************
+    ! ***** Internal profiles ****
+    ! ****************************
+
+
+    Grid2_plot_name(7) = 'Profile_Panels3'
+    Grid2_plot_row(7) = 0
+    Grid2_plot_rowspan(7) = 7 
+    Grid2_plot_col(7) =8 
+    Grid2_plot_colspan(7) = 4
+    Grid2_plot_pad_left(7) = 0.05
+    Grid2_plot_pad_right(7) = 0.02
+    Grid2_plot_pad_top(7) = 0.07
+    Grid2_plot_pad_bot(7) = 0.0
+    Grid2_txt_scale_factor(7) = 0.5
+    Abundance_legend_txt_scale_factor = 1.0 
+    Power_legend_txt_scale_factor = 1.0 
+
+    Abundance_use_decorator = .false.
+    Abundance_legend_max_cnt = 0
+    !Abundance_xmin = -6
+    Abundance_log_mass_frac_min = -4 ! only used if < 0
+
+    Profile_Panels3_title = 'Abundance-Power-Mixing'
+    Profile_Panels3_xaxis_name = "zone"
+    Profile_Panels3_num_panels = 4
+    Profile_Panels3_txt_scale = 1.0
+    Profile_Panels3_yaxis_name(1) = 'Abundance'
+    Profile_Panels3_yaxis_name(2) = 'Power'
+    Profile_Panels3_yaxis_name(3) = 'Mixing'
+    Profile_Panels3_yaxis_name(4) = 'v_rot'
+    Profile_Panels3_other_yaxis_name(4) = 'omega_div_omega_crit'
+
+    Profile_Panels3_xaxis_reversed = .false.
+    Profile_Panels3_xmin = 0.0 ! only used if /= -101d0
+    ! Profile_Panels3_xmax = 300
+    Power_use_decorator = .true.
+
+    ! ******************************
+    ! ***** History panels *********
+    ! ******************************
+    Grid2_plot_name(8) = 'History_Panels1'
+    History_Panels1_num_panels = 5
+    History_Panels1_yaxis_name(1) = 'lg_wind_mdot_1'
+    History_Panels1_other_yaxis_name(1) = 'lg_mtransfer_rate'
+    History_Panels1_yaxis_name(2) = 'star_mass'
+    History_Panels1_other_yaxis_name(2) = 'envelope_mass'
+    History_Panels1_yaxis_name(3) = 'radius'
+    History_Panels1_other_yaxis_name(3) = 'rl_2'
+    History_Panels1_yaxis_name(4) = 'v_orb_2'
+    History_Panels1_other_yaxis_name(4) = 'period_days'
+    History_Panels1_yaxis_name(5) = 'surface_he4'
+    History_Panels1_other_yaxis_name(5) = 'surface_n14'
+    History_Panels1_xaxis_name = 'model_number'
+    History_Panels1_yaxis_reversed(:) = .false.
+    History_Panels1_yaxis_log(:) = .false.
+     
+    !History_Panels1_ymin(:) = -15d0
+    !History_Panels1_ymax(:) = 0d0
+    History_Panels1_ymargin(:) = 0.5
+    History_Panels1_dymin(:) = -1
+
+    Grid2_plot_row(8) =0
+    Grid2_plot_rowspan(8) =10 
+    Grid2_plot_col(8) = 13 
+    Grid2_plot_colspan(8) = 4 
+    Grid2_plot_pad_left(8) = 0.02
+    Grid2_plot_pad_right(8) = 0.03
+    Grid2_plot_pad_top(8) = 0.07
+    Grid2_plot_pad_bot(8) = 0.05
+    Grid2_txt_scale_factor(8) = 0.5
+
+      
+/ ! end of pgstar namelist
+
+
