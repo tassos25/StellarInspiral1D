@@ -123,9 +123,9 @@
 
 !!! atmosphere boundary conditions
    atm_option = 'T_tau'              ! define the surface boundary condition;         default: 'T_tau'     | by solving the T(tau) relation
-   Pextra_factor = 2.0d0              ! allows additional radiation pressure at tau=0; default: 1           | double it
+   Pextra_factor = 2.0d0             ! allows additional radiation pressure at tau=0; default: 1           | double it
    atm_T_tau_relation = 'Eddington'  ! defines, which T(tau) relation is used;        default: 'Eddington' | grey Eddington T(tau) relation
-   atm_T_tau_opacity = 'fixed'        ! defines the opacity at the surface;            default: 'fixed'     | use value of outermost cell
+   atm_T_tau_opacity = 'fixed'       ! defines the opacity at the surface;            default: 'fixed'     | use value of outermost cell
       
 !!! mass gain or loss
    max_mdot_jump_for_rotation = 10.0d0       ! for smooth transition from mass accretion to mass loss;                                                 default: 2      | being more generous
@@ -206,7 +206,7 @@
    delta_XHe_cntr_hard_limit = -1         ! hard limit for change in central helium abundance;                                 default: -1      |
    delta_XC_cntr_limit = 0.002d0          ! limit for change in central carbon abundance;                                      default: 0.01d0  | be more restricktive
    delta_XC_cntr_hard_limit = -1          ! hard limit for change in central carbon abundance;                                 default: -1      |
-   adjust_J_q_hard_limit = 0.95           ! hard limit in mass ratio for adjusting the angular momentum due to loses;          default: 0.98    | less restrictive hard limit
+  !adjust_J_q_hard_limit = 0.75           ! hard limit in mass ratio for adjusting the angular momentum due to loses;          default: 0.98    | less restrictive hard limit
 
 !!! miscellaneous controls
    warn_when_large_rel_run_E_err = 1d99           ! gives warning, if the relative cumulative energy error is above this value; default: 0.1d0                | a large value suppresses all warnings

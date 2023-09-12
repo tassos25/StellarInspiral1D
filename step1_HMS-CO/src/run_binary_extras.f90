@@ -775,7 +775,7 @@
          integer function how_many_extra_binary_history_columns(binary_id)
             use binary_def, only: binary_info
             integer, intent(in) :: binary_id
-            how_many_extra_binary_history_columns = 6
+            how_many_extra_binary_history_columns = 7
          end function how_many_extra_binary_history_columns
    
          subroutine data_for_extra_binary_history_columns(binary_id, n, names, vals, ierr)
@@ -829,6 +829,8 @@
              vals(5) = -1.0d0
              vals(6) = -1.0d0
            end if
+           names(7) = 'adjust_J_q'
+           vals(7) = b% s1% adjust_J_q
             !write(*,*) "synchr timescales: ", b% s1% xtra(1), b% s1% xtra(2), b% s2% xtra(1), b% s2% xtra(2)
          end subroutine data_for_extra_binary_history_columns
    
@@ -1027,6 +1029,7 @@
                !if (abs(b% mtransfer_rate/(Msun/secyer)) >= 1d-1) then            !stop when larger than 0.1 Msun/yr
                  extras_binary_finish_step = terminate
                  write(*,'(g0)') "termination code: Reached maximum mass transfer rate: Exceeded photon trapping radius"
+                 write(*,*) "trap_rad = ",trap_rad," RL2 = ",b% rl(2)
                end if
              end if
    
