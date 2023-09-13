@@ -25,6 +25,7 @@ OBJS = $(IONIZATION_OBJS) $(BINARY_WORK_OBJS) binary_run.o
 
 WORK_DIR = ..
 WORK_SRC_DIR = $(WORK_DIR)/src
+COMMON_CODE_DIR = $(WORK_DIR)/../common_code
 STAR_JOB_DIR = $(MESA_DIR)/star/job
 BINARY_JOB_DIR = $(MESA_DIR)/binary/job
 
@@ -68,25 +69,25 @@ run_binary.o: $(BINARY_JOB_DIR)/run_binary.f90
 	$(WORK_COMPILE) $<
 
 #Added rules of how to compile the ionization code
-ionization_def.o: $(WORK_SRC_DIR)/ionization/ionization_def.f90
+ionization_def.o: $(COMMON_CODE_DIR)/ionization/ionization_def.f90
 	$(WORK_COMPILE) $<
 
-ionization_lib.o: $(WORK_SRC_DIR)/ionization/ionization_lib.f90
+ionization_lib.o: $(COMMON_CODE_DIR)/ionization/ionization_lib.f90
 	$(WORK_COMPILE) $<
 
-ion_table_plot.o: $(WORK_SRC_DIR)/ionization/ion_table_plot.f90
+ion_table_plot.o: $(COMMON_CODE_DIR)/ionization/ion_table_plot.f90
 	$(WORK_COMPILE) $<
 
-ion_tables_eval.o: $(WORK_SRC_DIR)/ionization/ion_tables_eval.f90
+ion_tables_eval.o: $(COMMON_CODE_DIR)/ionization/ion_tables_eval.f90
 	$(WORK_COMPILE) $<
 
-ion_tables_load.o: $(WORK_SRC_DIR)/ionization/ion_tables_load.f90
+ion_tables_load.o: $(COMMON_CODE_DIR)/ionization/ion_tables_load.f90
 	$(WORK_COMPILE) $<
 
-mod_ionization.o: $(WORK_SRC_DIR)/ionization/mod_ionization.f90
+mod_ionization.o: $(COMMON_CODE_DIR)/ionization/mod_ionization.f90
 	$(WORK_COMPILE) $<
 
-mod_tables.o: $(WORK_SRC_DIR)/ionization/mod_tables.f90
+mod_tables.o: $(COMMON_CODE_DIR)/ionization/mod_tables.f90
 	$(WORK_COMPILE) $<
 
 #Added a rule of how to compile the additional code that we added in WORK_SRC_DIR

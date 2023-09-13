@@ -1,9 +1,8 @@
       module ion_table_plot
       
       use const_def
-      use utils_lib
       use ion_tables_eval
-      use math_lib !use crlibm_lib
+      use math_lib
       use utils_lib, only: mesa_error, mkdir
 
       implicit none
@@ -40,13 +39,13 @@
          !lgRho_points = 2
             
          !..set the ranges
-      	      
+               
          ! check opal/scvh
          lgT_max = 7.7d0
          lgT_min = 2.0d0
          lgRho_min = -5d0
          lgRho_max = 5.5d0
-	      	      
+                  
          ! table full range
          lgT_max = 8.2
          lgT_min = 2.1
@@ -54,7 +53,7 @@
          lgQ_max = 5.69
          lgRho_min = -9 ! lgQ_min + 2*lgT_min - 12
          lgRho_max = 8 ! lgQ_max + 2*lgT_max - 12
-	      
+         
          ! test
          lgT_max = 7.5d0
          lgT_min = 3d0
@@ -121,7 +120,7 @@
             i, j, Z, X, lgT, T, lgRho, Rho, output_values, num_vals, lgRho_points, lgT_points, ierr)
          integer, intent(in) :: i, j, num_vals, lgRho_points, lgT_points
          real(dp), intent(in) :: Z, X, lgT, T, lgRho, Rho
-         real(dp), intent(out) :: output_values(lgRho_points,lgT_points,num_vals)
+         real(dp), intent(inout) :: output_values(lgRho_points,lgT_points,num_vals)
          integer, intent(out) :: ierr
 
          real(dp), dimension(num_ion_vals) :: res

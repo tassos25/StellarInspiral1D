@@ -49,7 +49,9 @@
          call do_init_ionization(ionization_cache_dir, use_cache, ierr) 
       end subroutine ionization_init
 
-
+      ! EXPERIMENTAL
+      ! This routine is currently undocumented, not recommended for publishable work.
+      ! Element diffusion uses eval_typical_charge, not eval_ionization.
       subroutine eval_ionization(Z, X, Rho, log10Rho, T, log10T, res, ierr)
          use ionization_def, only: num_ion_vals
          use ion_tables_eval, only: Get_ion_Results
@@ -61,7 +63,7 @@
          real(dp), intent(in) :: T, log10T ! the temperature
             ! provide both if you have them. 
             ! else pass one and set the other to = arg_not_provided              
-         real(dp), intent(out) :: res(num_ion_vals) ! see ionization_def
+         real(dp), intent(inout) :: res(num_ion_vals) ! see ionization_def
          integer, intent(out) :: ierr
          call Get_ion_Results(Z, X, Rho, log10Rho, T, log10T, res, ierr)
       end subroutine eval_ionization
@@ -71,6 +73,14 @@
       ! C. Paquette, C. Pelletier, G. Fontaine, G. Michaud,
       ! "Diffusion in White Dwarfs: New Results and Comparative Study",
       ! ApJ Supp. Series, 61:197-217, 1986.
+
+      ! Originally used eqn 21 of above paper for depression of the continuum,
+      ! but that expression was missing a rho^1/3, so now corrected to match
+      ! eqn 3 of
+      ! J. Dupuis, G. Fontaine, C. Pelletier, F. Wesemael,
+      ! "A Study of Metal Abundance Patterns in Cool White Dwarfs I.
+      ! Time-dependent Calculations of Gravitational Settling",
+      ! Apj Supp. Series, 82:505-521, 1992
 
       ! uses ionization potentials from
       ! Allen, C.W., 1973, "Astrophysical Quantities", 3rd edition, pg 37-38.
@@ -93,6 +103,7 @@
             cid, abar, abar*free_e, T, log10_T, rho, log10_rho)    
       end function eval_typical_charge
 
+      ! EXPERIMENTAL
       real(dp) function eval_charge_of_Fe56_in_He4(log10_ne, log10_T, ierr)
          use mod_ionization, only: charge_of_Fe56_in_He4
          real(dp), intent(in) :: log10_ne ! ne=avo*rho*free_e

@@ -1,6 +1,6 @@
 ! ***********************************************************************
 !
-!   Copyright (C) 2011  Bill Paxton
+!   Copyright (C) 2011-2019  Bill Paxton & The MESA Team
 !
 !   MESA is free software; you can use it and/or modify
 !   it under the combined terms and restrictions of the MESA MANIFESTO
@@ -26,9 +26,9 @@
 
       module ion_tables_eval
       
-      use const_def, only: dp
+      use const_def, only: dp, one_sixth
       use ionization_def
-      use math_lib !use crlibm_lib
+      use math_lib
       use utils_lib, only: mesa_error
 
       implicit none
@@ -45,7 +45,6 @@
                Z_in, X_in, arho, alogrho, atemp, alogtemp, &
                res, ierr)
          use const_def
-         use math_lib !use crlibm_lib
          use utils_lib, only: is_bad
          use ion_tables_load, only: Load_ion_Table
          
@@ -63,7 +62,7 @@
          
          ! OUTPUT    
               
-         real(dp), intent(out) :: res(num_ion_vals)
+         real(dp), intent(inout) :: res(num_ion_vals)
          integer, intent(out) :: ierr
          
          real(dp), dimension(num_ion_vals) :: res1, d_dlnRho_c_T1, d_dlnT_c_Rho1
@@ -88,7 +87,7 @@
          
          logical :: debug
          
-         include 'formats'         
+         include 'formats'
          
          ierr = 0
          debug = dbg
@@ -149,7 +148,7 @@
                res, ierr)
          use chem_def
          real(dp), intent(in) :: Z, X, Rho, logRho, T, logT
-         real(dp), intent(out) :: res(num_ion_vals)
+         real(dp), intent(inout) :: res(num_ion_vals)
          integer, intent(out) :: ierr
 
          real(dp), dimension(num_ion_vals, num_ion_Zs) :: &
@@ -206,8 +205,8 @@
             end do
 
             dZ = ion_Zs(2) - ion_Zs(1)
-            denom = 2*dZ**2
-            c(1) = (2*dZ**2 - 3*dZ*Z + Z**2)/denom
+            denom = 2*dZ*dZ
+            c(1) = (2*dZ*dZ - 3*dZ*Z + Z*Z)/denom
             c(2) = 2*(2*dZ-Z)*Z/denom
             c(3) = Z*(Z-dZ)/denom         
 
@@ -245,7 +244,7 @@
       subroutine Get_ion_for_X(iz, X, Rho, logRho, T, logT,res, ierr)
          integer, intent(in) :: iz ! the index in ion_Zs
          real(dp), intent(in) :: X, Rho, logRho, T, logT
-         real(dp), intent(out) :: res(num_ion_vals)
+         real(dp), intent(inout) :: res(num_ion_vals)
          integer, intent(out) :: ierr
 
          real(dp), dimension(num_ion_vals, 4) :: res_zx
@@ -320,8 +319,8 @@
          delX = X - ion_Xs(ix_lo)
          if (ix_hi-ix_lo==2) then
          
-            denom = 2*dX**2
-            c(1) = (2*dX**2 - 3*dX*delX + delX**2)/denom
+            denom = 2*dX*dX
+            c(1) = (2*dX*dX - 3*dX*delX + delX*delX)/denom
             c(2) = 2*(2*dX-delX)*delX/denom
             c(3) = delX*(delX-dX)/denom
             res(:) = c(1)*res_zx(:, 1) + c(2)*res_zx(:, 2) + c(3)*res_zx(:, 3)
@@ -357,7 +356,7 @@
                res, ierr)
          integer, intent(in) :: ix, iz
          real(dp), intent(in) :: Rho, logRho_in, T, logT_in
-         real(dp), intent(out) :: res(num_ion_vals)
+         real(dp), intent(inout) :: res(num_ion_vals)
          integer, intent(out) :: ierr
          
          real(dp) :: logQ0, logQ1, logT0, logT1
@@ -466,11 +465,10 @@
          integer, intent(in) :: i, j           ! target cell in f
          real(dp), intent(in) :: x0, xget, x1      ! x0 <= xget <= x1;  x0 = xs(i), x1 = xs(i+1)
          real(dp), intent(in) :: y0, yget, y1      ! y0 <= yget <= y1;  y0 = ys(j), y1 = ys(j+1)
-         real(dp), intent(out) :: res(num_ion_vals)
+         real(dp), intent(inout) :: res(num_ion_vals)
          integer, intent(out) :: ierr
    
-         real(dp), parameter :: sixth = 1.0/6.0
-         real(dp), parameter :: z36th = 1.0/36.0
+         real(dp), parameter :: z36th = 1d0/36d0
          real(dp) :: xp, xpi, xp2, xpi2, ax, axbar, bx, bxbar, cx, cxi, hx2, cxd, cxdi, hx, hxi
          real(dp) :: yp, ypi, yp2, ypi2, ay, aybar, by, bybar, cy, cyi, hy2, cyd, cydi, hy, hyi
          real(dp) :: sixth_hx2, sixth_hy2, z36th_hx2_hy2
@@ -522,16 +520,16 @@
          cyd=3.0*yp2-1.0
          cydi=-3.0*ypi2+1.0
                   
-         sixth_hx2 = sixth*hx2
-         sixth_hy2 = sixth*hy2
+         sixth_hx2 = one_sixth*hx2
+         sixth_hy2 = one_sixth*hy2
          z36th_hx2_hy2 = z36th*hx2*hy2
          
-         sixth_hx = sixth*hx
-         sixth_hxi_hy2 = sixth*hxi*hy2
+         sixth_hx = one_sixth*hx
+         sixth_hxi_hy2 = one_sixth*hxi*hy2
          z36th_hx_hy2 = z36th*hx*hy2
          
-         sixth_hx2_hyi = sixth*hx2*hyi
-         sixth_hy = sixth*hy
+         sixth_hx2_hyi = one_sixth*hx2*hyi
+         sixth_hy = one_sixth*hy
          z36th_hx2_hy = z36th*hx2*hy
          
          ip1 = i+1

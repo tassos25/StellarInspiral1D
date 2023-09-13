@@ -1,6 +1,6 @@
 ! ***********************************************************************
 !
-!   Copyright (C) 2010  Bill Paxton
+!   Copyright (C) 2010-2019  Bill Paxton & The MESA Team
 !
 !   MESA is free software; you can use it and/or modify
 !   it under the combined terms and restrictions of the MESA MANIFESTO
@@ -26,7 +26,7 @@
       module mod_ionization
 
       use const_def, only: one_third, two_thirds, avo, dp, mesa_data_dir
-      use math_lib !use crlibm_lib
+      use math_lib
       use ionization_def
       use utils_lib, only: mesa_error
 
@@ -40,7 +40,6 @@
 
 
       subroutine do_init_ionization(ionization_cache_dir_in, use_cache, ierr)      
-         use utils_lib, only : alloc_iounit, free_iounit
          character (len=*), intent(in) :: ionization_cache_dir_in
          logical, intent(in) :: use_cache
          integer, intent(out) :: ierr
@@ -50,7 +49,6 @@
 
 
       subroutine do_load(ierr)
-         use utils_lib, only : alloc_iounit, free_iounit
          use ionization_def
          integer, intent(out) :: ierr
       
@@ -59,12 +57,6 @@
          integer, parameter :: num_log_ne_fe56_he4 = 105, num_logT_fe56_he4 = 30
       
          ierr = 0
-         io_log_ne = alloc_iounit(ierr)
-         if (ierr /= 0) return
-         io_logT = alloc_iounit(ierr)
-         if (ierr /= 0) return
-         io_z = alloc_iounit(ierr)
-         if (ierr /= 0) return
 
          fe_he_ptr => fe_he_info  
       
@@ -73,10 +65,6 @@
             num_log_ne_fe56_he4, num_logT_fe56_he4, fe_he_ptr, ierr)
          if (ierr /= 0) return         
 
-         call free_iounit(io_log_ne)
-         call free_iounit(io_logT)
-         call free_iounit(io_z)
-         
          call create_interpolants(fe_he_ptr,num_log_ne_fe56_he4,num_logT_fe56_he4,ierr)
          if (ierr /= 0) return         
          
@@ -86,11 +74,11 @@
          
          subroutine openfile(filename, iounit, ierr)
             character(len=*) :: filename
-            integer, intent(in) :: iounit
+            integer, intent(inout) :: iounit
             integer, intent(out) :: ierr
             if (dbg) write(*,*) 'read ' // trim(filename)            
             ierr = 0
-            open(iounit,file=trim(filename),action='read',status='old',iostat=ierr)
+            open(newunit=iounit,file=trim(filename),action='read',status='old',iostat=ierr)
             if (ierr/= 0) then
                write(*,*) 'table_ionization_init: missing ionization data'
                write(*,*) filename
@@ -239,8 +227,9 @@
          chi = 1.987d-4*T*(-8.392d0 - log_rho + 1.5d0*log_T - log10(z1/a1)) ! eqn 20
          ! coef's used in eqn 21
          c0 = 1.085d-4*rho*T/a1
-         c1 = 1.617d4*sqrt(rho*(z1**2 + z1)/(T*a1))
-         c2 = 29.38d0*z1/pow(a1,one_third)
+         c1 = 1.617d4*sqrt(rho*(z1*z1 + z1)/(T*a1))
+         c2 = 29.38d0*z1*pow(rho/a1,one_third)
+         ! c2 had a typo in eqn 21, now corrected to match Dupuis et al. (1992) eqn 3
       end subroutine chi_info
       
       real(dp) function chi_effective(chi, c0, c1, c2, z1, z2)
