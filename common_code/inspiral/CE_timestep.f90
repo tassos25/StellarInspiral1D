@@ -42,7 +42,7 @@
          CE_pick_next_timestep = keep_going
 
          !Do the additional timestep controls only before the merger.
-         if (.not. s% lxtra1) then
+         if (.not. s% lxtra(1)) then
             CE_pick_next_timestep = worst_result(CE_pick_next_timestep, CE_check_energy(s))
             CE_pick_next_timestep = worst_result(CE_pick_next_timestep, CE_check_separation(s))
             CE_pick_next_timestep = worst_result(CE_pick_next_timestep, CE_check_ang_mom(s))
@@ -59,7 +59,7 @@
 
 
          ! Fractional energy change
-         dE_fraction = abs((s% xtra1 * s% dt) / s% xtra8)
+         dE_fraction = abs((s% xtra(1) * s% dt) / s% xtra(8))
 
          ! Limit from inlist
          dE_limit = s% x_ctrl(8)
@@ -83,7 +83,7 @@
 
 
          ! Fractional separation change
-         dA_fraction = abs((s% xtra2 - s% xtra2_old) / s% xtra2_old)
+         dA_fraction = abs((s% xtra(2) - s% xtra_old(2)) / s% xtra_old(2))
 
          ! Limit from inlist
          dA_limit = s% x_ctrl(9)
@@ -105,7 +105,7 @@
          real(dp) :: dJ_fraction, dJ_limit
 
          ! Fractional angular momentum change
-         dJ_fraction = abs(s% xtra6 * s% dt / s% xtra10)
+         dJ_fraction = abs(s% xtra(6) * s% dt / s% xtra(10))
 
          ! Limit from inlist
          dJ_limit = s% x_ctrl(10)
@@ -129,10 +129,10 @@
             return
          end if
 
-         if(result1 == backup .or. result2 == backup) then
-            worst_result = backup
-            return
-         end if
+     !    if(result1 == backup .or. result2 == backup) then
+     !       worst_result = backup
+     !       return
+     !    end if
 
          if(result1 == retry .or. result2 == retry) then
             worst_result = retry

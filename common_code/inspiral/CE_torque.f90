@@ -78,8 +78,8 @@
          if (ierr /= 0) return
 
 
-         CE_companion_position = s% xtra2
-         CE_companion_mass = s% xtra4
+         CE_companion_position = s% xtra(2)
+         CE_companion_mass = s% xtra(4)
 
 
          ! If the star is in the initial relaxation phase, skip torque calculations
@@ -88,26 +88,26 @@
          if (CE_companion_position*Rsun > s% r(1)) return
 
          ! If system merged, skip energy deposition
-         if (s% lxtra1) then
+         if (s% lxtra(1)) then
             s% extra_jdot(:) = 0.0d0
             return
          endif
 
 
          ! Load angular momentum dissipated in the envelope from the orbit decrease
-         CE_n_acc_radii = s% xtra5
-         CE_torque = s% xtra6
+         CE_n_acc_radii = s% xtra(5)
+         CE_torque = s% xtra(6)
 
          call calc_quantities_at_comp_position(id, ierr)
 
-         R_acc = s% xtra12
-         R_acc_low = s% xtra13
-         R_acc_high = s% xtra14
-         M_encl = s% xtra15
-         v_rel = s% xtra16
-         v_rel_div_csound = s% xtra17
-         rho_at_companion = s% xtra18
-         scale_height_at_companion = s% xtra19
+         R_acc = s% xtra(12)
+         R_acc_low = s% xtra(13)
+         R_acc_high = s% xtra(14)
+         M_encl = s% xtra(15)
+         v_rel = s% xtra(16)
+         v_rel_div_csound = s% xtra(17)
+         rho_at_companion = s% xtra(18)
+         scale_height_at_companion = s% xtra(19)
 
          ! Tukey window scale
          a_tukey = 0.5
@@ -164,8 +164,8 @@
          if (ierr /= 0) return
 
 
-         CE_companion_position = s% xtra2
-         CE_companion_mass = s% xtra4
+         CE_companion_position = s% xtra(2)
+         CE_companion_mass = s% xtra(4)
 
 
          ! If the star is in the initial relaxation phase, skip torque calculations
@@ -174,26 +174,26 @@
          if (CE_companion_position*Rsun > s% r(1)) return
 
          ! If system merged, skip energy deposition
-         if (s% lxtra1) then
+         if (s% lxtra(1)) then
             s% extra_jdot(:) = 0.0d0
             return
          endif
 
 
          ! Load angular momentum dissipated in the envelope from the orbit decrease
-         CE_n_acc_radii = s% xtra5
-         CE_torque = s% xtra6
+         CE_n_acc_radii = s% xtra(5)
+         CE_torque = s% xtra(6)
 
          call calc_quantities_at_comp_position(id, ierr)
 
-         R_acc = s% xtra12
-         R_acc_low = s% xtra13
-         R_acc_high = s% xtra14
-         M_encl = s% xtra15
-         v_rel = s% xtra16
-         v_rel_div_csound = s% xtra17
-         rho_at_companion = s% xtra18
-         scale_height_at_companion = s% xtra19
+         R_acc = s% xtra(12)
+         R_acc_low = s% xtra(13)
+         R_acc_high = s% xtra(14)
+         M_encl = s% xtra(15)
+         v_rel = s% xtra(16)
+         v_rel_div_csound = s% xtra(17)
+         rho_at_companion = s% xtra(18)
+         scale_height_at_companion = s% xtra(19)
 
          ! Tukey window scale
          a_tukey = 0.5

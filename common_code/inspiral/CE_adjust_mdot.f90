@@ -55,20 +55,20 @@ contains
       CE_mdot_smooth_limit = s% x_ctrl(13)
       CE_mdot_max = s% x_ctrl(14)
 
-      ! CE_mdot = s% xtra7
+      ! CE_mdot = s% xtra(7)
 
-      if (-s% mstar_dot_old < CE_mdot_smooth_limit * Msun/secyer .and. -s% xtra7 > CE_mdot_smooth_limit * Msun/secyer) then
+      if (-s% mstar_dot_old < CE_mdot_smooth_limit * Msun/secyer .and. -s% xtra(7) > CE_mdot_smooth_limit * Msun/secyer) then
          CE_mdot = -1.01*CE_mdot_smooth_limit * Msun/secyer
-      else if (-s% mstar_dot_old > CE_mdot_smooth_limit * Msun/secyer .and. -s% xtra7 > CE_mdot_smooth_limit * Msun/secyer) then
-         if (-s% xtra7 > -CE_mdot_factor_increase * s% mstar_dot_old  ) then
+      else if (-s% mstar_dot_old > CE_mdot_smooth_limit * Msun/secyer .and. -s% xtra(7) > CE_mdot_smooth_limit * Msun/secyer) then
+         if (-s% xtra(7) > -CE_mdot_factor_increase * s% mstar_dot_old  ) then
             CE_mdot = CE_mdot_factor_increase * s% mstar_dot_old
-         else if (-s% xtra7 < -1./CE_mdot_factor_decrease * s% mstar_dot_old  ) then
+         else if (-s% xtra(7) < -1./CE_mdot_factor_decrease * s% mstar_dot_old  ) then
             CE_mdot = 1./CE_mdot_factor_decrease* s% mstar_dot_old
          else
-            CE_mdot = s% xtra7
+            CE_mdot = s% xtra(7)
          endif
       else
-         CE_mdot = s% xtra7
+         CE_mdot = s% xtra(7)
       endif
 
       if (CE_mdot < -CE_mdot_max * Msun/secyer) CE_mdot = -CE_mdot_max* Msun/secyer
@@ -78,8 +78,8 @@ contains
 
 
       if (s%x_logical_ctrl(3) .and. (.not. s% doing_relax)) then
-         s% Dutch_scaling_factor = s% xtra21 ** s% x_ctrl(16)
-         write(*,*) "**Pulsational Winds** ", s% xtra21, s% Dutch_scaling_factor
+         s% Dutch_scaling_factor = s% xtra(21) ** s% x_ctrl(16)
+         write(*,*) "**Pulsational Winds** ", s% xtra(21), s% Dutch_scaling_factor
       endif
 
    end subroutine CE_other_adjust_mdot

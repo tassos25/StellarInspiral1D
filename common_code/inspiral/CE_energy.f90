@@ -71,7 +71,7 @@
          if (ierr /= 0) return
 
          CE_test_case = s% x_integer_ctrl(1)
-         CE_companion_position = s% xtra2
+         CE_companion_position = s% xtra(2)
 
          ! If the star is in the initial relaxation phase, skip energy calculations
          if (s% doing_relax) return
@@ -79,10 +79,10 @@
          if (CE_companion_position*Rsun > s% r(1)) return
 
          ! If system merged, skip energy deposition
-         if (s% lxtra1) then
-            s% xtra1 = 0.0d0
-            s% xtra20 = 0.0d0
-            s% xtra22 = 0.0d0
+         if (s% lxtra(1)) then
+            s% xtra(1) = 0.0d0
+            s% xtra(20) = 0.0d0
+            s% xtra(22) = 0.0d0
             return
          endif
 
@@ -148,12 +148,12 @@
 
          !Now redo the loop and add the extra specific heat
          do k = 1, s% nz
-            s% extra_heat(k) = CE_energy_rate / mass_to_be_heated * EnvelopeWindow(s% m(k), m_bot)
+            s% extra_heat(k)%val = CE_energy_rate / mass_to_be_heated * EnvelopeWindow(s% m(k), m_bot)
          end do
 
 
          ! Save the total erg/second added in this time step
-         s% xtra1 = CE_energy_rate
+         s% xtra(1) = CE_energy_rate
 
 
 
@@ -193,7 +193,7 @@
          call CE_set_extra_heat(id, CE_energy_rate, ierr)
 
          ! Save the total erg/second added in this time step
-         s% xtra1 = CE_energy_rate
+         s% xtra(1) = CE_energy_rate
 
       end subroutine CE_inject_case2
 
@@ -225,23 +225,23 @@
 
 
          ! Get input controls
-         CE_energy_rate = s% xtra1
-         CE_companion_position = s% xtra2
-         CE_companion_radius = s% xtra3
-         CE_companion_mass = s% xtra4
-         CE_n_acc_radii = s% xtra5
+         CE_energy_rate = s% xtra(1)
+         CE_companion_position = s% xtra(2)
+         CE_companion_radius = s% xtra(3)
+         CE_companion_mass = s% xtra(4)
+         CE_n_acc_radii = s% xtra(5)
 
 
          call calc_quantities_at_comp_position(id, ierr)
 
-         R_acc = s% xtra12
-         R_acc_low = s% xtra13
-         R_acc_high = s% xtra14
-         M_encl = s% xtra15
-         v_rel = s% xtra16
-         v_rel_div_csound = s% xtra17
-         rho_at_companion = s% xtra18
-         scale_height_at_companion = s% xtra19
+         R_acc = s% xtra(12)
+         R_acc_low = s% xtra(13)
+         R_acc_high = s% xtra(14)
+         M_encl = s% xtra(15)
+         v_rel = s% xtra(16)
+         v_rel_div_csound = s% xtra(17)
+         rho_at_companion = s% xtra(18)
+         scale_height_at_companion = s% xtra(19)
 
 !         ! This is incorrect, but for now, not completely crazy
 !         R_acc = (R_acc_low + R_acc_high) / 2.0
@@ -269,7 +269,7 @@
 
 
          ! Save the total erg/second added in this time step
-         s% xtra1 = CE_energy_rate
+         s% xtra(1) = CE_energy_rate
 
       end subroutine CE_inject_case3
 
@@ -300,23 +300,23 @@
 
 
          ! Get input controls
-         CE_energy_rate = s% xtra1
-         CE_companion_position = s% xtra2
-         CE_companion_radius = s% xtra3
-         CE_companion_mass = s% xtra4
-         CE_n_acc_radii = s% xtra5
+         CE_energy_rate = s% xtra(1)
+         CE_companion_position = s% xtra(2)
+         CE_companion_radius = s% xtra(3)
+         CE_companion_mass = s% xtra(4)
+         CE_n_acc_radii = s% xtra(5)
 
 
          call calc_quantities_at_comp_position(id, ierr)
 
-         R_acc = s% xtra12
-         R_acc_low = s% xtra13
-         R_acc_high = s% xtra14
-         M_encl = s% xtra15
-         v_rel = s% xtra16
-         v_rel_div_csound = s% xtra17
-         rho_at_companion = s% xtra18
-         scale_height_at_companion = s% xtra19
+         R_acc = s% xtra(12)
+         R_acc_low = s% xtra(13)
+         R_acc_high = s% xtra(14)
+         M_encl = s% xtra(15)
+         v_rel = s% xtra(16)
+         v_rel_div_csound = s% xtra(17)
+         rho_at_companion = s% xtra(18)
+         scale_height_at_companion = s% xtra(19)
          csound = v_rel / v_rel_div_csound
 
 !         ! For a first approximation, let's use the average R_acc
@@ -342,8 +342,8 @@
          log_mdot_factor = a1 + a2 / (1.0 + a3*e_rho + a4*e_rho**2)
          mdot_HL = pi * R2**2 * rho_at_companion * v_rel
          mdot_macleod = mdot_HL * 10.0**log_mdot_factor
-         s% xtra22 = mdot_HL
-         s% xtra23 = mdot_macleod
+         s% xtra(22) = mdot_HL
+         s% xtra(23) = mdot_macleod
 
          ! Accretion luminosity luminosity
          L_acc = standard_cgrav * M2 / R2 * mdot_macleod
@@ -359,8 +359,8 @@
          call CE_set_extra_heat(id, CE_energy_rate, ierr)
 
          ! Save the total erg/second added in this time step
-         s% xtra1 = CE_energy_rate
-         s% xtra20 = L_acc
+         s% xtra(1) = CE_energy_rate
+         s% xtra(20) = L_acc
 
       end subroutine CE_inject_case4
 
@@ -392,30 +392,30 @@
 
 
          ! Get input controls
-         CE_energy_rate = s% xtra1
-         CE_companion_position = s% xtra2
-         CE_companion_radius = s% xtra3
-         CE_companion_mass = s% xtra4
-         CE_n_acc_radii = s% xtra5
+         CE_energy_rate = s% xtra(1)
+         CE_companion_position = s% xtra(2)
+         CE_companion_radius = s% xtra(3)
+         CE_companion_mass = s% xtra(4)
+         CE_n_acc_radii = s% xtra(5)
 
 
          call calc_quantities_at_comp_position(id, ierr)
 
-         R_acc = s% xtra12
-         R_acc_low = s% xtra13
-         R_acc_high = s% xtra14
-         M_encl = s% xtra15
-         v_rel = s% xtra16
-         beta = s% xtra17
-         rho_at_companion = s% xtra18
-         scale_height_at_companion = s% xtra19
+         R_acc = s% xtra(12)
+         R_acc_low = s% xtra(13)
+         R_acc_high = s% xtra(14)
+         M_encl = s% xtra(15)
+         v_rel = s% xtra(16)
+         beta = s% xtra(17)
+         rho_at_companion = s% xtra(18)
+         scale_height_at_companion = s% xtra(19)
          csound = v_rel / beta
 
          M2 = CE_companion_mass * Msun
          R2 = CE_companion_radius * Rsun    ! NS radius is 10 km
 
          mdot_HL = pi * R_acc**2 * rho_at_companion * v_rel
-         s% xtra22 = mdot_HL
+         s% xtra(22) = mdot_HL
 
          if (s% x_integer_ctrl(2) == 2) then
 
@@ -455,7 +455,7 @@
             endif
 
             mdot = mdot_HL * 10.0**log_mdot_factor
-            s% xtra23 = mdot
+            s% xtra(23) = mdot
 
             ! Accretion luminosity luminosity: 10% efficiency
             L_acc = 0.1 * standard_cgrav * M2 / R2 * mdot_HL
@@ -468,7 +468,7 @@
             mdot = 2.0 * sqrt(lambda_squared + beta*beta) / (1.0 + beta*beta)**2
             ! Add in dimensions
             mdot = mdot * 2.0 * pi * rho_at_companion * standard_cgrav**2 * M2**2 / csound**3
-            s% xtra23 = mdot
+            s% xtra(23) = mdot
 
             ! Drag force
             F_drag =  beta * csound * mdot
@@ -480,7 +480,7 @@
             F_drag = pi * R_acc**2 * rho_at_companion * v_rel**2
 
             mdot = pi * R_acc**2 * rho_at_companion * v_rel
-            s% xtra23 = mdot
+            s% xtra(23) = mdot
 
             ! Accretion luminosity luminosity: 10% efficiency
             L_acc = 0.1 * standard_cgrav * M2 / R2 * mdot
@@ -519,8 +519,8 @@
 
 
          ! Save the total erg/second added in this time step
-         s% xtra1 = CE_energy_rate
-         s% xtra20 = L_acc
+         s% xtra(1) = CE_energy_rate
+         s% xtra(20) = L_acc
 
       end subroutine CE_inject_case5
 
@@ -540,15 +540,15 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
 
-         CE_companion_position = s% xtra2
-         CE_n_acc_radii = s% xtra5
+         CE_companion_position = s% xtra(2)
+         CE_n_acc_radii = s% xtra(5)
 
 
          call calc_quantities_at_comp_position(id, ierr)
 
-         R_acc = s% xtra12
-         R_acc_low = s% xtra13
-         R_acc_high = s% xtra14
+         R_acc = s% xtra(12)
+         R_acc_low = s% xtra(13)
+         R_acc_high = s% xtra(14)
 
          ! Tukey window scale
          a_tukey = 0.5
@@ -582,7 +582,7 @@
             end if
 
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0 * R_acc), a_tukey)
-            s% extra_heat(k) = CE_energy_rate / mass_to_be_heated * ff
+            s% extra_heat(k)%val = CE_energy_rate / mass_to_be_heated * ff
          end do
 
 
@@ -603,15 +603,15 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
 
-         CE_companion_position = s% xtra2
-         CE_n_acc_radii = s% xtra5
+         CE_companion_position = s% xtra(2)
+         CE_n_acc_radii = s% xtra(5)
 
 
          call calc_quantities_at_comp_position(id, ierr)
 
-         R_acc = s% xtra12
-         R_acc_low = s% xtra13
-         R_acc_high = s% xtra14
+         R_acc = s% xtra(12)
+         R_acc_low = s% xtra(13)
+         R_acc_high = s% xtra(14)
 
          ! Tukey window scale
          a_tukey = 0.5
@@ -652,7 +652,7 @@
             end if
 
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0 * R_acc), a_tukey)
-            s% extra_heat(k) = CE_energy_rate * (4.0d0 * pi * s% r(k) * s% r(k) * cell_dr(k) * ff / volume_to_be_heated) / s% dm(k)
+            s% extra_heat(k)%val = CE_energy_rate * (4.0d0 * pi * s% r(k) * s% r(k) * cell_dr(k) * ff / volume_to_be_heated) / s% dm(k)
          end do
          deallocate(cell_dr)
 

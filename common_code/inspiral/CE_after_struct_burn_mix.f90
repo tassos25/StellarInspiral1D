@@ -108,7 +108,7 @@
 
             k=k+1
          enddo
-         s% xtra11 = total_envelope_binding_energy ! In erg
+         s% xtra(11) = total_envelope_binding_energy ! In erg
 
 
          CE_mdot = - (mass_to_remove) / dt !In gr/s
@@ -124,7 +124,7 @@
 
 
 
-         s% xtra7 = CE_mdot
+         s% xtra(7) = CE_mdot
 
 
 

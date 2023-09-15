@@ -1,0 +1,29 @@
+&star_job
+
+!!! output
+   save_model_filename = 'model1.mod'  ! filename to save model; common value: 'model.mod' | name get changed from Scotti's script
+
+/ ! end of star_job namelist
+
+&eos
+
+!!! equation of state (EOS)
+
+/ ! end of eos namelist
+
+&kap
+
+!!! opacities
+
+/ ! end of kap namelist
+
+&controls
+
+!!! output controls
+   photo_directory = 'photos1'  ! where to save photos; common value: 'photos' | use a different directory for each star
+   log_directory = 'LOGS1'      ! where to save logs;   common value: 'LOGS'   | use a different directory for each star
+
+!!! miscellaneous controls
+   zams_filename = '../models/zams_z1.42m2_y0.2703.data'  ! name of file with ZAMS data; common value: '../models/zams_z1.42m2_y0.2703.data' | POSYDON ZAMS file
+
+/ ! end of controls namelist

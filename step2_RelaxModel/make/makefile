@@ -21,7 +21,8 @@ endif
 # STAR_WORK_OBJS defined in makefile_header
 # added more code located in WORK_SRC_DIR
 IONIZATION_OBJS = ionization_def.o ion_tables_load.o mod_tables.o mod_ionization.o ion_tables_eval.o ion_table_plot.o ionization_lib.o
-OBJS = $(IONIZATION_OBJS) $(RUN_STAR_EXTRA_OBJS) $(STAR_WORK_OBJS) run.o
+INSPIRAL_OBJS = CE_orbit.o CE_energy.o CE_torque.o CE_adjust_mdot.o CE_before_struct_burn_mix.o CE_after_struct_burn_mix.o CE_timestep.o
+OBJS = $(IONIZATION_OBJS) $(INSPIRAL_OBJS) $(RUN_STAR_EXTRA_OBJS) $(STAR_WORK_OBJS) run.o
 
 WORK_DIR = ..
 WORK_SRC_DIR = $(WORK_DIR)/src
@@ -71,6 +72,28 @@ mod_ionization.o: $(COMMON_CODE_DIR)/ionization/mod_ionization.f90
 	$(WORK_COMPILE) $<
 
 mod_tables.o: $(COMMON_CODE_DIR)/ionization/mod_tables.f90
+	$(WORK_COMPILE) $<
+
+#Added rules of how to compile the inspiral code
+CE_orbit.o: $(COMMON_CODE_DIR)/inspiral/CE_orbit.f90
+	$(WORK_COMPILE) $<
+
+CE_energy.o: $(COMMON_CODE_DIR)/inspiral/CE_energy.f90
+	$(WORK_COMPILE) $<
+
+CE_torque.o: $(COMMON_CODE_DIR)/inspiral/CE_torque.f90
+	$(WORK_COMPILE) $<
+
+CE_adjust_mdot.o: $(COMMON_CODE_DIR)/inspiral/CE_adjust_mdot.f90
+	$(WORK_COMPILE) $<
+
+CE_before_struct_burn_mix.o: $(COMMON_CODE_DIR)/inspiral/CE_before_struct_burn_mix.f90
+	$(WORK_COMPILE) $<
+
+CE_after_struct_burn_mix.o: $(COMMON_CODE_DIR)/inspiral/CE_after_struct_burn_mix.f90
+	$(WORK_COMPILE) $<
+
+CE_timestep.o: $(COMMON_CODE_DIR)/inspiral/CE_timestep.f90
 	$(WORK_COMPILE) $<
 
 #A rule of how to compile the additional code that we added in WORK_SRC_DIR
