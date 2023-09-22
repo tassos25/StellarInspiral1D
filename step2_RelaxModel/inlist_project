@@ -1,79 +1,119 @@
-! inlist to evolve a 15 solar mass star
-
-! For the sake of future readers of this file (yourself included),
-! ONLY include the controls you are actually using.  DO NOT include
-! all of the other controls that simply have their default values.
-
 &star_job
-  ! see star/defaults/star_job.defaults
 
-  ! begin with a pre-main sequence model
-    create_pre_main_sequence_model = .true.
+!!! output
+  !history_columns_file = '../inlists/history_columns_common.list'  ! a list of columns to save in the history files; common value: '' | read common list
+  !profile_columns_file = '../inlists/profile_columns_common.list'  ! a list of columns to save in the profile files; common value: '' | read common list
 
-  ! save a model at the end of the run
-    save_model_when_terminate = .false.
-    save_model_filename = '15M_at_TAMS.mod'
+!!! starting model
+   load_saved_model = .true.                          ! enable to start from a model instead of from ZAMS; common value: .false.     | use model from other step
+   load_model_filename = '../models/step1_final.mod'  ! load the model specified here as initial model;    common value: 'undefined' | use final model from previous step
 
-  ! display on-screen plots
-    pgstar_flag = .true.
+!!! modifications to model
+   set_to_this_tau_factor = 1d-4   ! set optical depth at surface;                        common value: -1      | put surface a low optical depth
+   set_tau_factor = .true.         ! enable to set an optical depth without reconverging; common value: .false. | enables previous setting
+   change_v_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
+   new_v_flag = .true.             ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
+   new_rotation_flag = .false.     ! enable rotation;                                     common value: .true.  | no solid body rotation
+   change_rotation_flag = .false.  ! copy enabled rotation;                               common value: .true.  | enables previous setting
 
 / ! end of star_job namelist
 
 
 &eos
-  ! eos options
-  ! see eos/defaults/eos.defaults
+
+!!! equation of state (EOS)
+  !use_other_eos = .true.  ! enable other equation of state; default: .false. | TESTING
 
 / ! end of eos namelist
 
 
 &kap
-  ! kap options
-  ! see kap/defaults/kap.defaults
-  use_Type2_opacities = .true.
-  Zbase = 0.02
+
+!!! opacities
 
 / ! end of kap namelist
 
 
 &controls
-  ! see star/defaults/controls.defaults
 
-  ! starting specifications
-    initial_mass = 15 ! in Msun units
-    initial_z = 0.02
+!!! output controls
+   write_header_frequency = 1                        ! frequency to repeat the header every X outputs; common value: 10  | get header more often
+   num_trace_history_values = 6                      ! number of additional values added to history;   common value: 0   | add the following 6 columns to history
+   trace_history_value_name(1) = 'photosphere_m'     ! value added as new history column;                   default: ''  | add mass at photosphere
+   trace_history_value_name(2) = 'photosphere_r'     ! value added as new history column;                   default: ''  | add radius at photosphere
+   trace_history_value_name(3) = 'radius'            ! value added as new history column;                   default: ''  | add radius
+   trace_history_value_name(4) = 'logQ_min'          ! value added as new history column;                   default: ''  | add logQ_min (may not exist in newer MESA version)
+   trace_history_value_name(5) = 'v_div_csound_max'  ! value added as new history column;                   default: ''  | add maximum velocity in units of (local) sound speed
+   trace_history_value_name(6) = 'v_div_vesc_max'    ! value added as new history column;                   default: ''  | add maximum velocity in units of (local) escape velocity
+   profile_interval = 10                             ! interval for writing out profiles;              common value: 50  | write more profiles
+   max_num_profile_models = 10000                    ! maximum number of saved profiles;               common value: 100 | allow to save more profiles before overwritting
 
-  ! when to stop
+!!! when to stop                                                                    | additional stopping criteria set in binary_controls and run_binary_extras.f
+   max_model_number = 100000  ! maximum number of models;      common value: -1     | generous maximum
+   max_age = 0.01             ! maximum age in the simulation; common value: 1.4e10 | relaxation shouldn't age the star
 
-    ! stop when the star nears ZAMS (Lnuc/L > 0.99)
-    Lnuc_div_L_zams_limit = 0.99d0
-    stop_near_zams = .true.
+!!! mixing (and convection)
+   mixing_length_alpha = 1.82d0           ! factor to local pressure scale height;                                        common value: 1.93d0        |
+   alpha_semiconvection = 0.1d0           ! efficiency of semiconvection;                                                 common value: 0d0           |
+   thermohaline_coeff = 666.0d0           ! efficiency of thermohaline mixing;                                            common value: 17.5d0        | use extremly efficient thermohaline mixing
+   MLT_option = 'Henyey'                  ! mlt scheme;                                                                   common value: 'Mihalas'     | Henyey, Vardya, and Bodenheimer 1965
+   okay_to_reduce_gradT_excess = .false.  ! enable MLT++;                                                                 common value: .true.        | don't use MLT++
+   overshoot_scheme(1) = 'exponential'    ! kind of overshooting beyond convective zone;                                  common value: 'exponential' |
+   overshoot_zone_type(1) = 'any'         ! zone type to apply overshooting;                                              common value: 'any'         |
+   overshoot_zone_loc(1) = 'core'         ! location of overshooting;                                                     common value: 'core'        |
+   overshoot_bdy_loc(1) = 'top'           ! defines at which boundary of the convective zone the overshooting is applied; common value: 'top'         |
+   overshoot_f(1) = 1.6d-2                ! overshooting size in units of pressure scale height;                          common value: 4.15d-2       | H core overshoot calibrated to M67
+   overshoot_f0(1) = 8.0d-3               ! defines how far inside the convective zone the overshooting starts;           common value: 8.0d-3        | H core overshoot calibrated to M67
+   overshoot_scheme(2) = 'exponential'    ! kind of overshooting beyond convective zone;                                       default: ''            |
+   overshoot_zone_type(2) = 'any'         ! zone type to apply overshooting;                                                   default: ''            |
+   overshoot_zone_loc(2) = 'shell'        ! location of overshooting;                                                          default: ''            |
+   overshoot_bdy_loc(2) = 'any'           ! defines at which boundary of the convective zone the overshooting is applied;      default: ''            |
+   overshoot_f(2) = 1.74d-2               ! overshooting size in units of pressure scale height;                               default: 0d0           | envelope overshoot calibrated to the sun
+   overshoot_f0(2) = 8.7d-3               ! defines how far inside the convective zone the overshooting starts;                default: 0d0           | envelope overshoot calibrated to the sun
+   RSP_Qvisc_quadratic = 1d-3             !?what is that exactly?;                                                        common value : 0d0          |
+   max_conv_vel_div_csound = 1            ! limit convective velocities (units of sound speed);                           common value: 1d99          | no super-sonic convection
+   max_v_div_cs_for_convection = 1        ! disable convection for fast moving layers (units of sound speed);             common value: 1d99          | disable convection in super-sonic layers
 
-    ! stop when the center mass fraction of h1 drops below this limit
-    xa_central_lower_limit_species(1) = 'h1'
-    xa_central_lower_limit(1) = 1d-3
+!!! rotation controls
+   D_SH_factor = 1.0d0    ! scaling the element mixing due to Solberg-Hoiland;      common value: 0       |
+   D_ST_factor = 1.0d0    ! scaling the element mixing due to Spruit-Tayler dynamo; common value: 0       |
 
-  ! wind
+!!! atmosphere boundary conditions
+   use_compression_outer_BC = .true.  ! enable boundary condition at surface to have vanishing compression gradient; common value: .false. | use other surface boundary condition
 
-  ! atmosphere
+!!! mass gain or loss
+   max_wind = 1d-1                            ! maximum wind in Msun/year;                                common value: 0d0       | limit wind loss
+   trace_super_eddington_wind_boost = .true.  ! write information about super Eddington wind to terminal; common value: .false.   | get additional output
 
-  ! rotation
+!!! mesh adjustment
+   max_center_cell_dq = 5d-6   ! maximum mass for central cell;    common value: 1d-7  | smaller central cell
+   max_surface_cell_dq = 1d-2  ! maximum mass for cell at surface; common value: 1d-12 | larger surface cell allowed
 
-  ! element diffusion
+!!! structure equations
+   energy_eqn_option = 'dedt'                    ! defines which energy equation should be used;                        common value: 'dedt'  | options: 'dedt' (see https://ui.adsabs.harvard.edu/abs/2019ApJS..243...10P/abstract) or 'eps_grav' (see https://ui.adsabs.harvard.edu/abs/2018ApJS..234...34P/abstract)
+   use_gravity_rotation_correction = .false.     ! enable correction on gravity via rotation;                           common value: .true.  | no correction
+   use_dPrad_dm_form_of_T_gradient_eqn = .true.  ! enable to use a more dynimical equation to get temperature gradient; common value: .false. | hydrostatic values might not be appropriate
 
-  ! mlt
+!!! solver controls (The “residual” is the left over difference between the left and right hand sides of the equation we are trying to solve.)
+   tol_residual_norm1 = 1d-4                            ! limit on average residual (level 1);                 common value: 1d-10   | be less restrictive to accept the solution
+   tol_max_residual1 = 1d-2                             ! limit on maximum residual (level 1);                 common value: 1d-9    | be less restrictive to accept the solution
+   iter_for_resid_tol2 = 4                              ! at this iteration switch to tolerance level 2;       common value: 6       | change earlier to level 2
+   tol_residual_norm2 = 1d-2                            ! limit on average residual (level 2);                 common value: 1d90    | be more restrictive to accept the solution
+   tol_max_residual2 = 0.5                              ! limit on maximum residual (level 2);                 common value: 1d90    | be more restrictive to accept the solution
+   iter_for_resid_tol3 = 999                            ! at this iteration switch to tolerance level 3;       common value: 15      | change much later to level 3
+   solver_itermin_until_reduce_min_corr_coeff = 999999  ! number of iterations before reducing min_corr_coeff; common value: 8       | keep min_corr_coeff unchanged
+   tiny_corr_coeff_limit = 999999                       ! limit on tiny corrections;                           common value: 100     | allow more
+   use_Pvsc_art_visc = .true.                           ! enable artifical pressure;                           common value: .false. |
 
-  ! mixing
+!!! timestep controls (limits reduce next timestep, hard limits causes retry)
+   varcontrol_target = 3d-4         ! target value of relative changes in the structure between steps;  common value: 1d-3   | try to request a slower change of the structure
+   delta_lgTeff_limit = 0.5d0       ! limit for change in log10 of the effective temperature;           common value: 0.01d0 | care less about effective temperature
+   delta_lgL_limit = 0.5d0          ! limit for change in log10 of the surface luminosity;              common value: 0.1d0  | care less about surface luminosity
 
-  ! timesteps
-
-  ! mesh
-
-  ! solver
-     ! options for energy conservation (see MESA V, Section 3)
-     energy_eqn_option = 'dedt'
-     use_gold_tolerances = .true.
-
-  ! output
+!!! miscellaneous controls
+ !! hooks
+   use_other_adjust_mdot = .true.             ! enable additional routine after wind and before mass adjustment; default: .false. |
+   use_other_after_struct_burn_mix = .true.   ! enable additional routine after struct_burn_mix;                 default: .false. |
+   use_other_before_struct_burn_mix = .true.  ! enable additional routine before struct_burn_mix;                default: .false. |
 
 / ! end of controls namelist

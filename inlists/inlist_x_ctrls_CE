@@ -1,0 +1,43 @@
+&controls
+
+!!! miscellaneous controls
+ !! extra parameters          ! for CE module
+  ! extra floats
+   x_ctrl(1) = 3.1687536e+38  ! CE_energy_rate: The rate at which energy is deposited in the star; in units of erg/s.
+   x_ctrl(2) = 0.99           ! CE_companion_initial_position: The initial distance of the center of the companion, in units of the primary's radius star from the center of the donor star in solar radii
+   x_ctrl(3) = 1.437d-5       ! initial CE_companion_radius: The radius of the companion star in solar radii
+   x_ctrl(4) = 1.4d0          ! CE_companion_mass: The mass of the companion star in solar masses
+   x_ctrl(5) = 1.0d0          ! CE_n_acc_radii: Number of accretion radii away from companion star to deposit heating into the star from orbital energy
+   x_ctrl(8) = 1d-2           ! Fractional orbital energy change allowed per step
+   x_ctrl(9) = 1d-2           ! Fractional orbital separation change allowed per step
+   x_ctrl(10) = 1d-2          ! Fractional orbital angular momentum change allowed per step
+   x_ctrl(11) = 2.0d0         ! Maximum factor by which CE_mdot can increase in one timestep
+   x_ctrl(12) = 2d0           ! Maximum factor by which CE_mdot can decrease in one timestep
+   x_ctrl(13) = 1d-5          ! CE_mdot_smooth_limit: value for CE_mdot (in Msun/yr) above which we apply smoothing
+   x_ctrl(14) = 1d-99         ! CE_mdot_max: maximum allowed value for CE_mdot (in Msun/yr)
+   x_ctrl(15) = 0.95          ! f_sync_init: Degree of syncronization (Omega_spin/Omega_orb) between
+   x_ctrl(16) = 1.75          ! alpha_pulse_wind: Wind enhancement term from Yoon & Cantiello (2010)
+   x_ctrl(17) = -1            ! Distance to source in kpc. Used solely to get apparent magnitudes
+                              ! if  -1: Return absolute magnitudes
+                              ! if 778: - M31 (kpc)
+   x_ctrl(18) = 1             ! n_tau_to_remove. Check down to this optical depth to see if outer layers are unbound
+  ! extra integers
+   x_integer_ctrl(1) = 5  ! if 1: Uniform heating of the whole envelope
+                          ! if 2: Heating at the base of the hydrogen envelope
+                          ! if 3: CE_energy_rate is calculated based on the companions position and the gravitational drag prescription by Eve Ostriker (1999)
+                          ! if 4: Energy based on MacLeod & Ramirez-Ruiz
+                          ! if 5: Energy based on Lee & Stahler (2011)
+   x_integer_ctrl(2) = 2  ! if 1: Classic BHL drag
+                          ! if 2: Macleod & Ramirez-Ruiz (2015)
+                          ! if 3: Lee, Aaron T.; Stahler, Steven W. (2011,2014)
+   x_integer_ctrl(3) = 2  ! if 1: Deposit energy and AM with constant specific energy and AM withing Racc
+                          ! if 2: Follow Taam et al. (1978)
+  ! extra booleans
+   x_logical_ctrl(1) = .false.  ! include_internal_energy: If true, then the internal energy is included when the outer parts of the envelope are bound or unbound.
+   x_logical_ctrl(2) = .true.   ! include accretion luminosity: If true, then accretion energy onto the NS is taken into account when calculating the energy donated to the envelope
+   x_logical_ctrl(3) = .false.  ! use_pulse_wind use pulsational superwinds based of Yoon & Cantiello (2010) prescription
+   x_logical_ctrl(4) = .false.  ! Remove supersonic outer layers
+   x_logical_ctrl(5) = .true.   ! Remove outer layers when energetically unbound AND supersonic
+   x_logical_ctrl(6) = .false.  ! is_it_restart: if true, then keeps companion position saved model and does not do initial synchronization. NOT WORKING CURRENTLY!!!
+
+/ ! end of controls namelist

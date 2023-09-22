@@ -199,7 +199,8 @@
             suffix = ''
          end if
          
-         fname = trim(mesa_data_dir) // &
+     !    fname = trim(mesa_data_dir) // &
+         fname = '../common_code' // &
                '/ionization_data/' // trim(ion_file_prefix) // '_' //&
                trim(Zstr) // 'z' // trim(Xstr) // 'x' // trim(suffix) // '.data'
          cache_filename = trim(ionization_cache_dir) // &
