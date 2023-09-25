@@ -70,7 +70,6 @@
    overshoot_bdy_loc(2) = 'any'           ! defines at which boundary of the convective zone the overshooting is applied;      default: ''            |
    overshoot_f(2) = 1.74d-2               ! overshooting size in units of pressure scale height;                               default: 0d0           | envelope overshoot calibrated to the sun
    overshoot_f0(2) = 8.7d-3               ! defines how far inside the convective zone the overshooting starts;                default: 0d0           | envelope overshoot calibrated to the sun
-   RSP_Qvisc_quadratic = 1d-3             !?what is that exactly?;                                                        common value : 0d0          |
    max_conv_vel_div_csound = 1            ! limit convective velocities (units of sound speed);                           common value: 1d99          | no super-sonic convection
    max_v_div_cs_for_convection = 1        ! disable convection for fast moving layers (units of sound speed);             common value: 1d99          | disable convection in super-sonic layers
 

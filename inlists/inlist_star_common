@@ -119,8 +119,8 @@
    overshoot_f0(1) = 8.0d-3                         ! defines how far inside the convective zone the overshooting starts;                     default: 0d0     | as a fraction on pressure scale height; the mixing coefficient is taken from that point
    do_conv_premix = .true.                          ! enable convective premixing;                                                            default: .false. |
    conv_premix_avoid_increase = .true.              ! try to avoid to increase abundance of burning material due to mixing within a timestep; default: .false. | the mixing change should be smaller or equal to the loss due to burning
-   RSP_Qvisc_linear = 0d0                           !?what is that exactly?;                                                                  default : 0d0    | old name: shock_spread_linear
-   RSP_Qvisc_quadratic = 0d0                        !?what is that exactly?;                                                                  default : 0d0    | old name: shock_spread_quadratic
+   RSP_Qvisc_linear = 0d0                           ! factor in linear term of artificial viscosity (see Tscharnuter & Winkler 1979);         default : 0d0    | old name: shock_spread_linear
+   RSP_Qvisc_quadratic = 1d-3                       ! factor in quadratic term of artificial viscosity (see Tscharnuter & Winkler 1979);      default : 0d0    | old name: shock_spread_quadratic
    max_conv_vel_div_csound = 1d99                   ! limit convective velocities (units of sound speed);                                     default: 1d99    | unlimited
    max_v_div_cs_for_convection = 1d99               ! disable convection for fast moving layers (units of sound speed);                       default: 1d99    | convection everywhere possible
 
@@ -151,8 +151,8 @@
       
 !!! mass gain or loss
    max_mdot_jump_for_rotation = 10.0d0         ! for smooth transition from mass accretion to mass loss;                                                 default: 2       | being more generous
-   rotational_mdot_boost_fac = 1d10            !?what is that exactly?;                                                                                  default: 1d5     |
-   rotational_mdot_kh_fac = 1d10               !?what is that exactly?;                                                                                  default: 0.3d0   |
+   rotational_mdot_boost_fac = 1d10            ! maximum enhancement factor of boosted wind;                                                             default: 1d5     | allow large wind boost
+   rotational_mdot_kh_fac = 1d10               ! maximum fraction of stellar mass, which can be lost on a KH timescale;                                  default: 0.3d0   | allow large wind loss
    surf_avg_tau_min = 0.0                      ! starting optical depth to get mass averaged tau at the surface;                                         default: 1       |
    surf_avg_tau = 10.0                         ! stopping optical depth to get mass averaged tau at the surface;                                         default: 100     |
    hot_wind_scheme = ''                        ! hot wind scheme: hot of all stars;                                                                      default: ''      |
