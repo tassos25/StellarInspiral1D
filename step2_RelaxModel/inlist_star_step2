@@ -1,20 +1,20 @@
 &star_job
 
 !!! output
-  !history_columns_file = '../inlists/history_columns_common.list'  ! a list of columns to save in the history files; common value: '' | read common list
-  !profile_columns_file = '../inlists/profile_columns_common.list'  ! a list of columns to save in the profile files; common value: '' | read common list
+   history_columns_file = '../inlists/history_columns_common.list'  ! a list of columns to save in the history files; common value: '' | read common list
+   profile_columns_file = '../inlists/profile_columns_common.list'  ! a list of columns to save in the profile files; common value: '' | read common list
 
 !!! starting model
    load_saved_model = .true.                          ! enable to start from a model instead of from ZAMS; common value: .false.     | use model from other step
    load_model_filename = '../models/step1_final.mod'  ! load the model specified here as initial model;    common value: 'undefined' | use final model from previous step
 
 !!! modifications to model
+   set_initial_dt = .true.         ! reset initial timestep;                              common value: .false. | set the initial timestep
+   years_for_initial_dt = 3.78d-8  ! set this initial timestep;                           common value: -1      | adopted to make it converge
    set_to_this_tau_factor = 1d-4   ! set optical depth at surface;                        common value: -1      | put surface a low optical depth
    set_tau_factor = .true.         ! enable to set an optical depth without reconverging; common value: .false. | enables previous setting
    change_v_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
    new_v_flag = .true.             ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
-   new_rotation_flag = .false.     ! enable rotation;                                     common value: .true.  | no solid body rotation
-   change_rotation_flag = .false.  ! copy enabled rotation;                               common value: .true.  | enables previous setting
 
 / ! end of star_job namelist
 
@@ -38,13 +38,13 @@
 
 !!! output controls
    write_header_frequency = 1                        ! frequency to repeat the header every X outputs; common value: 10  | get header more often
-   num_trace_history_values = 6                      ! number of additional values added to history;   common value: 0   | add the following 6 columns to history
+   num_trace_history_values = 5                      ! number of additional values added to history;   common value: 0   | add the following columns to history
    trace_history_value_name(1) = 'photosphere_m'     ! value added as new history column;                   default: ''  | add mass at photosphere
    trace_history_value_name(2) = 'photosphere_r'     ! value added as new history column;                   default: ''  | add radius at photosphere
    trace_history_value_name(3) = 'radius'            ! value added as new history column;                   default: ''  | add radius
-   trace_history_value_name(4) = 'logQ_min'          ! value added as new history column;                   default: ''  | add logQ_min (may not exist in newer MESA version)
+   trace_history_value_name(4) = 'logQ_min'          ! value added as new history column;                   default: ''  | add logQ_min
    trace_history_value_name(5) = 'v_div_csound_max'  ! value added as new history column;                   default: ''  | add maximum velocity in units of (local) sound speed
-   trace_history_value_name(6) = 'v_div_vesc_max'    ! value added as new history column;                   default: ''  | add maximum velocity in units of (local) escape velocity
+  !trace_history_value_name(6) = 'v_div_vesc_max'    ! value added as new history column;                   default: ''  | add maximum velocity in units of (local) escape velocity
    profile_interval = 10                             ! interval for writing out profiles;              common value: 50  | write more profiles
    max_num_profile_models = 10000                    ! maximum number of saved profiles;               common value: 100 | allow to save more profiles before overwritting
 
@@ -94,6 +94,7 @@
    use_dPrad_dm_form_of_T_gradient_eqn = .true.  ! enable to use a more dynimical equation to get temperature gradient; common value: .false. | hydrostatic values might not be appropriate
 
 !!! solver controls (The “residual” is the left over difference between the left and right hand sides of the equation we are trying to solve.)
+   tol_max_correction = 1d-2                            ! limit in the maximum correction;                     common value: 3d-3    | be less restrictive to accept the solution
    tol_residual_norm1 = 1d-4                            ! limit on average residual (level 1);                 common value: 1d-10   | be less restrictive to accept the solution
    tol_max_residual1 = 1d-2                             ! limit on maximum residual (level 1);                 common value: 1d-9    | be less restrictive to accept the solution
    iter_for_resid_tol2 = 4                              ! at this iteration switch to tolerance level 2;       common value: 6       | change earlier to level 2
@@ -108,6 +109,9 @@
    varcontrol_target = 3d-4         ! target value of relative changes in the structure between steps;  common value: 1d-3   | try to request a slower change of the structure
    delta_lgTeff_limit = 0.5d0       ! limit for change in log10 of the effective temperature;           common value: 0.01d0 | care less about effective temperature
    delta_lgL_limit = 0.5d0          ! limit for change in log10 of the surface luminosity;              common value: 0.1d0  | care less about surface luminosity
+
+!!! debugging controls
+  !report_solver_progress = .true.  ! get info about solver iterations; default: .false. | FOR DEBUGGING
 
 !!! miscellaneous controls
  !! hooks

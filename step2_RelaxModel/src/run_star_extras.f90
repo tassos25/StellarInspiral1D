@@ -220,12 +220,12 @@
          s% lxtra(1) = .false.
 
 
-            s% job% relax_omega = .true.
+            !s% job% relax_omega = .true. ! don't change omega
             s% job% new_omega = s% x_ctrl(15) * 2.*pi/AtoP(s% m(1),s% xtra(4)*Msun,s% xtra(2) * Rsun)
             ! We set a very small timestep during the relaxation phase, so that the star does not evolve significantly
             s% job% relax_omega_max_yrs_dt = 1d-8
-            s% job% set_initial_dt = .True.
-            s% job% years_for_initial_dt = 1d-8
+            !s% job% set_initial_dt = .True. ! moved to inlist
+            !s% job% years_for_initial_dt = 3.78d-8 ! moved to inlist
 
 
          ! We are calling here the relax_omega, because we want to first have loaded the model so that we know its radius, and mass.
@@ -242,7 +242,7 @@
 
          !After relaxation is done, the timestep automatically increases to a "large" timestep. Here we are trying to make this
          !transition smoother
-         s% dt_next = 1d-8 * secyer
+         s% dt_next = s% job% years_for_initial_dt * secyer ! copy from initial step
 
 
          CE_companion_position = s% xtra(2)

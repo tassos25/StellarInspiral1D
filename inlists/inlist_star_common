@@ -16,22 +16,22 @@
    load_model_filename = 'undefined'  ! load the model specified here as initial model;    default: 'undefined' |
 
 !!! modifications to model
-   set_initial_age = .true.                 ! enable to set an initial age;                         default: .false. | reset initial age
-   initial_age = 0.0d0                      ! value of intial age;                                  default: 0       | set initial age to 0
-   set_initial_model_number = .true.        ! enable to set initial model number;                   default: .false. | reset initial model number
-   initial_model_number = 0                 ! value of initial model number;                        default: 0       | set initial model number to 0
-  !relax_tau_factor = .true.                ! enable to have a different optical depth as surface;  default: .false. |
-  !relax_to_this_tau_factor = 10d0          ! optical depth value at surface;                       default: 1       | set this optical depth
-  !dlogtau_factor = 0.05d0                  ! maximum change log10(tau_factor) per relaxation step; default: 0.1d0   | have smaller changes on relaxation
-   set_to_this_tau_factor = -1              ! set optical depth at surface;                         default: -1      |
-   set_tau_factor = .false.                 ! enable to set an optical depth without reconverging;  default: .false. |
-   change_v_flag = .false.                  ! copy enable velocity for each shell;                  default: .false. |
-   new_v_flag = .false.                     ! enable velocity for each shell;                       default: .false. |
-   new_rotation_flag = .true.               ! enable rotation;                                      default: .false. | allow for rotation
-   change_rotation_flag = .true.            ! copy enabled rotation;                                default: .false. | copy rotation flag
-   new_surface_rotation_v = 0.0d0           ! value of initial rotation in km/sec;                  default: 0       | no initial rotation
-   set_initial_surface_rotation_v = .true.  ! enable to set the initial rotation;                   default: .false. | set new surface velocity
-   num_steps_to_relax_rotation = 50         ! number to steps to acchieve new rotation;             default: 100     | enforce quicker relaxation in rotation
+   set_initial_age = .true.                  ! enable to set an initial age;                         default: .false. | reset initial age
+   initial_age = 0.0d0                       ! value of intial age;                                  default: 0       | set initial age to 0
+   set_initial_model_number = .true.         ! enable to set initial model number;                   default: .false. | reset initial model number
+   initial_model_number = 0                  ! value of initial model number;                        default: 0       | set initial model number to 0
+  !relax_tau_factor = .true.                 ! enable to have a different optical depth as surface;  default: .false. |
+  !relax_to_this_tau_factor = 10d0           ! optical depth value at surface;                       default: 1       | set this optical depth
+  !dlogtau_factor = 0.05d0                   ! maximum change log10(tau_factor) per relaxation step; default: 0.1d0   | have smaller changes on relaxation
+   set_to_this_tau_factor = -1               ! set optical depth at surface;                         default: -1      |
+   set_tau_factor = .false.                  ! enable to set an optical depth without reconverging;  default: .false. |
+   change_v_flag = .false.                   ! copy enable velocity for each shell;                  default: .false. |
+   new_v_flag = .false.                      ! enable velocity for each shell;                       default: .false. |
+   new_rotation_flag = .false.               ! enable rotation;                                      default: .false. |
+   change_rotation_flag = .false.            ! copy enabled rotation;                                default: .false. | copy rotation flag
+   new_surface_rotation_v = 0.0d0            ! value of initial rotation in km/sec;                  default: 0       | no initial rotation
+   set_initial_surface_rotation_v = .false.  ! enable to set the initial rotation;                   default: .false. |
+   num_steps_to_relax_rotation = 50          ! number to steps to acchieve new rotation;             default: 100     | enforce quicker relaxation in rotation
 
 !!! nuclear reactions
    change_net = .true.            ! enable to set the reaction network;  default: .false. | use different reaction network

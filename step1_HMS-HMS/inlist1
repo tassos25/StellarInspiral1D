@@ -4,7 +4,10 @@
     extra_star_job_inlist_name(1) = '../inlists/inlist_star_common'
 
     read_extra_star_job_inlist(2) = .true.
-    extra_star_job_inlist_name(2) = 'inlist_star1'
+    extra_star_job_inlist_name(2) = 'inlist_star_step1'
+
+    read_extra_star_job_inlist(3) = .true.
+    extra_star_job_inlist_name(3) = 'inlist_star1'
 
 / ! end of star_job namelist
 
@@ -15,7 +18,10 @@
     extra_eos_inlist_name(1) = '../inlists/inlist_star_common'
 
     read_extra_eos_inlist(2) = .true.
-    extra_eos_inlist_name(2) = 'inlist_star1'
+    extra_eos_inlist_name(2) = 'inlist_star_step1'
+
+    read_extra_eos_inlist(3) = .true.
+    extra_eos_inlist_name(3) = 'inlist_star1'
 
 / ! end of eos namelist
 
@@ -26,7 +32,10 @@
     extra_kap_inlist_name(1) = '../inlists/inlist_star_common'
 
     read_extra_kap_inlist(2) = .true.
-    extra_kap_inlist_name(2) = 'inlist_star1'
+    extra_kap_inlist_name(2) = 'inlist_star_step1'
+
+    read_extra_kap_inlist(3) = .true.
+    extra_kap_inlist_name(3) = 'inlist_star1'
 
 / ! end of kap namelist
 
@@ -40,7 +49,10 @@
     extra_controls_inlist_name(2) = '../inlists/inlist_x_ctrls_POSYDON'
 
     read_extra_controls_inlist(3) = .true.
-    extra_controls_inlist_name(3) = 'inlist_star1'
+    extra_controls_inlist_name(3) = 'inlist_star_step1'
+
+    read_extra_controls_inlist(4) = .true.
+    extra_controls_inlist_name(4) = 'inlist_star1'
 
 / ! end of controls namelist
 
@@ -51,6 +63,9 @@
     extra_pgstar_inlist_name(1) = '../inlists/inlist_star_common'
 
     read_extra_pgstar_inlist(2) = .true.
-    extra_pgstar_inlist_name(2) = 'inlist_star1'
+    extra_pgstar_inlist_name(2) = 'inlist_star_step1'
+
+    read_extra_pgstar_inlist(3) = .true.
+    extra_pgstar_inlist_name(3) = 'inlist_star1'
 
 / ! end of pgstar namelist
