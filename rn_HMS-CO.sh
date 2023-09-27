@@ -4,7 +4,7 @@
 cd step1_HMS-CO
 ./clean
 ./mk
-./rn
+./rn | tee screen.txt
 ./cpy
 cd ..
 
@@ -12,6 +12,14 @@ cd ..
 cd step2_RelaxModel
 ./clean
 ./mk
-./rn
+./rn | tee screen.txt
+./cpy
+cd ..
+
+#step3
+cd step3_inspiral
+./clean
+./mk
+./rn | tee screen.txt
 ./cpy
 cd ..
