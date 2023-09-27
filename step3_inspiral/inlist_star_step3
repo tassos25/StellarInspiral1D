@@ -39,16 +39,17 @@
 &controls
 
 !!! output controls
-   write_header_frequency = 1                        ! frequency to repeat the header every X outputs; common value: 10  | get header more often
-   num_trace_history_values = 5                      ! number of additional values added to history;   common value: 0   | add the following columns to history
-   trace_history_value_name(1) = 'photosphere_m'     ! value added as new history column;                   default: ''  | add mass at photosphere
-   trace_history_value_name(2) = 'photosphere_r'     ! value added as new history column;                   default: ''  | add radius at photosphere
-   trace_history_value_name(3) = 'radius'            ! value added as new history column;                   default: ''  | add radius
-   trace_history_value_name(4) = 'logQ_min'          ! value added as new history column;                   default: ''  | add logQ_min
-   trace_history_value_name(5) = 'v_div_csound_max'  ! value added as new history column;                   default: ''  | add maximum velocity in units of (local) sound speed
-  !trace_history_value_name(6) = 'v_div_vesc_max'    ! value added as new history column;                   default: ''  | add maximum velocity in units of (local) escape velocity
-   profile_interval = 30                             ! interval for writing out profiles;              common value: 50  | write more profiles
-   max_num_profile_models = 10000                    ! maximum number of saved profiles;               common value: 100 | allow to save more profiles before overwritting
+   write_header_frequency = 1                        ! frequency to repeat the header every X outputs; common value: 10      | get header more often
+   num_trace_history_values = 5                      ! number of additional values added to history;   common value: 0       | add the following columns to history
+   trace_history_value_name(1) = 'photosphere_m'     ! value added as new history column;                   default: ''      | add mass at photosphere
+   trace_history_value_name(2) = 'photosphere_r'     ! value added as new history column;                   default: ''      | add radius at photosphere
+   trace_history_value_name(3) = 'radius'            ! value added as new history column;                   default: ''      | add radius
+   trace_history_value_name(4) = 'logQ_min'          ! value added as new history column;                   default: ''      | add logQ_min
+   trace_history_value_name(5) = 'v_div_csound_max'  ! value added as new history column;                   default: ''      | add maximum velocity in units of (local) sound speed
+  !trace_history_value_name(6) = 'v_div_vesc_max'    ! value added as new history column;                   default: ''      | add maximum velocity in units of (local) escape velocity
+   write_profiles_flag = .true.                      ! enables to write out profiles;                  common value: .false. | no profiles
+   profile_interval = 30                             ! interval for writing out profiles;              common value: 50      | write more profiles
+   max_num_profile_models = 10000                    ! maximum number of saved profiles;               common value: 100     | allow to save more profiles before overwritting
 
 !!! when to stop                                                                    | additional stopping criteria set in binary_controls and run_binary_extras.f
    max_model_number = 25000  ! maximum number of models;      common value: -1     | generous maximum
