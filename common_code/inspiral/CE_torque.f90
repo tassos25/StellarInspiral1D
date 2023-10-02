@@ -1,32 +1,29 @@
 ! ***********************************************************************
 !
-!   Copyright (C) 2010  Bill Paxton
+!   This file is part of a mesa extension.
+!   Authors of this file: Tassos Fragos, Jeff J. Andrews, Matthias U. Kruckow
 !
-!   MESA is free software; you can use it and/or modify
-!   it under the combined terms and restrictions of the MESA MANIFESTO
-!   and the GNU General Library Public License as published
-!   by the Free Software Foundation; either version 2 of the License,
-!   or (at your option) any later version.
+! ***********************************************************************
 !
-!   You should have received a copy of the MESA MANIFESTO along with
-!   this software; if not, it is available at the mesa website:
-!   http://mesa.sourceforge.net/
+!   Copyright (C) 2010-2019  Bill Paxton & The MESA Team
 !
-!   MESA is distributed in the hope that it will be useful,
-!   but WITHOUT ANY WARRANTY; without even the implied warranty of
-!   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-!   See the GNU Library General Public License for more details.
+!   mesa is free software; you can redistribute it and/or modify
+!   it under the terms of the gnu general library public license as published
+!   by the free software foundation; either version 2 of the license, or
+!   (at your option) any later version.
 !
-!   You should have received a copy of the GNU Library General Public License
-!   along with this software; if not, write to the Free Software
-!   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+!   mesa is distributed in the hope that it will be useful,
+!   but without any warranty; without even the implied warranty of
+!   merchantability or fitness for a particular purpose.  see the
+!   gnu library general public license for more details.
+!
+!   you should have received a copy of the gnu library general public license
+!   along with this software; if not, write to the free software
+!   foundation, inc., 59 temple place, suite 330, boston, ma 02111-1307 usa
 !
 ! ***********************************************************************
 
       module CE_torque
-
-
-
 
       ! NOTE: if you'd like to have some inlist controls for your routine,
       ! you can use the x_ctrl array of real(dp) variables that is in &controls
@@ -50,18 +47,15 @@
       use star_def
       use const_def
       use CE_orbit, only: AtoP, TukeyWindow, calc_quantities_at_comp_position
+
       implicit none
-
-
-
 
       contains
 
-
+! ***********************************************************************
+      subroutine CE_inject_am(id, ierr)
       ! Angular momentum prescription from CE
       ! Based off example from mesa/star/other/other_torque.f
-
-      subroutine CE_inject_am(id, ierr)
 
          use const_def, only: Rsun
          integer, intent(in) :: id
@@ -77,10 +71,8 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
 
-
          CE_companion_position = s% xtra(2)
          CE_companion_mass = s% xtra(4)
-
 
          ! If the star is in the initial relaxation phase, skip torque calculations
          if (s% doing_relax) return
@@ -92,7 +84,6 @@
             s% extra_jdot(:) = 0.0d0
             return
          endif
-
 
          ! Load angular momentum dissipated in the envelope from the orbit decrease
          CE_n_acc_radii = s% xtra(5)
@@ -141,11 +132,10 @@
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0 * R_acc), a_tukey)
             s% extra_jdot(k) = CE_torque / mass_to_be_spun * ff
          end do
-
-
-
       end subroutine CE_inject_am
 
+
+! ***********************************************************************
       subroutine CE_inject_am2(id, ierr)
 
          use const_def, only: Rsun
@@ -163,10 +153,8 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
 
-
          CE_companion_position = s% xtra(2)
          CE_companion_mass = s% xtra(4)
-
 
          ! If the star is in the initial relaxation phase, skip torque calculations
          if (s% doing_relax) return
@@ -178,7 +166,6 @@
             s% extra_jdot(:) = 0.0d0
             return
          endif
-
 
          ! Load angular momentum dissipated in the envelope from the orbit decrease
          CE_n_acc_radii = s% xtra(5)
@@ -204,7 +191,6 @@
             cell_dr(k-1) = s% rmid(k-1) - s% rmid(k)
          end do
          cell_dr(s% nz) = s% rmid(s% nz) - s% R_center
-
 
          ! First calculate the mass in which the angular momentum will be deposited
          volume_to_be_spun = 0.0
@@ -236,11 +222,7 @@
             s% extra_jdot(k) = CE_torque * (4.0d0 * pi * s% r(k) * s% r(k) * cell_dr(k) * ff / volume_to_be_spun) / s% dm(k)
          end do
          deallocate(cell_dr)
-
-
-
       end subroutine CE_inject_am2
-
 
 
       end module CE_torque

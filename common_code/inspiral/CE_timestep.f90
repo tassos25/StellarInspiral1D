@@ -1,25 +1,25 @@
 ! ***********************************************************************
 !
-!   Copyright (C) 2010  Bill Paxton
+!   This file is part of a mesa extension.
+!   Authors of this file: Tassos Fragos, Jeff J. Andrews, Matthias U. Kruckow
 !
-!   MESA is free software; you can use it and/or modify
-!   it under the combined terms and restrictions of the MESA MANIFESTO
-!   and the GNU General Library Public License as published
-!   by the Free Software Foundation; either version 2 of the License,
-!   or (at your option) any later version.
+! ***********************************************************************
 !
-!   You should have received a copy of the MESA MANIFESTO along with
-!   this software; if not, it is available at the mesa website:
-!   http://mesa.sourceforge.net/
+!   Copyright (C) 2010-2019  Bill Paxton & The MESA Team
 !
-!   MESA is distributed in the hope that it will be useful,
-!   but WITHOUT ANY WARRANTY; without even the implied warranty of
-!   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-!   See the GNU Library General Public License for more details.
+!   mesa is free software; you can redistribute it and/or modify
+!   it under the terms of the gnu general library public license as published
+!   by the free software foundation; either version 2 of the license, or
+!   (at your option) any later version.
 !
-!   You should have received a copy of the GNU Library General Public License
-!   along with this software; if not, write to the Free Software
-!   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+!   mesa is distributed in the hope that it will be useful,
+!   but without any warranty; without even the implied warranty of
+!   merchantability or fitness for a particular purpose.  see the
+!   gnu library general public license for more details.
+!
+!   you should have received a copy of the gnu library general public license
+!   along with this software; if not, write to the free software
+!   foundation, inc., 59 temple place, suite 330, boston, ma 02111-1307 usa
 !
 ! ***********************************************************************
 
@@ -30,14 +30,12 @@
 
       implicit none
 
-
       contains
 
-
+! ***********************************************************************
       integer function CE_pick_next_timestep(s)
          use const_def, only: secyer
          type (star_info), pointer :: s
-
 
          CE_pick_next_timestep = keep_going
 
@@ -47,16 +45,13 @@
             CE_pick_next_timestep = worst_result(CE_pick_next_timestep, CE_check_separation(s))
             CE_pick_next_timestep = worst_result(CE_pick_next_timestep, CE_check_ang_mom(s))
          endif
-
-
       end function CE_pick_next_timestep
 
 
-
+! ***********************************************************************
       integer function CE_check_energy(s)
          type (star_info), pointer :: s
          real(dp) :: dE_fraction, dE_limit
-
 
          ! Fractional energy change
          dE_fraction = abs((s% xtra(1) * s% dt) / s% xtra(8))
@@ -70,17 +65,13 @@
          else
             CE_check_energy = keep_going
          end if
-
-
       end function CE_check_energy
 
 
-
-
+! ***********************************************************************
       integer function CE_check_separation(s)
          type (star_info), pointer :: s
          real(dp) :: dA_fraction, dA_limit
-
 
          ! Fractional separation change
          dA_fraction = abs((s% xtra(2) - s% xtra_old(2)) / s% xtra_old(2))
@@ -94,12 +85,10 @@
          else
             CE_check_separation = keep_going
          end if
-
       end function CE_check_separation
 
 
-
-
+! ***********************************************************************
       integer function CE_check_ang_mom(s)
          type (star_info), pointer :: s
          real(dp) :: dJ_fraction, dJ_limit
@@ -116,11 +105,10 @@
          else
             CE_check_ang_mom = keep_going
          end if
-
-
       end function CE_check_ang_mom
 
 
+! ***********************************************************************
       integer function worst_result(result1, result2)
          integer, intent(in) :: result1, result2
 
@@ -129,7 +117,7 @@
             return
          end if
 
-     !    if(result1 == backup .or. result2 == backup) then
+     !    if(result1 == backup .or. result2 == backup) then ! backup is not defined anymore
      !       worst_result = backup
      !       return
      !    end if

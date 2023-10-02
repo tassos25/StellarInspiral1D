@@ -1,31 +1,29 @@
 ! ***********************************************************************
 !
-!   Copyright (C) 2010  Bill Paxton
+!   This file is part of a mesa extension.
+!   Authors of this file: Tassos Fragos, Jeff J. Andrews, Matthias U. Kruckow
 !
-!   MESA is free software; you can use it and/or modify
-!   it under the combined terms and restrictions of the MESA MANIFESTO
-!   and the GNU General Library Public License as published
-!   by the Free Software Foundation; either version 2 of the License,
-!   or (at your option) any later version.
+! ***********************************************************************
 !
-!   You should have received a copy of the MESA MANIFESTO along with
-!   this software; if not, it is available at the mesa website:
-!   http://mesa.sourceforge.net/
+!   Copyright (C) 2010-2019  Bill Paxton & The MESA Team
 !
-!   MESA is distributed in the hope that it will be useful,
-!   but WITHOUT ANY WARRANTY; without even the implied warranty of
-!   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-!   See the GNU Library General Public License for more details.
+!   mesa is free software; you can redistribute it and/or modify
+!   it under the terms of the gnu general library public license as published
+!   by the free software foundation; either version 2 of the license, or
+!   (at your option) any later version.
 !
-!   You should have received a copy of the GNU Library General Public License
-!   along with this software; if not, write to the Free Software
-!   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+!   mesa is distributed in the hope that it will be useful,
+!   but without any warranty; without even the implied warranty of
+!   merchantability or fitness for a particular purpose.  see the
+!   gnu library general public license for more details.
+!
+!   you should have received a copy of the gnu library general public license
+!   along with this software; if not, write to the free software
+!   foundation, inc., 59 temple place, suite 330, boston, ma 02111-1307 usa
 !
 ! ***********************************************************************
 
       module CE_orbit
-
-
 
       use star_def
       use const_def
@@ -37,7 +35,7 @@
 
       contains
 
-
+! ***********************************************************************
       subroutine CE_orbit_adjust(id, ierr)
          use const_def, only: standard_cgrav, Msun, Rsun
          integer, intent(in) :: id
@@ -54,11 +52,9 @@
          real(dp) :: R_acc, R_acc_low, R_acc_high
          real(dp) :: v_rel, v_rel_div_csound, M_encl, rho_at_companion, scale_height_at_companion
 
-
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-
 
          CE_energy_rate = s% xtra(1)
          CE_companion_position = s% xtra(2)
@@ -68,7 +64,6 @@
          if (s% doing_relax) return
          ! If companion is outside star, skip orbit calculations
          if (CE_companion_position*Rsun > s% r(1)) return
-
 
          call calc_quantities_at_comp_position(id, ierr)
 
@@ -81,17 +76,13 @@
          rho_at_companion = s% xtra(18)
          scale_height_at_companion = s% xtra(19)
 
-
          ! Calculate the angular momentum
          J_tmp = (CE_companion_mass * Msun)**2 * M_encl**2 / (CE_companion_mass * Msun + M_encl)
          J_init = sqrt(standard_cgrav * J_tmp * CE_companion_position * Rsun)
-         !
-         !
-         ! ! Calculate the energies
+         ! Calculate the energies
          E_init = -standard_cgrav * CE_companion_mass * Msun * M_encl / (2.0 * CE_companion_position * Rsun)
          E_loss = CE_energy_rate * s% dt
          E_final = E_init - E_loss
-
 
          ! Move from outside of star in to find cell containing companion
          E_tmp = 0d0
@@ -103,18 +94,14 @@
             k = k + 1
          end do
 
-
          ! If companion is outside star, set k to 3
          if (k < 3) k=3
-
 
          ! save end points of cell containing companion
          M_inner = s% m(k-2)
          R_inner = s% r(k-2)
          M_outer = s% m(k-1)
          R_outer = s% r(k-1)
-
-
 
          ! We could choose to interpolate for R using M as the independent variable. Instead, here we
          ! linearly interpolate across cell (using k as the independent variable)
@@ -131,7 +118,6 @@
          ! Now use the interpolations and the derived k_final, determine the resulting separation and enclosed mass
          R_final = R_slope * k_final + R_int
          M_final = M_slope * k_final + M_int
-
 
          s% xtra(2) = R_final/Rsun
          !Saving as s% xtra(9) the enclosed mass so that we output it in the history data
@@ -169,12 +155,10 @@
          ! After adjusting the orbit, let's call the check_merger routine
          call check_merger(id, ierr)
          if (s% lxtra(1)) write(*,*) "MERGER!!!"
-
-
       end subroutine CE_orbit_adjust
 
 
-
+! ***********************************************************************
       subroutine check_merger(id, ierr)
          integer, intent(in) :: id
          integer, intent(out) :: ierr
@@ -198,11 +182,10 @@
             s% lxtra(1) = .true.
             s% xtra(2) = 0.0
          end if
-
       end subroutine check_merger
 
 
-
+! ***********************************************************************
       subroutine calc_quantities_at_comp_position(id, ierr)
 
          integer, intent(in) :: id
@@ -217,7 +200,6 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-
 
          CE_companion_position = s% xtra(2)
          CE_companion_mass = s% xtra(4)
@@ -238,7 +220,6 @@
             return
          endif
 
-
          ! Calculate the wind enhancement term due to giant star pulsations
          ! Formulation from Yoon & Cantiello (2010)
          C_1 = 9.219e-6
@@ -247,8 +228,6 @@
          t_kh_env = standard_cgrav * s% mstar * M_env / (s% L(1) * s% r(1)) / secyer
          log_eta = C_1 * (s% r(1)/Rsun)**2 / (s% mstar / Msun) * t_kh_env**(-0.315) - C_2
          s% xtra(21) = 10.0**log_eta
-
-
 
          ! Keplerian velocity calculation depends on mass contained within a radius
          ! Include all the enclosed cells
@@ -288,7 +267,6 @@
          scale_height_at_companion =  s% scale_height(k) + (CE_companion_position*Rsun - s% r(k)) * &
               (s% scale_height(k-1)-s% scale_height(k)) / (s% r(k-1) - s% r(k))
 
-
          ! Determine accretion radius
 
          ! Accretion radius for a constant density medium
@@ -316,7 +294,6 @@
          end do
          R_acc_high = R_rel
 
-
          !saving these values to xtra variable so that tey are used in different CE_inject cases,
          ! in the torque calculations, and saved in the history file
          s% xtra(12) = R_acc
@@ -327,12 +304,10 @@
          s% xtra(17) = v_rel_div_csound
          s% xtra(18) = rho_at_companion
          s% xtra(19) = scale_height_at_companion
-
       end subroutine calc_quantities_at_comp_position
 
 
-
-
+! ***********************************************************************
       real (dp) function AtoP(M1, M2, A)
          real(dp), intent(in) :: M1 ! in g
          real(dp), intent(in) :: M2 ! in g
@@ -340,10 +315,10 @@
 
          ! Kepler's 3rd Law - return orbital period in seconds
          AtoP = 2.0*pi * sqrt(A*A*A / (standard_cgrav * (M1+M2)))
-
       end function AtoP
 
 
+! ***********************************************************************
       real(dp) function TukeyWindow(x,a)
          use const_def, only: dp, pi
          real(dp), intent(in) :: x, a
@@ -357,9 +332,10 @@
          else
             TukeyWindow = 1.
          endif
-
       end function TukeyWindow
 
+
+! ***********************************************************************
       real(dp) function eval_rlobe(m1, m2, a) result(rlobe)
          real(dp), intent(in) :: m1, m2, a
          real(dp) :: q
@@ -369,7 +345,6 @@
       ! the approximation of Eggleton 1983, apj 268:368-369
          rlobe = a*0.49d0*q*q/(0.6d0*q*q + log1p(q))
       end function eval_rlobe
-
 
 
       end module CE_orbit

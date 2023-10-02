@@ -1,25 +1,25 @@
 ! ***********************************************************************
 !
-!   Copyright (C) 2012  Bill Paxton
+!   This file is part of a mesa extension.
+!   Authors of this file: Tassos Fragos, Jeff J. Andrews, Matthias U. Kruckow
 !
-!   MESA is free software; you can use it and/or modify
-!   it under the combined terms and restrictions of the MESA MANIFESTO
-!   and the GNU General Library Public License as published
-!   by the Free Software Foundation; either version 2 of the License,
-!   or (at your option) any later version.
+! ***********************************************************************
 !
-!   You should have received a copy of the MESA MANIFESTO along with
-!   this software; if not, it is available at the mesa website:
-!   http://mesa.sourceforge.net/
+!   Copyright (C) 2010-2019  Bill Paxton & The MESA Team
 !
-!   MESA is distributed in the hope that it will be useful,
-!   but WITHOUT ANY WARRANTY; without even the implied warranty of
-!   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-!   See the GNU Library General Public License for more details.
+!   mesa is free software; you can redistribute it and/or modify
+!   it under the terms of the gnu general library public license as published
+!   by the free software foundation; either version 2 of the license, or
+!   (at your option) any later version.
 !
-!   You should have received a copy of the GNU Library General Public License
-!   along with this software; if not, write to the Free Software
-!   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+!   mesa is distributed in the hope that it will be useful,
+!   but without any warranty; without even the implied warranty of
+!   merchantability or fitness for a particular purpose.  see the
+!   gnu library general public license for more details.
+!
+!   you should have received a copy of the gnu library general public license
+!   along with this software; if not, write to the free software
+!   foundation, inc., 59 temple place, suite 330, boston, ma 02111-1307 usa
 !
 ! ***********************************************************************
 
@@ -33,10 +33,10 @@
 
       contains
 
+! ***********************************************************************
+      subroutine calc_recombination_before_struct_burn_mix(id, dt, res)
       ! set use_other_before_struct_burn_mix = .true. to enable this.
       ! your routine will be called before the standard struct_burn_mix routine
-
-      subroutine calc_recombination_before_struct_burn_mix(id, dt, res)
          ! # Here we will consider only H and He in the calculation of ionazion energy. Let us that N_H, N_HI, N_HII are
          ! # the total number of H atoms, the  number of neutral H atoms and the number of ionized H atoms in a specific shell.
          ! # For the Helium, the corresponding numbers would be N_He (total number of He atoms), N_HeI (number of neutral He atoms),
@@ -56,8 +56,6 @@
          ! # N_HeII = (2.-2.*f_HeI -Q_He) * N_He
          ! # N_HeIII = (Q_He + f_HeI -1.) * N_He
 
-
-
          integer, intent(in) :: id
          real(dp), intent(in) :: dt
          integer, intent(out) :: res ! keep_going, redo, retry, backup, terminate
@@ -70,7 +68,6 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-
 
          erg_in_ev =1.60217657d-12 !# ergs in 1 eV
          Eion_HII_pp = 13.5924d0 * erg_in_ev !# Ionization energy HI -> HII of one atom in ergs
@@ -117,9 +114,7 @@
 
          end do
 
-
          res = keep_going
-
 
          contains
 
@@ -138,12 +133,7 @@
 
             if (ierr /= 0) stop "Error returned from subroutine eval_ionization"
          end function get_ion_info
-
-
-
       end subroutine calc_recombination_before_struct_burn_mix
-
-
 
 
       end module CE_before_struct_burn_mix

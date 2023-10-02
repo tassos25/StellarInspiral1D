@@ -1,25 +1,25 @@
 ! ***********************************************************************
 !
-!   Copyright (C) 2012  Bill Paxton
+!   This file is part of a mesa extension.
+!   Authors of this file: Tassos Fragos, Jeff J. Andrews, Matthias U. Kruckow
 !
-!   MESA is free software; you can use it and/or modify
-!   it under the combined terms and restrictions of the MESA MANIFESTO
-!   and the GNU General Library Public License as published
-!   by the Free Software Foundation; either version 2 of the License,
-!   or (at your option) any later version.
+! ***********************************************************************
 !
-!   You should have received a copy of the MESA MANIFESTO along with
-!   this software; if not, it is available at the mesa website:
-!   http://mesa.sourceforge.net/
+!   Copyright (C) 2010-2019  Bill Paxton & The MESA Team
 !
-!   MESA is distributed in the hope that it will be useful,
-!   but WITHOUT ANY WARRANTY; without even the implied warranty of
-!   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-!   See the GNU Library General Public License for more details.
+!   mesa is free software; you can redistribute it and/or modify
+!   it under the terms of the gnu general library public license as published
+!   by the free software foundation; either version 2 of the license, or
+!   (at your option) any later version.
 !
-!   You should have received a copy of the GNU Library General Public License
-!   along with this software; if not, write to the Free Software
-!   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+!   mesa is distributed in the hope that it will be useful,
+!   but without any warranty; without even the implied warranty of
+!   merchantability or fitness for a particular purpose.  see the
+!   gnu library general public license for more details.
+!
+!   you should have received a copy of the gnu library general public license
+!   along with this software; if not, write to the free software
+!   foundation, inc., 59 temple place, suite 330, boston, ma 02111-1307 usa
 !
 ! ***********************************************************************
 
@@ -31,14 +31,12 @@
 
       implicit none
 
-
       contains
 
+! ***********************************************************************
+      subroutine CE_other_after_struct_burn_mix(id, dt, res)
       ! set use_other_after_struct_burn_mix = .true. to enable this.
       ! your routine will be called after the standard struct_burn_mix routine
-
-
-      subroutine CE_other_after_struct_burn_mix(id, dt, res)
          use const_def, only: dp
          use star_def
          integer, intent(in) :: id
@@ -52,7 +50,7 @@
       end subroutine CE_other_after_struct_burn_mix
 
 
-
+! ***********************************************************************
       subroutine CE_remove_unbound_envelope(id, dt, res)
 
         use const_def, only: Rsun, Msun
@@ -110,7 +108,6 @@
          enddo
          s% xtra(11) = total_envelope_binding_energy ! In erg
 
-
          CE_mdot = - (mass_to_remove) / dt !In gr/s
 
          if (s% dt .le. s% mass_change_full_off_dt) then
@@ -122,14 +119,9 @@
             write (*,*)"*", s%dt, s% mass_change_full_off_dt, s% mass_change_full_on_dt
          endif
 
-
-
          s% xtra(7) = CE_mdot
 
-
-
          res = keep_going
-
 
          contains
 
@@ -186,11 +178,10 @@
                   logic2dbl = 0.d0
                end if
             end function logic2dbl
-
       end subroutine CE_remove_unbound_envelope
 
 
-
+! ***********************************************************************
       subroutine calc_recombination_after_struct_burn_mix(id, dt, res)
          ! # Here we will consider only H and He in the calculation of ionazion energy. Let us that N_H, N_HI, N_HII are
          ! # the total number of H atoms, the  number of neutral H atoms and the number of ionized H atoms in a specific shell.
@@ -278,14 +269,7 @@
 
             if (ierr /= 0) stop "Error returned from subroutine eval_ionization"
          end function get_ion_info
-
-
-
       end subroutine calc_recombination_after_struct_burn_mix
-
-
-
-
 
 
       end module CE_after_struct_burn_mix

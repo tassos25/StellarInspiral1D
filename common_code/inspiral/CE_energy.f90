@@ -1,32 +1,29 @@
 ! ***********************************************************************
 !
-!   Copyright (C) 2010  Bill Paxton
+!   This file is part of a mesa extension.
+!   Authors of this file: Tassos Fragos, Jeff J. Andrews, Matthias U. Kruckow
 !
-!   MESA is free software; you can use it and/or modify
-!   it under the combined terms and restrictions of the MESA MANIFESTO
-!   and the GNU General Library Public License as published
-!   by the Free Software Foundation; either version 2 of the License,
-!   or (at your option) any later version.
+! ***********************************************************************
 !
-!   You should have received a copy of the MESA MANIFESTO along with
-!   this software; if not, it is available at the mesa website:
-!   http://mesa.sourceforge.net/
+!   Copyright (C) 2010-2019  Bill Paxton & The MESA Team
 !
-!   MESA is distributed in the hope that it will be useful,
-!   but WITHOUT ANY WARRANTY; without even the implied warranty of
-!   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-!   See the GNU Library General Public License for more details.
+!   mesa is free software; you can redistribute it and/or modify
+!   it under the terms of the gnu general library public license as published
+!   by the free software foundation; either version 2 of the license, or
+!   (at your option) any later version.
 !
-!   You should have received a copy of the GNU Library General Public License
-!   along with this software; if not, write to the Free Software
-!   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+!   mesa is distributed in the hope that it will be useful,
+!   but without any warranty; without even the implied warranty of
+!   merchantability or fitness for a particular purpose.  see the
+!   gnu library general public license for more details.
+!
+!   you should have received a copy of the gnu library general public license
+!   along with this software; if not, write to the free software
+!   foundation, inc., 59 temple place, suite 330, boston, ma 02111-1307 usa
 !
 ! ***********************************************************************
 
       module CE_energy
-
-
-
 
       ! NOTE: if you'd like to have some inlist controls for your routine,
       ! you can use the x_ctrl array of real(dp) variables that is in &controls
@@ -51,13 +48,11 @@
       use const_def
       use CE_orbit, only: AtoP, TukeyWindow, calc_quantities_at_comp_position
 
-
       implicit none
-
 
       contains
 
-
+! ***********************************************************************
       subroutine CE_inject_energy(id, ierr)
          use const_def, only: Rsun
          integer, intent(in) :: id
@@ -86,8 +81,6 @@
             return
          endif
 
-
-
          ! Call functions to calculate test cases
          if (CE_test_case == 1) then   ! Heat whole hydrogen envelope
 
@@ -110,13 +103,10 @@
             call CE_inject_case5(id, ierr)
 
          endif
-
-
       end subroutine CE_inject_energy
 
 
-
-
+! ***********************************************************************
       subroutine CE_inject_case1(id, ierr)
 
          use const_def, only: Msun
@@ -151,11 +141,8 @@
             s% extra_heat(k)%val = CE_energy_rate / mass_to_be_heated * EnvelopeWindow(s% m(k), m_bot)
          end do
 
-
          ! Save the total erg/second added in this time step
          s% xtra(1) = CE_energy_rate
-
-
 
          contains
 
@@ -169,11 +156,10 @@
             EnvelopeWindow = 1./pi * atan((s% m(k) - m_bot) / (0.002*Msun)) + 0.5
 
          end function EnvelopeWindow
-
       end subroutine CE_inject_case1
 
 
-
+! ***********************************************************************
       subroutine CE_inject_case2(id, ierr)
 
          use const_def, only: Msun, Rsun
@@ -198,10 +184,7 @@
       end subroutine CE_inject_case2
 
 
-
-
-
-
+! ***********************************************************************
       subroutine CE_inject_case3(id, ierr)
 
          integer, intent(in) :: id
@@ -216,13 +199,11 @@
          real(dp) :: R_acc, R_acc_low, R_acc_high
          real(dp) :: v_rel, v_rel_div_csound, M_encl, rho_at_companion, scale_height_at_companion
 
-
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
 
          ! Alternative energy source here
-
 
          ! Get input controls
          CE_energy_rate = s% xtra(1)
@@ -230,7 +211,6 @@
          CE_companion_radius = s% xtra(3)
          CE_companion_mass = s% xtra(4)
          CE_n_acc_radii = s% xtra(5)
-
 
          call calc_quantities_at_comp_position(id, ierr)
 
@@ -245,7 +225,6 @@
 
 !         ! This is incorrect, but for now, not completely crazy
 !         R_acc = (R_acc_low + R_acc_high) / 2.0
-
 
          ! Determine drag force
          ! Equations from Ostriker (1999) ApJ, 513, 252
@@ -264,17 +243,14 @@
          ! Total energy rate= drag force * velocity
          CE_energy_rate = F_drag * v_rel
 
-
          call CE_set_extra_heat(id, CE_energy_rate, ierr)
-
 
          ! Save the total erg/second added in this time step
          s% xtra(1) = CE_energy_rate
-
       end subroutine CE_inject_case3
 
 
-
+! ***********************************************************************
       subroutine CE_inject_case4(id, ierr)
 
          use const_def, only: Rsun, Msun, pi, standard_cgrav
@@ -298,14 +274,12 @@
 
          ! Alternative energy source here
 
-
          ! Get input controls
          CE_energy_rate = s% xtra(1)
          CE_companion_position = s% xtra(2)
          CE_companion_radius = s% xtra(3)
          CE_companion_mass = s% xtra(4)
          CE_n_acc_radii = s% xtra(5)
-
 
          call calc_quantities_at_comp_position(id, ierr)
 
@@ -348,7 +322,6 @@
          ! Accretion luminosity luminosity
          L_acc = standard_cgrav * M2 / R2 * mdot_macleod
 
-
          ! Total energy rate = drag force * velocity
          if (s% x_logical_ctrl(2)) then
             CE_energy_rate = F_drag * max(v_rel,0.0d0) + L_acc ! Include accretion luminosity depending on inlist input
@@ -365,7 +338,7 @@
       end subroutine CE_inject_case4
 
 
-
+! ***********************************************************************
       subroutine CE_inject_case5(id, ierr)
 
          use const_def, only: Rsun, Msun, pi, standard_cgrav
@@ -390,14 +363,12 @@
 
          ! Alternative energy source here
 
-
          ! Get input controls
          CE_energy_rate = s% xtra(1)
          CE_companion_position = s% xtra(2)
          CE_companion_radius = s% xtra(3)
          CE_companion_mass = s% xtra(4)
          CE_n_acc_radii = s% xtra(5)
-
 
          call calc_quantities_at_comp_position(id, ierr)
 
@@ -489,15 +460,11 @@
             stop "x_integer_ctrl(2) is not defined"
          endif
 
-
          ! Limit accretion luminosity to Eddington rate
          L_acc = min(L_acc, 1.26e38 * CE_companion_mass)
 
-
-
          ! Total energy rate = drag force * velocity
          CE_energy_rate = F_drag * max(v_rel,0.0d0)
-
 
          if (s% x_logical_ctrl(2)) then
             if (s% x_integer_ctrl(3) == 1) then
@@ -517,15 +484,13 @@
             endif
          end if
 
-
          ! Save the total erg/second added in this time step
          s% xtra(1) = CE_energy_rate
          s% xtra(20) = L_acc
-
       end subroutine CE_inject_case5
 
 
-
+! ***********************************************************************
       subroutine CE_set_extra_heat(id, CE_energy_rate, ierr)
          integer, intent(in) :: id
          real(dp), intent(in) :: CE_energy_rate
@@ -542,7 +507,6 @@
 
          CE_companion_position = s% xtra(2)
          CE_n_acc_radii = s% xtra(5)
-
 
          call calc_quantities_at_comp_position(id, ierr)
 
@@ -584,10 +548,10 @@
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0 * R_acc), a_tukey)
             s% extra_heat(k)%val = CE_energy_rate / mass_to_be_heated * ff
          end do
-
-
       end subroutine CE_set_extra_heat
 
+
+! ***********************************************************************
       subroutine CE_set_extra_heat2(id, CE_energy_rate, ierr)
          integer, intent(in) :: id
          real(dp), intent(in) :: CE_energy_rate
@@ -605,7 +569,6 @@
 
          CE_companion_position = s% xtra(2)
          CE_n_acc_radii = s% xtra(5)
-
 
          call calc_quantities_at_comp_position(id, ierr)
 
@@ -655,10 +618,7 @@
             s% extra_heat(k)%val = CE_energy_rate * (4.0d0 * pi * s% r(k) * s% r(k) * cell_dr(k) * ff / volume_to_be_heated) / s% dm(k)
          end do
          deallocate(cell_dr)
-
-
       end subroutine CE_set_extra_heat2
-
 
 
       end module CE_energy
