@@ -21,7 +21,8 @@ endif
 # BINARY_WORK_OBJS defined in makefile_header
 # added more code located in WORK_SRC_DIR
 IONIZATION_OBJS = ionization_def.o ion_tables_load.o mod_tables.o mod_ionization.o ion_tables_eval.o ion_table_plot.o ionization_lib.o
-OBJS = $(IONIZATION_OBJS) $(BINARY_WORK_OBJS) binary_run.o
+POSYDON_OBJS = POSYDON_run_binary_extras.o POSYDON_run_star_extras.o
+OBJS = $(IONIZATION_OBJS) $(POSYDON_OBJS) $(BINARY_WORK_OBJS) binary_run.o
 
 WORK_DIR = ..
 WORK_SRC_DIR = $(WORK_DIR)/src
@@ -88,6 +89,13 @@ mod_ionization.o: $(COMMON_CODE_DIR)/ionization/mod_ionization.f90
 	$(WORK_COMPILE) $<
 
 mod_tables.o: $(COMMON_CODE_DIR)/ionization/mod_tables.f90
+	$(WORK_COMPILE) $<
+
+#Added rules of how to compile the ionization code
+POSYDON_run_binary_extras.o: $(COMMON_CODE_DIR)/POSYDON/POSYDON_run_binary_extras.f90
+	$(WORK_COMPILE) $<
+
+POSYDON_run_star_extras.o: $(COMMON_CODE_DIR)/POSYDON/POSYDON_run_star_extras.f90
 	$(WORK_COMPILE) $<
 
 #Added a rule of how to compile the additional code that we added in WORK_SRC_DIR
