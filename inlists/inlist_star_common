@@ -129,7 +129,7 @@
    am_nu_factor = 1.0d0                      ! scaling of angular momentum diffusion coefficient;                                         default: 1       |
    am_nu_non_rotation_factor = 1.0d0         ! scaling of non-rotating part of angular momentum diffusion coefficient;                    default: 1       |
    am_nu_ST_factor = 1.0d0                   ! scaling of Spruit-Tayler dynamo;                                                           default: -1      | 0: no ST, 1: ST 
-   am_nu_visc_factor = 1                     ! scaling of viscosity on angular momentum diffusion;                                        default: 1       |
+   am_nu_visc_factor = 0.333d0               ! scaling of viscosity on angular momentum diffusion;                                        default: 1       | less efficient
    D_DSI_factor = 1.0d0                      ! scaling the element mixing due to dynamical shear instability;                             default: 0       | used for am_nu_DSI_factor, too
    D_SH_factor = 0.0d0                       ! scaling the element mixing due to Solberg-Hoiland;                                         default: 0       | used for am_nu_SH_factor, too; this is different from MIST2
    D_SSI_factor = 1.0d0                      ! scaling the element mixing due to secular shear instability;                               default: 0       | used for am_nu_SSI_factor, too

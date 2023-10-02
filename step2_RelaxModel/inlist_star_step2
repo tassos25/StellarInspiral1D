@@ -10,7 +10,7 @@
 
 !!! modifications to model
    set_initial_dt = .true.         ! reset initial timestep;                              common value: .false. | set the initial timestep
-   years_for_initial_dt = 3.78d-8  ! set this initial timestep;                           common value: -1      | adopted to make it converge
+   years_for_initial_dt = 1d-8     ! set this initial timestep;                           common value: -1      | adopted to make it converge
    set_to_this_tau_factor = 1d-4   ! set optical depth at surface;                        common value: -1      | put surface a low optical depth
    set_tau_factor = .true.         ! enable to set an optical depth without reconverging; common value: .false. | enables previous setting
    change_v_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
@@ -53,29 +53,8 @@
    max_age = 0.01             ! maximum age in the simulation; common value: 1.4e10 | relaxation shouldn't age the star
 
 !!! mixing (and convection)
-   mixing_length_alpha = 1.82d0           ! factor to local pressure scale height;                                        common value: 1.93d0        |
-   alpha_semiconvection = 0.1d0           ! efficiency of semiconvection;                                                 common value: 0d0           |
-   thermohaline_coeff = 666.0d0           ! efficiency of thermohaline mixing;                                            common value: 17.5d0        | use extremly efficient thermohaline mixing
-   MLT_option = 'Henyey'                  ! mlt scheme;                                                                   common value: 'Mihalas'     | Henyey, Vardya, and Bodenheimer 1965
-   okay_to_reduce_gradT_excess = .false.  ! enable MLT++;                                                                 common value: .true.        | don't use MLT++
-   overshoot_scheme(1) = 'exponential'    ! kind of overshooting beyond convective zone;                                  common value: 'exponential' |
-   overshoot_zone_type(1) = 'any'         ! zone type to apply overshooting;                                              common value: 'any'         |
-   overshoot_zone_loc(1) = 'core'         ! location of overshooting;                                                     common value: 'core'        |
-   overshoot_bdy_loc(1) = 'top'           ! defines at which boundary of the convective zone the overshooting is applied; common value: 'top'         |
-   overshoot_f(1) = 1.6d-2                ! overshooting size in units of pressure scale height;                          common value: 4.15d-2       | H core overshoot calibrated to M67
-   overshoot_f0(1) = 8.0d-3               ! defines how far inside the convective zone the overshooting starts;           common value: 8.0d-3        | H core overshoot calibrated to M67
-   overshoot_scheme(2) = 'exponential'    ! kind of overshooting beyond convective zone;                                       default: ''            |
-   overshoot_zone_type(2) = 'any'         ! zone type to apply overshooting;                                                   default: ''            |
-   overshoot_zone_loc(2) = 'shell'        ! location of overshooting;                                                          default: ''            |
-   overshoot_bdy_loc(2) = 'any'           ! defines at which boundary of the convective zone the overshooting is applied;      default: ''            |
-   overshoot_f(2) = 1.74d-2               ! overshooting size in units of pressure scale height;                               default: 0d0           | envelope overshoot calibrated to the sun
-   overshoot_f0(2) = 8.7d-3               ! defines how far inside the convective zone the overshooting starts;                default: 0d0           | envelope overshoot calibrated to the sun
    max_conv_vel_div_csound = 1            ! limit convective velocities (units of sound speed);                           common value: 1d99          | no super-sonic convection
    max_v_div_cs_for_convection = 1        ! disable convection for fast moving layers (units of sound speed);             common value: 1d99          | disable convection in super-sonic layers
-
-!!! rotation controls
-   D_SH_factor = 1.0d0    ! scaling the element mixing due to Solberg-Hoiland;      common value: 0       |
-   D_ST_factor = 1.0d0    ! scaling the element mixing due to Spruit-Tayler dynamo; common value: 0       |
 
 !!! atmosphere boundary conditions
    use_compression_outer_BC = .true.  ! enable boundary condition at surface to have vanishing compression gradient; common value: .false. | use other surface boundary condition
@@ -83,10 +62,6 @@
 !!! mass gain or loss
    max_wind = 1d-1                            ! maximum wind in Msun/year;                                common value: 0d0       | limit wind loss
    trace_super_eddington_wind_boost = .true.  ! write information about super Eddington wind to terminal; common value: .false.   | get additional output
-
-!!! mesh adjustment
-   max_center_cell_dq = 5d-6   ! maximum mass for central cell;    common value: 1d-7  | smaller central cell
-   max_surface_cell_dq = 1d-2  ! maximum mass for cell at surface; common value: 1d-12 | larger surface cell allowed
 
 !!! structure equations
    energy_eqn_option = 'dedt'                    ! defines which energy equation should be used;                        common value: 'dedt'  | options: 'dedt' (see https://ui.adsabs.harvard.edu/abs/2019ApJS..243...10P/abstract) or 'eps_grav' (see https://ui.adsabs.harvard.edu/abs/2018ApJS..234...34P/abstract)

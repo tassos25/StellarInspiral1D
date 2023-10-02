@@ -24,9 +24,6 @@
 !!! output controls
    terminal_interval = 10       ! interval for terminal outputs; common value: 1        | get less outputs
 
-!!! rotation controls
-   am_nu_visc_factor = 0.333d0  ! scaling of viscosity on angular momentum diffusion; common value: 1 | less efficient
-
 !!! mass gain or loss
    hot_wind_scheme = 'Dutch'         ! hot wind scheme: hot of all stars;                        common value: '' |
    cool_wind_RGB_scheme = 'Dutch'    ! cool wind scheme: cool of high mass stars (Minit>10Msun); common value: '' | it gets replaced in run_star_extras by 'Reimers' for cool low mass stars
@@ -36,7 +33,6 @@
    solver_iters_timestep_limit = 20  ! maximum number of solver iterations before timestep gets reduced; common value: 7 | try to avoid too many timestep changes
 
 !!! miscellaneous controls
-   zams_filename = '../models/zams_z1.42m2_y0.2703.data'  ! name of file with ZAMS data; common value: '../models/zams_z1.42m2_y0.2703.data' | POSYDON ZAMS file
  !! hooks
    use_other_wind = .true.  ! enable other wind prescription; common value: .false. | combination of Dutch and Reimers, with Z=Zbase for the scaling
 
