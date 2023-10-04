@@ -99,7 +99,7 @@ CE_timestep.o: $(COMMON_CODE_DIR)/inspiral/CE_timestep.f90
 CE_run_star_extras.o: $(COMMON_CODE_DIR)/inspiral/CE_run_star_extras.f90
 	$(WORK_COMPILE) $<
 
-#A rule of how to compile the additional code that we added in WORK_SRC_DIR
+#A rule of how to compile additional code in WORK_SRC_DIR
 %.o: $(WORK_SRC_DIR)/%.f90
 	$(WORK_COMPILE) $<
 

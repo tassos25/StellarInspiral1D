@@ -1,11 +1,7 @@
 #!/bin/bash
 
-rm -f .restart
+rm -f restart_photo
 
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
-if [[ -e binary.exe ]];then
-	./binary.exe
-else
-	./binary
-fi
+./star
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"

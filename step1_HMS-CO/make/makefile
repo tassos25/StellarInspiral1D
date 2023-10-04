@@ -91,21 +91,20 @@ mod_ionization.o: $(COMMON_CODE_DIR)/ionization/mod_ionization.f90
 mod_tables.o: $(COMMON_CODE_DIR)/ionization/mod_tables.f90
 	$(WORK_COMPILE) $<
 
-#Added rules of how to compile the ionization code
+#Added rules of how to compile the extra code from POSYDON
 POSYDON_run_binary_extras.o: $(COMMON_CODE_DIR)/POSYDON/POSYDON_run_binary_extras.f90
 	$(WORK_COMPILE) $<
 
 POSYDON_run_star_extras.o: $(COMMON_CODE_DIR)/POSYDON/POSYDON_run_star_extras.f90
 	$(WORK_COMPILE) $<
 
-#Added a rule of how to compile the additional code that we added in WORK_SRC_DIR
+#A rule of how to compile additional code in WORK_SRC_DIR
 %.o: $(WORK_SRC_DIR)/%.f90
 	$(WORK_COMPILE) $<
 
 
 clean:
 	-@rm -f *.o *.mod *.smod $(WORK_DIR)/$(STAR)
-
 
 remk:
 	-@rm -f run.o $(WORK_DIR)/$(STAR)

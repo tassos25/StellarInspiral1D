@@ -1,5 +1,9 @@
 &star_job
 
+!!! output
+   write_profile_when_terminate = .true.                       ! enable to write profiles on termination; common value: .false. | keep a final profile
+   filename_for_profile_when_terminate = 'final_profile.data'  ! name of the final profile file;          common value: ''      | 
+
 !!! modifications to model
    new_rotation_flag = .true.               ! enable rotation;                    common value: .false. | allow for rotation
    change_rotation_flag = .true.            ! copy enabled rotation;              common value: .false. | copy rotation flag
@@ -21,8 +25,14 @@
 
 &controls
 
+!!! starting model
+   initial_mass = 10  ! initial mass in Msun; default: 1 |
+
 !!! output controls
-   terminal_interval = 10       ! interval for terminal outputs; common value: 1        | get less outputs
+   terminal_interval = 10  ! interval for terminal outputs; common value: 1 | get less outputs
+
+!!! when to stop
+   photosphere_r_upper_limit = 550d0  ! stopping based on photospheric radius; common value: 1d99 | stop at 500 Rsun
 
 !!! mass gain or loss
    hot_wind_scheme = 'Dutch'         ! hot wind scheme: hot of all stars;                        common value: '' |

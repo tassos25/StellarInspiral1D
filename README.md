@@ -69,9 +69,7 @@ There is a subdirectory `inlists`. It contains the common inlists:
 * `history_columns_common.list`: this is a shard list for columns writen to the star's history files.
 * `profile_columns_common.list`: this is a shard list for columns writen to the star's profile files.
 
-Each step contains main in-list(s) to take care of the stacking of in-lists, those are called `inlist` (, `inlist1`, `inlist2`).
-
-Additionally, there are in-lists specific for each step and MESA module are therefore called `inlist_#module_step?`.
+Each step contains main in-list(s) to take care of the stacking of in-lists, those are called `inlist` (, `inlist1`, `inlist2`). Additionally, there are in-lists specific for each step and MESA module are therefore called `inlist_#module_step?` (`#module` is `binary` or `star`; `?` is `1`, `2`, or `3`). Here you can find the step specific changes. In the case there is more than one star, there are last level in-lists `inlist_star?` (`?` is `1`, `2`) which only do the naming of files and directories to differentiate the two stars.
 
 ## common_code
 

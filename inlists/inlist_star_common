@@ -1,15 +1,16 @@
 &star_job
 
 !!! output
-   show_log_description_at_start = .false.  ! enable initial terminal output;                            default: .true.      | turned off
-   show_net_species_info = .true.           ! enable to show list of isotope species in the nuclear net; default: .false.     | turned on
-   history_columns_file = ''                ! a list of columns to save in the history files;            default: ''          | no list
-   profile_columns_file = ''                ! a list of columns to save in the profile files;            default: ''          | no list
-  !save_model_number = 1                    ! save a specific model number;                              default: -111        | for step1: taken care at POSYDON_run_binary_extras.f90
-   save_model_when_terminate = .true.       ! enable to save a model on termination;                     default: .false.     | turned on
-   save_model_filename = 'model.mod'        ! filename to save model;                                    default: 'undefined' | name get changed from Scotti's script
-  !write_profile_when_terminate = .false.   ! enable to write profiles on termination;                   default: .false.     | for step1: this is done in the POSYDON_run_binary_extras.f90
-  !report_retries = .false.                 ! additional output for debugging retries;                   default: .false.     |
+   show_log_description_at_start = .false.   ! enable initial terminal output;                            default: .true.      | turned off
+   show_net_species_info = .true.            ! enable to show list of isotope species in the nuclear net; default: .false.     | turned on
+   history_columns_file = ''                 ! a list of columns to save in the history files;            default: ''          | no list
+   profile_columns_file = ''                 ! a list of columns to save in the profile files;            default: ''          | no list
+  !save_model_number = 1                     ! save a specific model number;                              default: -111        | for step1: taken care at POSYDON_run_binary_extras.f90
+   save_model_when_terminate = .true.        ! enable to save a model on termination;                     default: .false.     | turned on
+   save_model_filename = 'model.mod'         ! filename to save model;                                    default: 'undefined' | name get changed from Scotti's script
+  !write_profile_when_terminate = .false.    ! enable to write profiles on termination;                   default: .false.     | for step1: this is done in the POSYDON_run_binary_extras.f90
+  !filename_for_profile_when_terminate = ''  ! name of the final profile file;                            default: ''          | for step1: this is done in the POSYDON_run_binary_extras.f90
+  !report_retries = .false.                  ! additional output for debugging retries;                   default: .false.     |
 
 !!! starting model
    load_saved_model = .false.         ! enable to start from a model instead of from ZAMS; default: .false.     |
@@ -70,6 +71,7 @@
 &controls
 
 !!! starting model
+  !initial_mass = 12     ! initial mass in Msun;     default: 1      | only need for single star models
    initial_z = 1.42d-2   ! initial metallicity;      default: 0.02d0 | can be any value in the range [0,0.04]
    initial_y = 2.703d-1  ! initial helium abundance; default: -1     | <0 means initial_y=0.24+2*initial_z
 
@@ -97,10 +99,11 @@
    one_core_boundary_he4_c12_fraction = 1d-1  ! oxygen-neon core boundary at outermost location;             default: 0.1d0 | requires X_He4+X_C12<=this value and X_O16+X_Ne20>=min_boundary_fraction
    min_boundary_fraction = 1d-1               ! minimum value of element (group) defining any core boundary; default: 0.1d0 | reauires core material of at least this amount at boundary
 
-!!! when to stop                                                                 | additional stopping criteria set in binary_controls and POSYDON_run_binary_extras.f90
-   max_model_number = -1      ! maximum number of models;          default: -1   | no maximum
-   max_age = 1.4e10           ! maximum age in the simulation;     default: 1d36 | avoid to evolve too far beyond the Hubble time
-   gamma_center_limit = 10d0  ! stopping based on adiabatic index; default: 1d99 | crystallization begins ==> white dwarf formation
+!!! when to stop                                                                            | additional stopping criteria set in binary_controls and POSYDON_run_binary_extras.f90
+   max_model_number = -1             ! maximum number of models;              default: -1   | no maximum
+   max_age = 1.4e10                  ! maximum age in the simulation;         default: 1d36 | avoid to evolve too far beyond the Hubble time
+   gamma_center_limit = 10d0         ! stopping based on adiabatic index;     default: 1d99 | crystallization begins ==> white dwarf formation
+   photosphere_r_upper_limit = 1d99  ! stopping based on photospheric radius; default: 1d99 | in units of Rsun; usually not used
 
 !!! mixing (and convection)
    mixing_length_alpha = 1.93d0                     ! factor to local pressure scale height;                                                  default: 2       |
