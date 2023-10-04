@@ -1,0 +1,34 @@
+
+&binary_job
+
+      read_extra_binary_job_inlist(1) = .true.
+      extra_binary_job_inlist_name(1) = '../inlists/inlist_binary_common'
+
+      read_extra_binary_job_inlist(2) = .true.
+      extra_binary_job_inlist_name(2) = 'inlist_binary'
+
+/ ! end of star_job namelist
+
+
+
+&binary_controls
+
+      read_extra_binary_controls_inlist(1) = .true.
+      extra_binary_controls_inlist_name(1) = '../inlists/inlist_binary_common'
+
+      read_extra_binary_controls_inlist(2) = .true.
+      extra_binary_controls_inlist_name(2) = 'inlist_binary'
+
+/ ! end of controls namelist
+
+
+
+&pgbinary
+
+      read_extra_pgbinary_inlist(1) = .true.
+      extra_pgbinary_inlist_name(1) = '../inlists/inlist_binary_common'
+
+      read_extra_pgbinary_inlist(2) = .true.
+      extra_pgbinary_inlist_name(2) = 'inlist_binary'
+
+/ ! end of pgbinary namelist
