@@ -80,13 +80,13 @@ There is a subdirectory `common_code`. It contains different bunches of code and
 In this subdirectory is the code needed for the in-spiraling steps:
 
 * `CE_run_star_extras`: this file contains the common functions usually in the `run_star_extras`, which are common for all the in-spiraling steps
-* `CE_adjust_mdot`: tbw
-* `CE_after_struct_burn_mix`: tbw
-* `CE_before_struct_burn_mix`: tbw
-* `CE_energy`: tbw
-* `CE_orbit`: tbw
-* `CE_timestep`: tbw
-* `CE_torque`: tbw
+* `CE_adjust_mdot`: this file contains the function to have a more smooth mass loss
+* `CE_after_struct_burn_mix`: this file contains the functions to remove unbound material and recalculates the recombination
+* `CE_before_struct_burn_mix`: this file contains the function to recalculate the recombination
+* `CE_energy`: this file contains the functions how much and where energy is injected in the star
+* `CE_orbit`: this file contains the functions to deal with the orbit the in-spiraling object is on
+* `CE_timestep`: this file contains the functions to put additional constrains on the calculation of the next time step
+* `CE_torque`: this file contains the function for getting the torque the in-spiraling object causes
 
 ### POSYDON
 
@@ -95,7 +95,7 @@ In this subdirectory is the code needed for the in-spiraling steps:
 
 ### ionization
 
-This is the required code from the ionization branch of MESA which is not part of the MESA revision r23.05.1, while needed for this extension.
+This is the required code from the ionization branch of MESA (https://github.com/MESAHub/mesa/tree/rf/ion) which is not part of the MESA revision r23.05.1, while needed for this extension.
 
 ### ionization_data
 
