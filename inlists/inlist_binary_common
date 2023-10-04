@@ -27,7 +27,7 @@
    photo_directory = 'photos'                     ! where to save photos;                                                     default: 'photos' |
    terminal_interval = 10                         ! interval for terminal outputs;                                            default: 1        | get less outputs
    write_header_frequency = 10                    ! frequency to repeat the header every X outputs;                           default: 10       |
-   extra_binary_terminal_output_file = 'out.txt'  ! writes terminal output to this file, too;                                 default: ''       | save terminal output in file
+  !extra_binary_terminal_output_file = 'out.txt'  ! writes terminal output to this file, too;                                 default: ''       | standard output is written to "screen.txt" by using tee
 
 !!! timestep controls (hard limits causes retry)
    fm = 5d-3                    ! expected relative change in envelope mass;                          default: 1d-2 | 

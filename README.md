@@ -71,6 +71,8 @@ There is a subdirectory `inlists`. It contains the common inlists:
 
 Each step contains main in-list(s) to take care of the stacking of in-lists, those are called `inlist` (, `inlist1`, `inlist2`).
 
+Additionally, there are in-lists specific for each step and MESA module are therefore called `inlist_#module_step?`.
+
 ## common_code
 
 There is a subdirectory `common_code`. It contains different bunches of code and data.
@@ -79,7 +81,7 @@ There is a subdirectory `common_code`. It contains different bunches of code and
 
 In this subdirectory is the code needed for the in-spiraling steps:
 
-* `CE_run_star_extras`: tbw
+* `CE_run_star_extras`: this file contains the common functions usually in the `run_star_extras`, which are common for all the in-spiraling steps
 * `CE_adjust_mdot`: tbw
 * `CE_after_struct_burn_mix`: tbw
 * `CE_before_struct_burn_mix`: tbw
@@ -90,8 +92,8 @@ In this subdirectory is the code needed for the in-spiraling steps:
 
 ### POSYDON
 
-* `POSYDON_run_star_extras`: tbw
-* `POSYDON_run_binary_extras`: tbw
+* `POSYDON_run_star_extras`: this file contains the common functions usually in the `run_star_extras`, which are common for all the steps based on POSYDON
+* `POSYDON_run_binary_extras`: this file contains the common functions usually in the `run_binary_extras`, which are common for all the steps based on POSYDON
 
 ### ionization
 
@@ -100,3 +102,7 @@ This is the required code from the ionization branch of MESA which is not part o
 ### ionization_data
 
 This is the required data needed for the ionization code. It is copied from MESA revision r9793, which contained this the ionization code and this data set in `${MESA_DIR}/data`.
+
+## FAQ
+
+tbw
