@@ -14,4 +14,8 @@
    initial_separation_in_Rsuns = 900d0   ! initial separation;   common value: 972d0  |
    initial_eccentricity = 0.0d0          ! initial eccentricity; common value: 0.0d0  | circular
 
+!!! rotation and sync controls
+   sync_type_2 = "structure_dependent"  ! syncronisation of star 2;                      default: 'Hut_conv' | "structure_dependent": it calculates both timescales for "Hut_rad" (assuming all star radiative) and "Hut_conv" (for the most important convective layer in the envelope) and picks the shortest one.
+   do_initial_orbit_sync_2 = .true.     ! equal initial orbital and stellar spin period; default: .false.    | start synchronized
+
 / ! end of binary_controls namelist
