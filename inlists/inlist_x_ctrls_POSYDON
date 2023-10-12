@@ -1,0 +1,10 @@
+&controls
+
+!!! miscellaneous controls
+ !! extra parameters
+   x_logical_ctrl(1) = .false.  ! for single stars stars, the control needs to be true, so that the carbon exhaustion check happens in run_star_extras.f
+   x_logical_ctrl(2) = .false.  ! for formation of He single stars, before they later evolve in a CO-HeMS binary or in a He Star
+   x_logical_ctrl(3) = .false.  ! turn on eq.8 Belczynski+2010 LBV2 winds  with factor 1 (10-4 Msun/yr) to replace other winds for postMS stars in Humphreys-Davidson limit
+   x_ctrl(1) = 1.0d0            ! factor to boost Eddington rate
+
+/ ! end of controls namelist

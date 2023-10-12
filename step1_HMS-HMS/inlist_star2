@@ -1,0 +1,26 @@
+&star_job
+
+!!! output
+   save_model_filename = 'model2.mod'  ! filename to save model; common value: 'model.mod' | name get changed from Scotti's script
+
+/ ! end of star_job namelist
+
+&eos
+
+!!! equation of state (EOS)
+
+/ ! end of eos namelist
+
+&kap
+
+!!! opacities
+
+/ ! end of kap namelist
+
+&controls
+
+!!! output controls
+   photo_directory = 'photos2'  ! where to save photos;          common value: 'photos' | use a different directory for each star
+   log_directory = 'LOGS2'      ! where to save logs;            common value: 'LOGS'   | use a different directory for each star
+
+/ ! end of controls namelist

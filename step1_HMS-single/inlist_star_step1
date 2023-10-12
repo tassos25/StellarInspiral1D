@@ -1,0 +1,49 @@
+&star_job
+
+!!! output
+   write_profile_when_terminate = .true.                       ! enable to write profiles on termination; common value: .false. | keep a final profile
+   filename_for_profile_when_terminate = 'final_profile.data'  ! name of the final profile file;          common value: ''      | 
+
+!!! modifications to model
+   new_rotation_flag = .true.               ! enable rotation;                    common value: .false. | allow for rotation
+   change_rotation_flag = .true.            ! copy enabled rotation;              common value: .false. | copy rotation flag
+   set_initial_surface_rotation_v = .true.  ! enable to set the initial rotation; common value: .false. | set new surface velocity
+
+/ ! end of star_job namelist
+
+&eos
+
+!!! equation of state (EOS)
+
+/ ! end of eos namelist
+
+&kap
+
+!!! opacities
+
+/ ! end of kap namelist
+
+&controls
+
+!!! starting model
+   initial_mass = 10  ! initial mass in Msun; default: 1 |
+
+!!! output controls
+   terminal_interval = 10  ! interval for terminal outputs; common value: 1 | get less outputs
+
+!!! when to stop
+   photosphere_r_upper_limit = 550d0  ! stopping based on photospheric radius; common value: 1d99 | stop at 500 Rsun
+
+!!! mass gain or loss
+   hot_wind_scheme = 'Dutch'         ! hot wind scheme: hot of all stars;                        common value: '' |
+   cool_wind_RGB_scheme = 'Dutch'    ! cool wind scheme: cool of high mass stars (Minit>10Msun); common value: '' | it gets replaced in run_star_extras by 'Reimers' for cool low mass stars
+   cool_wind_AGB_scheme = 'Blocker'  ! cool wind scheme: cool for low mass stars in AGB;         common value: '' |
+
+!!! timestep controls (limits reduce next timestep, hard limits causes retry)
+   solver_iters_timestep_limit = 20  ! maximum number of solver iterations before timestep gets reduced; common value: 7 | try to avoid too many timestep changes
+
+!!! miscellaneous controls
+ !! hooks
+   use_other_wind = .true.  ! enable other wind prescription; common value: .false. | combination of Dutch and Reimers, with Z=Zbase for the scaling
+
+/ ! end of controls namelist
