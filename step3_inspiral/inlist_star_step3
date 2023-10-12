@@ -55,6 +55,7 @@
    max_model_number = 25000  ! maximum number of models;      common value: -1     | generous maximum
 
 !!! mixing (and convection)
+   okay_to_reduce_gradT_excess = .false.  ! enable MLT++;                                                                 common value: .true.        | don't use MLT++
    max_conv_vel_div_csound = 1            ! limit convective velocities (units of sound speed);                           common value: 1d99          | no super-sonic convection
    max_v_div_cs_for_convection = 1        ! disable convection for fast moving layers (units of sound speed);             common value: 1d99          | disable convection in super-sonic layers
 
@@ -63,6 +64,9 @@
 
 !!! mass gain or loss
    max_wind = 1d-1                            ! maximum wind in Msun/year;                                common value: 0d0       | limit wind loss
+
+!!! mesh adjustment
+   max_surface_cell_dq = 1d-7  ! maximum mass for cell at surface; common value: 1d-12 | larger surface cell allowed
 
 !!! structure equations
    energy_eqn_option = 'dedt'                    ! defines which energy equation should be used;                        common value: 'dedt'  | options: 'dedt' (see https://ui.adsabs.harvard.edu/abs/2019ApJS..243...10P/abstract) or 'eps_grav' (see https://ui.adsabs.harvard.edu/abs/2018ApJS..234...34P/abstract)
