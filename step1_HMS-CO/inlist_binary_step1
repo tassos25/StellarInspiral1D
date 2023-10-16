@@ -8,10 +8,10 @@
 &binary_controls
 
 !!! starting model
-   m1 = 10.0d0                           ! mass of star 1;       common value: 12.0d0 |
+  !m1 = 10.0d0                           ! mass of star 1;       common value: 12.0d0 |
    m2 = 1.4d0                            ! mass of star 2;       common value: 1.4d0  |
    initial_period_in_days = -1d0         ! initial period;       common value: -1d0   | do not use initial orbital period instead use initial separation
-   initial_separation_in_Rsuns = 1400d0  ! initial separation;   common value: 972d0  |
+  !initial_separation_in_Rsuns = 1400d0  ! initial separation;   common value: 972d0  |
    initial_eccentricity = 0.0d0          ! initial eccentricity; common value: 0.0d0  | circular
 
 / ! end of binary_controls namelist

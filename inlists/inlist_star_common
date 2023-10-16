@@ -141,6 +141,7 @@
    D_ST_factor = 0.0d0                       ! scaling the element mixing due to Spruit-Tayler dynamo;                                    default: 0       | no element mixing
    D_visc_factor = 0.0d0                     ! scaling the element mixing due to viscosity;                                               default: 0       | no element mixing
    am_gradmu_factor = 0.05d0                 ! scaling of composition gradient's influence on angular momentum diffusion;                 default: 0.05d0  | f_mu = 0.05 in Heger+2000, 0.1 in Yoon+2006
+   do_adjust_J_lost = .true.                 ! adjustment of angular momentum because of some being carried by mass loss;                 default: .true.  |
    premix_omega = .true.                     ! enable to do half of the angular-momentum transport before and after the structure update; default: .true.  |
    recalc_mixing_info_each_substep = .true.  ! enable to recalculate omega mixing coefficients after each substep;                        default: .false. | update more often
    w_div_wcrit_max = 0.9d0                   ! limit fp and ft at when this value is reached;                                             default: 0.90d0  | at 90% critical rotation
