@@ -62,6 +62,9 @@
          ! Calculate next timestep
          if ((dE_fraction > dE_limit)) then
             CE_check_energy = retry
+            if (s% job% report_retries) then
+               write(*,*) ' retry reason: dE_limit<', dE_fraction
+            end if
          else
             CE_check_energy = keep_going
          end if
@@ -71,7 +74,11 @@
 ! ***********************************************************************
       integer function CE_check_separation(s)
          type (star_info), pointer :: s
-         real(dp) :: dA_fraction, dA_limit
+         real(dp) :: dA_fraction, dA_limit, dE_fraction
+
+
+         ! Fractional energy change
+         dE_fraction = abs((s% xtra(1) * s% dt) / s% xtra(8))
 
          ! Fractional separation change
          dA_fraction = abs((s% xtra(2) - s% xtra_old(2)) / s% xtra_old(2))
@@ -80,10 +87,16 @@
          dA_limit = s% x_ctrl(9)
 
          ! Calculate next timestep
-         if (dA_fraction > dA_limit) then
+         if ((dA_fraction > dA_limit).and.(dE_fraction > 1d-5*s% x_ctrl(8))) then
             CE_check_separation = retry
+            if (s% job% report_retries) then
+               write(*,*) ' retry reason: dA_limit<', dA_fraction, ' dE_fraction=', dE_fraction
+            end if
          else
             CE_check_separation = keep_going
+            if ((dA_fraction > dA_limit).and.(s% job% report_retries)) then
+               write(*,*) ' ignore reason: dA_limit<', dA_fraction, ' dE_fraction=', dE_fraction
+            end if
          end if
       end function CE_check_separation
 
@@ -91,7 +104,10 @@
 ! ***********************************************************************
       integer function CE_check_ang_mom(s)
          type (star_info), pointer :: s
-         real(dp) :: dJ_fraction, dJ_limit
+         real(dp) :: dJ_fraction, dJ_limit, dE_fraction
+
+         ! Fractional energy change
+         dE_fraction = abs((s% xtra(1) * s% dt) / s% xtra(8))
 
          ! Fractional angular momentum change
          dJ_fraction = abs(s% xtra(6) * s% dt / s% xtra(10))
@@ -100,10 +116,16 @@
          dJ_limit = s% x_ctrl(10)
 
          ! Calculate next timestep
-         if ((dJ_fraction > dJ_limit)) then
+         if ((dJ_fraction > dJ_limit).and.(dE_fraction > 1d-5*s% x_ctrl(8))) then
             CE_check_ang_mom = retry
+            if (s% job% report_retries) then
+               write(*,*) ' retry reason: dJ_limit<', dJ_fraction, ' dE_fraction=', dE_fraction
+            end if
          else
             CE_check_ang_mom = keep_going
+            if ((dJ_fraction > dJ_limit).and.(s% job% report_retries)) then
+               write(*,*) ' ignore reason: dJ_limit<', dJ_fraction, ' dE_fraction=', dE_fraction
+            end if
          end if
       end function CE_check_ang_mom
 
