@@ -57,6 +57,9 @@
    max_conv_vel_div_csound = 1            ! limit convective velocities (units of sound speed);                           common value: 1d99          | no super-sonic convection
    max_v_div_cs_for_convection = 1        ! disable convection for fast moving layers (units of sound speed);             common value: 1d99          | disable convection in super-sonic layers
 
+!!! rotation controls
+  !do_adjust_J_lost = .false.  ! adjustment of angular momentum because of some being carried by mass loss; common value: .true. | swtich off, because we don't have mass loss
+
 !!! atmosphere boundary conditions
    use_compression_outer_BC = .true.  ! enable boundary condition at surface to have vanishing compression gradient; common value: .false. | use other surface boundary condition
 
