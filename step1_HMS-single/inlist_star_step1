@@ -26,7 +26,7 @@
 &controls
 
 !!! starting model
-   initial_mass = 10  ! initial mass in Msun; default: 1 |
+   initial_mass = 12  ! initial mass in Msun; default: 1 |
 
 !!! output controls
    terminal_interval = 10  ! interval for terminal outputs; common value: 1 | get less outputs
