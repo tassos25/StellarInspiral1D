@@ -240,6 +240,9 @@
          F_coef = 4.0 * pi * standard_cgrav * standard_cgrav * M2 * M2 * rho_at_companion / (v_rel*v_rel)
          F_drag = -F_coef * I
 
+         ! Add hydrodynamic drag
+         F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
+
          ! Total energy rate= drag force * velocity
          CE_energy_rate = F_drag * v_rel
 
@@ -303,6 +306,9 @@
          f3 = 0.75992092
          e_rho = R_acc / scale_height_at_companion
          F_drag = F_DHL*(f1 + f2*e_rho +f3*e_rho**2)
+
+         ! Add hydrodynamic drag
+         F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
 
          ! Mass accretion from MacLeod & Ramirez-Ruiz (2014)
          a1 = -2.14034214
@@ -425,6 +431,9 @@
                F_drag = ((beta-0.9)*F_drag_supersonic + (0.99-beta)*F_drag_subsonic)/0.09
             endif
 
+            ! Add hydrodynamic drag
+            F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
+
             mdot = mdot_HL * 10.0**log_mdot_factor
             s% xtra(23) = mdot
 
@@ -443,12 +452,17 @@
 
             ! Drag force
             F_drag =  beta * csound * mdot
+            ! Add hydrodynamic drag
+            F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
             ! Accretion luminosity luminosity: 10% efficiency
             L_acc = 0.1 * standard_cgrav * M2 / R2 * mdot
 
          else if (s% x_integer_ctrl(2) == 1) then
 
             F_drag = pi * R_acc**2 * rho_at_companion * v_rel**2
+
+            ! Add hydrodynamic drag
+            F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
 
             mdot = pi * R_acc**2 * rho_at_companion * v_rel
             s% xtra(23) = mdot
