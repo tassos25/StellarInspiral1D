@@ -239,6 +239,7 @@
 
          F_coef = 4.0 * pi * standard_cgrav * standard_cgrav * M2 * M2 * rho_at_companion / (v_rel*v_rel)
          F_drag = -F_coef * I
+         F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2 * rho_at_companion * v_rel**2
 
          ! Add hydrodynamic drag
          F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
@@ -306,6 +307,7 @@
          f3 = 0.75992092
          e_rho = R_acc / scale_height_at_companion
          F_drag = F_DHL*(f1 + f2*e_rho +f3*e_rho**2)
+         F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2 * rho_at_companion * v_rel**2
 
          ! Add hydrodynamic drag
          F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
@@ -431,8 +433,8 @@
                F_drag = ((beta-0.9)*F_drag_supersonic + (0.99-beta)*F_drag_subsonic)/0.09
             endif
 
-            ! Add hydrodynamic drag
-            F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
+            ! Add hydrodynamical drag
+            F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2 * rho_at_companion * v_rel**2
 
             mdot = mdot_HL * 10.0**log_mdot_factor
             s% xtra(23) = mdot
