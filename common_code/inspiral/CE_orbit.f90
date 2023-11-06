@@ -164,6 +164,8 @@
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
          real(dp) :: CE_companion_position, CE_companion_radius, CE_companion_mass, rl_core, rl_companion
+         real(dp) :: rl_companion_enc
+         real(dp) :: virial_temp, CE_companion_molec_weight
 
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -173,17 +175,32 @@
          CE_companion_radius = s% xtra(3)
          CE_companion_mass = s% xtra(4)
 
+         CE_companion_molec_weight = s% x_ctrl(19)
+
          rl_core = eval_rlobe(s% he_core_mass,CE_companion_mass,CE_companion_position)
          rl_companion = eval_rlobe(CE_companion_mass,s% he_core_mass,CE_companion_position)
+
+          ! Check if the star companion can be disrupted by the enclosed mass
+         rl_companion_enc = eval_rlobe(CE_companion_mass,s% xtra(15) / Msun,CE_companion_position)
+
+         ! Compute companion's virial temperature 
+         virial_temp = CE_companion_molec_weight * mp * standard_cgrav * CE_companion_mass * Msun / ( boltzm * CE_companion_radius * Rsun )
+
 
          ! Merger condition
          ! Merge if either the companion or the core fills its rochelobe
          if ((rl_companion .le. CE_companion_radius) .or. (rl_core .le. s% he_core_radius)) then
             s% lxtra(1) = .true.
             s% xtra(2) = 0.0
-         end if
-
-         if ((CE_companion_position * Rsun .le. s% r(s% nz)) .and. (s% dt .le. 1d-6)) then
+         else if (rl_companion_enc .le. CE_companion_radius) then 
+            s% lxtra(1) = .true.
+            s% xtra(2) = s% xtra_old(2)
+            !write(*,*) "!!!!!!!!!!!! Companion filled its Roche Lobe !!!!!!!!!!!!"
+         else if ( s% xtra(24) .ge. virial_temp ) then
+            s% lxtra(1) = .true.
+            s% xtra(2) = s% xtra_old(2)
+            !write(*,*) "!!!!!!!!!!!! Tcomp,vir < Tsms,local !!!!!!!!!!!!"
+         else if ((CE_companion_position * Rsun .le. s% r(s% nz)) .and.  (s% dt / secyer .lt. 1.0d-6)) then
             s% lxtra(1) = .true.
             s% xtra(2) = 0.0
          end if
@@ -202,6 +219,7 @@
          real(dp) :: R_rel, R_acc, R_acc_low, R_acc_high
          real(dp) :: M_encl, rho_at_companion, scale_height_at_companion
          real(dp) :: C_1, C_2, M_env, t_kh_env, log_eta
+         real(dp) :: temp
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
@@ -222,6 +240,7 @@
             s% xtra(17) = 0.0d0 !v_rel_div_csound
             s% xtra(18) = 0.0d0 !rho_at_companion
             s% xtra(19) = 0.0d0 !scale_height_at_companion
+            s% xtra(24) = 0.0d0 !temperature at the position of the companion
             return
          endif
 
@@ -246,6 +265,9 @@
          M_encl = M_encl + s% dm(k-1) * (CE_companion_position*Rsun - s% r(k)) / (s% r(k-1) - s% r(k))
 
          M2 = CE_companion_mass * Msun
+
+         ! Determining the temperature at the position of the companion
+         temp = s% T(k)
 
          ! Determine orbital period in seconds
          P = AtoP(M_encl, M2, CE_companion_position*Rsun)
@@ -309,6 +331,7 @@
          s% xtra(17) = v_rel_div_csound
          s% xtra(18) = rho_at_companion
          s% xtra(19) = scale_height_at_companion
+         s% xtra(24) = temp
       end subroutine calc_quantities_at_comp_position
 
 

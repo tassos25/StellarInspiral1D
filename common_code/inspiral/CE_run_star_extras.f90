@@ -123,6 +123,8 @@
          s% xtra(22) = 0.0d0
          !s% xtra(23) -> mdot_macleod. Macleod & Ramirez-Ruiz accretion rate onto compact object. Calculated in CE_energy_rate
          s% xtra(23) = 0.0d0
+         !s% xtra(24) -> temperature of the star at the position of the companion
+         s% xtra(24) = 0.0d0
 
          !s% xtra(7) -> CE_test_case
          s% ixtra(1) = s% x_integer_ctrl(1)
