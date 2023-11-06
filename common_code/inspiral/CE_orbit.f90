@@ -173,12 +173,17 @@
          CE_companion_radius = s% xtra(3)
          CE_companion_mass = s% xtra(4)
 
-         rl_core = eval_rlobe(s% he_core_mass,CE_companion_mass,CE_companion_position)*CE_companion_position
-         rl_companion = eval_rlobe(CE_companion_mass,s% he_core_mass,CE_companion_position)*CE_companion_position
+         rl_core = eval_rlobe(s% he_core_mass,CE_companion_mass,CE_companion_position)
+         rl_companion = eval_rlobe(CE_companion_mass,s% he_core_mass,CE_companion_position)
 
          ! Merger condition
          ! Merge if either the companion or the core fills its rochelobe
          if ((rl_companion .le. CE_companion_radius) .or. (rl_core .le. s% he_core_radius)) then
+            s% lxtra(1) = .true.
+            s% xtra(2) = 0.0
+         end if
+
+         if ((CE_companion_position * Rsun .le. s% r(s% nz)) .and. (s% dt .le. 1d-6)) then
             s% lxtra(1) = .true.
             s% xtra(2) = 0.0
          end if
