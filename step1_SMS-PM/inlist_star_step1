@@ -129,7 +129,7 @@
    write_header_frequency = 100
    photo_digits = 4
    photo_interval = 100
-   max_model_number = -1
+   
 
    star_history_dbl_format = '(1pes32.16e3, 1x)'
    star_history_int_format = '(i32, 1x)'
@@ -139,8 +139,9 @@
    write_profiles_flag = .true.
 
    !WHEN TO STOP
-   gamma_center_limit = 10d0 ! Crystallization begins ==> white dwarf
-   max_age = 1.4e10 ! Hubble time
+   max_model_number = 1 ! Stop when the SMS is created
+   !gamma_center_limit = 10d0 ! Crystallization begins ==> white dwarf
+   !max_age = 1.4e10 ! Hubble time
 
    !PHYSICS
    !atmosphere
