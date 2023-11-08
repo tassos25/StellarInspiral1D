@@ -192,17 +192,15 @@
          if ((rl_companion .le. CE_companion_radius) .or. (rl_core .le. s% he_core_radius)) then
             s% lxtra(1) = .true.
             s% xtra(2) = 0.0
+            write(*,*) "!!!!!!!!!!!! Either the core or the companion filled their Roche Lobe !!!!!!!!!!!!"
          else if (rl_companion_enc .le. CE_companion_radius) then 
             s% lxtra(1) = .true.
             s% xtra(2) = s% xtra_old(2)
-            !write(*,*) "!!!!!!!!!!!! Companion filled its Roche Lobe !!!!!!!!!!!!"
+            write(*,*) "!!!!!!!!!!!! Companion filled its Roche Lobe !!!!!!!!!!!!"
          else if ( s% xtra(24) .ge. virial_temp ) then
             s% lxtra(1) = .true.
             s% xtra(2) = s% xtra_old(2)
-            !write(*,*) "!!!!!!!!!!!! Tcomp,vir < Tsms,local !!!!!!!!!!!!"
-         else if ((CE_companion_position * Rsun .le. s% r(s% nz)) .and.  (s% dt / secyer .lt. 1.0d-6)) then
-            s% lxtra(1) = .true.
-            s% xtra(2) = 0.0
+            write(*,*) "!!!!!!!!!!!! Tcomp,vir < Tsms,local !!!!!!!!!!!!"
          end if
       end subroutine check_merger
 
