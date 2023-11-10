@@ -22,12 +22,15 @@
                               ! if 778: - M31 (kpc)
    x_ctrl(18) = 1             ! n_tau_to_remove. Check down to this optical depth to see if outer layers are unbound
    x_ctrl(19) = 0.6          ! Mean molecular weight of the companion
+   x_ctrl(20) = 0.0           ! radial component of the companion's initial velocity (Rsun / yr)
+   x_ctrl(21) = 0.0           ! tangencial component of the companion's velocity (Rsun / yr)
   ! extra integers
    x_integer_ctrl(1) = 5  ! if 1: Uniform heating of the whole envelope
                           ! if 2: Heating at the base of the hydrogen envelope
                           ! if 3: CE_energy_rate is calculated based on the companions position and the gravitational drag prescription by Eve Ostriker (1999)
                           ! if 4: Energy based on MacLeod & Ramirez-Ruiz
                           ! if 5: Energy based on Lee & Stahler (2011)
+                          ! if 6: Energy based on Lee & Stahler (2011) computing complete the integration of the companion's orbit orbit
    x_integer_ctrl(2) = 2  ! if 1: Classic BHL drag
                           ! if 2: Macleod & Ramirez-Ruiz (2015)
                           ! if 3: Lee, Aaron T.; Stahler, Steven W. (2011,2014)
@@ -40,5 +43,5 @@
    x_logical_ctrl(4) = .false.  ! Remove supersonic outer layers
    x_logical_ctrl(5) = .true.   ! Remove outer layers when energetically unbound AND supersonic
    x_logical_ctrl(6) = .false.  ! is_it_restart: if true, then keeps companion position saved model and does not do initial synchronization. NOT WORKING CURRENTLY!!!
-
+   x_logical_ctrl(6) = .true.   ! initial_circular_velocity:  if true the initial velocity of the companion is computed for a circula orbit, alse both components will be considered from x_ctrl(20), radial, and x_ctrl(21), tangencial.
 / ! end of controls namelist
