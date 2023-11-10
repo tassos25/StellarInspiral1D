@@ -158,8 +158,11 @@
             lambda = bmax / bmin
             tmp3 = log(lambda*lambda - (lambda*lambda / (machn*machn)))
         endif
+        ! Dynamical drag
         Fext = - (tmp2 * tmp3 ) / (magv*magv)
-        Fext = 0.d0
+
+        ! Adding hydrodynamical drag
+        !Fext = Fext + 
     endif
 
 
@@ -223,87 +226,6 @@
 
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    program dop853_example_original
-
-    use orbit_cee
-    
-
-    implicit none
-
-    integer,parameter               :: n     = 4                !! dimension of the system
-    real(8),parameter              :: tol   = 1.0d-10       !! integration tolerance
-    real(8),parameter              :: x0    = 0.0d0           !! initial `x` value
-    real(8),parameter              :: xf    = 0.5           !! endpoint of integration
-    real(8),dimension(n),parameter :: y0    = [1418.2387898909583d0, 0.0d0, &
-                                               3.141592653589793d0, 26.2306743422686d0]  !! initial `y` value
-
-    type(dop853_class) :: prop
-    real(8),dimension(n) :: y
-    real(8),dimension(1) :: rtol,atol
-    real(8) :: x
-    integer :: idid
-    logical :: status_ok
-
-    integer :: step, Nstep
-    real(8) :: dx = 1.d-3 , xstep , xfstep
-
-    real(8),dimension(n) :: f
-    
-
-    CHARACTER(LEN=100) :: filename
-    CHARACTER(128) :: profilename = 'profile_10000.0Msun_1418.2Rsun.txt'
-
-    filename = "output_10000.0Msun_1418.2Rsun.txt"
-
-    ! Open the output file
-    OPEN(UNIT=10, FILE=filename, STATUS='replace', ACTION='write', FORM='formatted')
-
-    ! Read the logrho profile
-    CALL ReadProfile(profilename, logrho, logr, mass, csound)
 
 
-    x = x0
-    y = y0
-    rtol = tol ! set tolerances
-    atol = tol !
-    call prop%initialize(   fcn       = kepler_polar,    &
-                            nstiff    = 2, &
-                            n         = n,        &
-                            status_ok = status_ok )
-    if (.not. status_ok) error stop 'initialization error'
-
-    write (output_unit,*) 't =',x0 ,'r =',y0(1),'nu =',y0(3)
-
-    call kepler_polar(prop,xstep, y0, f)
-
-    write (10,*) xstep ,y0(1),y0(2),f(2),y0(3),y0(4), f(4)
-
-    Nstep = int((xf - x0) / dx)
-
-    
-    do step = 0, Nstep - 1, 1
-        xstep = x0 + step * dx
-        xfstep = x0 + (step + 1) * dx
-        call prop%integrate(xstep,y,xfstep,rtol,atol,iout=0,idid=idid)
-
-        if (y(3).ge.2.d0 * pi) then 
-            y(3) = y(3) - int( y(3) / (2.d0*pi)) * (2.d0 * pi)
-        endif
-
-        call kepler_polar(prop,xstep, y, f)
-
-        write (output_unit,*) 't =',xstep ,'r =',y(1),'nu =',y(3)
-
-        write (10,*) xstep ,y(1),y(2), f(2),y(3), y(4),f(4)
-    enddo
-
-    ! Close the output file
-    CLOSE(10)
-    DEALLOCATE(logrho, logr, mass, csound)
-
-
-
-
-
-end program dop853_example_original
 
