@@ -125,6 +125,16 @@
          s% xtra(23) = 0.0d0
          !s% xtra(24) -> temperature of the star at the position of the companion
          s% xtra(24) = 0.0d0
+         !s% xtra(25) -> angular position of the companion (rad)
+         s% xtra(25) = 0.0d0
+         !s% xtra(26) -> radial component of the companion's velocity (Rsun/yr)
+         s% xtra(26) = 0.0d0
+         !s% xtra(27) -> angular component of the companion's velocity (rad/yr)
+         s% xtra(27) = 0.0d0
+         !s% xtra(28) -> radial component of the companion's acceleration (Rsun/yr^2)
+         s% xtra(28) = 0.0d0
+         !s% xtra(29) -> angular component of the companion's acceleration (rad/yr^2)
+         s% xtra(29) = 0.0d0
 
          !s% xtra(7) -> CE_test_case
          s% ixtra(1) = s% x_integer_ctrl(1)

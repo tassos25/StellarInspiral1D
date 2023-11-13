@@ -95,7 +95,7 @@
         
         !real(8), DIMENSION(:), ALLOCATABLE :: logrho, logr, mass, 
         real(8), DIMENSION(:), ALLOCATABLE :: arr
-        real(8) :: rho, msuncm3 = 0.16934021222434983d0, rsunyr = 0.0004536093143596379d0
+        real(8) :: rho, msunrsun3 = 0.16934021222434983d0, rsunyr = 0.0004536093143596379d0
 
         real(8) :: value
         INTEGER :: index
@@ -126,7 +126,7 @@
 
         
         ! Eclosed mass at the position of the companion
-        M = s% m(index)
+        M = s% m(index) / Msun
 
         ! Gravitational parameter 
         mu = G * ( CE_companion_mass + M )
@@ -138,7 +138,7 @@
         if (r.gt.renv) then
             Fext = 0.d0
         else
-            tmprho =  (s% rho(index)) * msuncm3
+            tmprho =  (s% rho(index)) * msunrsun3
             tmp1 = CE_companion_mass * M / (CE_companion_mass + M)
             tmp2 = 2.d0 * pi * G*G * CE_companion_mass * tmp1 * tmprho
             machn = magv / (s% csound(index) * rsunyr) ! => change this, add it to profile
@@ -146,7 +146,7 @@
                 tmp3 = log( (1.d0 + machn)/(1.d0 - machn) * exp(-2.d0 * machn) )
             else
                 bmax = 2.d0 * r
-                bmin = G*CE_companion_mass / (magv*magv)
+                bmin = G*CE_companion_mass / ((magv - s% omega(index) * s% r(index) / Rsun)**2.d0)
                 lambda = bmax / bmin
                 tmp3 = log(lambda*lambda - (lambda*lambda / (machn*machn)))
             endif

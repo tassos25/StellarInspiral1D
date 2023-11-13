@@ -29,6 +29,9 @@
       use const_def
       use math_lib
 
+      use orbit_cee
+
+
 !      use binary_evolve, only: eval_rlobe
 
       implicit none
@@ -51,6 +54,10 @@
          real(dp) :: orbital_ang_mom_lost
          real(dp) :: R_acc, R_acc_low, R_acc_high
          real(dp) :: v_rel, v_rel_div_csound, M_encl, rho_at_companion, scale_height_at_companion
+         real(dp),dimension(4) :: init_cond, f
+         real(dp) :: value, magv2
+         integer :: index
+         type(dop853_class) :: prop
 
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -76,66 +83,159 @@
          rho_at_companion = s% xtra(18)
          scale_height_at_companion = s% xtra(19)
 
-         ! Calculate the angular momentum
-         J_tmp = (CE_companion_mass * Msun)**2 * M_encl**2 / (CE_companion_mass * Msun + M_encl)
-         J_init = sqrt(standard_cgrav * J_tmp * CE_companion_position * Rsun)
-         ! Calculate the energies
-         E_init = -standard_cgrav * CE_companion_mass * Msun * M_encl / (2.0 * CE_companion_position * Rsun)
-         E_loss = CE_energy_rate * s% dt
-         E_final = E_init - E_loss
+         if (s% x_logical_ctrl(7)) then
+            ! Complete integration of the eqs. of motion
 
-         ! Move from outside of star in to find cell containing companion
-         E_tmp = 0d0
-         k = 1
-         do while (E_tmp > E_final)
-            M_inner = s% m(k)
-            R_inner = s% r(k)
-            E_tmp = -standard_cgrav * CE_companion_mass * Msun * M_inner / (2.0 * R_inner)
-            k = k + 1
-         end do
+            if (s% model_number .eq. 1) then
+               ! Determine the initial conditions of the velocity
+               if (s% x_logical_ctrl(8)) then
+                  ! Circular orbit
+                  s% xtra(25) = pi    ! nu (rad)
+                  s% xtra(26) = 0.0d0 ! dr/dt
 
-         ! If companion is outside star, set k to 3
-         if (k < 3) k=3
+                  ! Finding the enclosed mass by the position of the companion 
+                  call FindApproximateValueIndex(s% r , s% x_ctrl(2) * s% r(1) , index)
 
-         ! save end points of cell containing companion
-         M_inner = s% m(k-2)
-         R_inner = s% r(k-2)
-         M_outer = s% m(k-1)
-         R_outer = s% r(k-1)
+                  ! Obtain the circular Keplerian velocity for the companion
+                  s% xtra(27) =   2.d0*pi/AtoP(M_encl, s% xtra(4)*Msun , s% xtra(2) * Rsun) / secyer ! Compute Keplerian velocity (rad/yr)
 
-         ! We could choose to interpolate for R using M as the independent variable. Instead, here we
-         ! linearly interpolate across cell (using k as the independent variable)
-         M_slope = (M_outer - M_inner) / real((k-1) - (k-2))
-         M_int = s% m(k-1) - M_slope * real(k-1)
-         R_slope = (R_outer - R_inner) / real((k-1) - (k-2))
-         R_int = s% r(k-1) - R_slope * real(k-1)
+                  init_cond = [ CE_companion_position ,s% xtra(26), s% xtra(25) , s% xtra(27)]
 
-         ! Given the final energy, E_final, determine the resulting k that solves the equation
-         top = 2.0 * E_final * R_int + standard_cgrav * CE_companion_mass * Msun * M_int
-         bottom = 2.0 * E_final * R_slope + standard_cgrav * CE_companion_mass * Msun * M_slope
-         k_final = -top / bottom
+                  ! Get the components of the acceleration
+                  call read_mesa_id(id,ierr)
+                  call kepler_polar(prop,s% star_age, init_cond, f)
+                  s% xtra(28) = f(2) ! (Rsun / yr^2)
+                  s% xtra(29) = f(4) ! (rad / yr^2)
+                  
+               else
+                  ! Velocity's components defined by de user
+                  s% xtra(25) = pi            ! nu (rad)
+                  s% xtra(26) = s% x_ctrl(20) ! dr/dt (Rsun/yr)
+                  s% xtra(27) = s% x_ctrl(21) ! dnu/dt (rad/yr)
+                  
+                  init_cond = [ CE_companion_position ,s% xtra(26), s% xtra(25) , s% xtra(27)]
 
-         ! Now use the interpolations and the derived k_final, determine the resulting separation and enclosed mass
-         R_final = R_slope * k_final + R_int
-         M_final = M_slope * k_final + M_int
+                  ! Get the components of the acceleration
+                  call kepler_polar(prop,s% star_age, init_cond, f)
+                  s% xtra(28) = f(2) ! (Rsun / yr^2)
+                  s% xtra(29) = f(4) ! (rad / yr^2)
 
-         s% xtra(2) = R_final/Rsun
-         !Saving as s% xtra(9) the enclosed mass so that we output it in the history data
-         s% xtra(9) = M_final/Msun
 
-         ! Calculate the angular momentum lost to the star's envelope
-         J_tmp = (CE_companion_mass * Msun)**2 * M_final**2 / (CE_companion_mass * Msun + M_final)
-         J_final = sqrt(standard_cgrav * J_tmp * R_final)
 
-         !The angular momentum that is lost from the orbit of the companion
-         ! is added to the envelope of the donor.
-         orbital_ang_mom_lost = J_final - J_init
-         !We save in s% xtra(6) the total torque that will be applied to the Envelope
-         s% xtra(6) = max(0.0d0, -orbital_ang_mom_lost/s% dt) 
+               end if
+            end if 
 
-         ! Keep track of orbital energy and angular momentum
-         s% xtra(8) = E_final
-         s% xtra(10) = J_final
+            ! Initial angular momentum 
+            J_init = (s% xtra(2) * Rsun) * (s% xtra(2) * Rsun) * (s% xtra(27) / secyer) * (CE_companion_mass * Msun * M_encl) / (CE_companion_mass * Msun + M_encl)
+
+            ! initial orbital energy 
+            magv2 = (s% xtra(26)*Rsun/secyer)*(s% xtra(26)*Rsun/secyer) + (s% xtra(2) * Rsun)*(s% xtra(2) * Rsun)*(s% xtra(27) / secyer)*(s% xtra(27) / secyer)
+            E_init = (magv2/2.0 - standard_cgrav * (CE_companion_mass * Msun + M_encl) / (s% xtra(2) * Rsun) ) * (CE_companion_mass * Msun * M_encl) / (CE_companion_mass * Msun + M_encl) 
+
+            ! Compute the next iteration of the companion's orbital parameters (position, velocity and acceleration)
+            call orbit_integration(id,ierr)
+
+            CE_companion_position = s% xtra(2)
+
+            !Saving as s% xtra(9) the enclosed mass so that we output it in the history data
+            call FindApproximateValueIndex(s% r, s% xtra(2) * Rsun, index)
+            k_final = index * 1.0d0
+            
+            s% xtra(9) = M_encl
+
+            ! Final enclosed mass
+            M_final = s% m(index)
+            
+            ! Final position of the companion
+            R_final = s% r(index)
+
+            
+
+
+            ! Calculate the angular momentum lost to the star's envelope
+            J_final = (s% xtra(2) * Rsun) * (s% xtra(2) * Rsun) * (s% xtra(27) / secyer) * (CE_companion_mass * Msun * M_final) / (CE_companion_mass * Msun + M_final)
+
+            !The angular momentum that is lost from the orbit of the companion
+            ! is added to the envelope of the donor.
+            orbital_ang_mom_lost = J_final - J_init
+            !We save in s% xtra(6) the total torque that will be applied to the Envelope
+            s% xtra(6) = max(0.0d0, -orbital_ang_mom_lost/s% dt) 
+
+            ! Final orbital energy
+            magv2 = (s% xtra(26)*Rsun/secyer)*(s% xtra(26)*Rsun/secyer) + (s% xtra(2) * Rsun)*(s% xtra(2) * Rsun)*(s% xtra(27) / secyer)*(s% xtra(27) / secyer)
+            E_final = (magv2/2.0 - standard_cgrav * (CE_companion_mass * Msun + M_encl) / (s% xtra(2) * Rsun) ) * (CE_companion_mass * Msun * M_final) / (CE_companion_mass * Msun + M_final) 
+            
+
+            ! Keep track of orbital energy and angular momentum
+            s% xtra(8) = E_final
+            s% xtra(10) = J_final
+
+            k = index
+
+         else 
+            ! Transition between circular orbits only 
+
+            ! Calculate the angular momentum
+            J_tmp = (CE_companion_mass * Msun)**2 * M_encl**2 / (CE_companion_mass * Msun + M_encl)
+            J_init = sqrt(standard_cgrav * J_tmp * CE_companion_position * Rsun)
+            ! Calculate the energies
+            E_init = -standard_cgrav * CE_companion_mass * Msun * M_encl / (2.0 * CE_companion_position * Rsun)
+            E_loss = CE_energy_rate * s% dt
+            E_final = E_init - E_loss
+
+            ! Move from outside of star in to find cell containing companion
+            E_tmp = 0d0
+            k = 1
+            do while (E_tmp > E_final)
+               M_inner = s% m(k)
+               R_inner = s% r(k)
+               E_tmp = -standard_cgrav * CE_companion_mass * Msun * M_inner / (2.0 * R_inner)
+               k = k + 1
+            end do
+
+            ! If companion is outside star, set k to 3
+            if (k < 3) k=3
+
+            ! save end points of cell containing companion
+            M_inner = s% m(k-2)
+            R_inner = s% r(k-2)
+            M_outer = s% m(k-1)
+            R_outer = s% r(k-1)
+
+            ! We could choose to interpolate for R using M as the independent variable. Instead, here we
+            ! linearly interpolate across cell (using k as the independent variable)
+            M_slope = (M_outer - M_inner) / real((k-1) - (k-2))
+            M_int = s% m(k-1) - M_slope * real(k-1)
+            R_slope = (R_outer - R_inner) / real((k-1) - (k-2))
+            R_int = s% r(k-1) - R_slope * real(k-1)
+
+            ! Given the final energy, E_final, determine the resulting k that solves the equation
+            top = 2.0 * E_final * R_int + standard_cgrav * CE_companion_mass * Msun * M_int
+            bottom = 2.0 * E_final * R_slope + standard_cgrav * CE_companion_mass * Msun * M_slope
+            k_final = -top / bottom
+
+            ! Now use the interpolations and the derived k_final, determine the resulting separation and enclosed mass
+            R_final = R_slope * k_final + R_int
+            M_final = M_slope * k_final + M_int
+
+            s% xtra(2) = R_final/Rsun
+            !Saving as s% xtra(9) the enclosed mass so that we output it in the history data
+            s% xtra(9) = M_final/Msun
+
+            ! Calculate the angular momentum lost to the star's envelope
+            J_tmp = (CE_companion_mass * Msun)**2 * M_final**2 / (CE_companion_mass * Msun + M_final)
+            J_final = sqrt(standard_cgrav * J_tmp * R_final)
+
+            !The angular momentum that is lost from the orbit of the companion
+            ! is added to the envelope of the donor.
+            orbital_ang_mom_lost = J_final - J_init
+            !We save in s% xtra(6) the total torque that will be applied to the Envelope
+            s% xtra(6) = max(0.0d0, -orbital_ang_mom_lost/s% dt) 
+
+            ! Keep track of orbital energy and angular momentum
+            s% xtra(8) = E_final
+            s% xtra(10) = J_final
+         end if 
 
          ! For diagnostics
 
@@ -331,6 +431,91 @@
          s% xtra(19) = scale_height_at_companion
          s% xtra(24) = temp
       end subroutine calc_quantities_at_comp_position
+! **********************************************************************
+      subroutine orbit_integration(id,ierr)
+
+         use const_def, only: Rsun, Msun, pi, standard_cgrav
+         integer, intent(in) :: id
+         integer, intent(out) :: ierr
+         type (star_info), pointer :: s
+         integer :: k, k_bottom
+         real(dp) :: CE_energy_rate, CE_companion_position, CE_companion_radius, CE_companion_mass
+         real(dp) :: CE_n_acc_radii
+         real(dp) :: M2, R2
+         real(dp) :: F_drag
+         real(dp) :: F_DHL, f1, f2, f3, e_rho
+         real(dp) :: mdot, mdot_macleod, mdot_HL, L_acc, a1, a2, a3, a4
+         real(dp) :: R_acc, R_acc_low, R_acc_high
+         real(dp) :: v_rel, beta, M_encl, csound
+         real(dp) :: rho_at_companion, scale_height_at_companion
+         real(dp) :: drag_factor, log_mdot_factor, lambda_squared
+         real(dp) :: F_drag_subsonic, F_drag_supersonic
+
+         integer,parameter               :: n     = 4                !! dimension of the system
+         real(8),parameter              :: tol   = 1.0d-10       !! integration tolerance
+         !real(8),parameter              :: x0    = 0.0d0           !! initial `x` value
+         !real(8),parameter              :: xf    = 0.5           !! endpoint of integration
+         !real(8),dimension(n) :: y0    !! initial `y` value
+
+         type(dop853_class) :: prop
+         real(8),dimension(n) :: y, y_old
+         real(8),dimension(1) :: rtol,atol
+         real(8) :: x
+         integer :: idid
+         logical :: status_ok
+
+         integer :: step, Nstep
+         real(8) :: dx = 1.d-3  , xf 
+
+         real(8),dimension(n) :: f
+      
+         ierr = 0
+         call star_ptr(id, s, ierr)
+         if (ierr /= 0) return
+
+         ! parsing the id and ierr integers
+         call read_mesa_id(id,ierr)
+
+         x = s% star_age
+         y = [ s% xtra(2) ,  s% xtra(26) , s% xtra(25) , s% xtra(27) ] ! [ r, dr/dt , nu , dnu/dt]
+         y_old = y
+
+         xf = x +  s% dt
+
+
+         rtol = tol ! set tolerances
+         atol = tol !
+         call prop%initialize(   fcn       = kepler_polar,    &
+                                 nstiff    = 2, &
+                                 n         = n,        &
+                                 status_ok = status_ok )
+         if (.not. status_ok) error stop 'initialization error'
+
+         ! call the integrator only to iterate on current timestep
+         call prop%integrate(x,y,xf,rtol,atol,iout=0,idid=idid)
+
+         ! constrain the angular position of the component in the range of [0,2*pi)
+         if (y(3).ge.2.d0 * pi) then 
+            y(3) = y(3) - int( y(3) / (2.d0*pi)) * (2.d0 * pi)
+         endif
+
+         ! obtain the radial and angular accelerations (useful for computing GS signals from CEE events)
+         call kepler_polar(prop,x, y, f)
+
+         ! radial components (Rsun)
+         s% xtra(2)  = y(1)   ! position
+         s% xtra(26) = y(2)   ! velocity
+         s% xtra(28) = f(2)   ! acceleration
+
+         ! Angular component (rad)
+         s% xtra(25) = y(3)   ! position
+         s% xtra(27) = y(4)   ! velocity
+         s% xtra(29) = f(4)   ! acceleration
+
+
+
+
+      end subroutine orbit_integration
 
 
 ! ***********************************************************************
@@ -371,6 +556,8 @@
       ! the approximation of Eggleton 1983, apj 268:368-369
          rlobe = a*0.49d0*q*q/(0.6d0*q*q + log1p(q))
       end function eval_rlobe
+
+
 
 
       end module CE_orbit

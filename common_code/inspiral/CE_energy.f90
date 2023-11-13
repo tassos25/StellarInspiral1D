@@ -1,7 +1,7 @@
 ! ***********************************************************************
 !
 !   This file is part of a mesa extension.
-!   Authors of this file: Tassos Fragos, Jeff J. Andrews, Matthias U. Kruckow
+!   Authors of this file: Tassos Fragos, Jeff J. Andrews, Matthias U. Kruckow, Jaime Roman-Garza
 !
 ! ***********************************************************************
 !
@@ -47,6 +47,7 @@
       use star_def
       use const_def
       use CE_orbit, only: AtoP, TukeyWindow, calc_quantities_at_comp_position
+      use orbit_cee
 
       implicit none
 
@@ -504,6 +505,15 @@
          s% xtra(1) = CE_energy_rate
          s% xtra(20) = L_acc
       end subroutine CE_inject_case5
+
+! ***********************************************************************
+      !subroutine CE_inject_case6(id, ierr)
+
+         
+
+
+
+      !end subroutine CE_inject_case6
 
 
 ! ***********************************************************************
