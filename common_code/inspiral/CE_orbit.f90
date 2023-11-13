@@ -168,8 +168,8 @@
          write(*,*) "Total Stellar Energy:     ", s% total_energy, "                   ", &
                      " Dissipated Rotational Energy:", s% xtra(6) * s% omega(k), &
                      s% xtra(6)*2.*3.14/AtoP(M_encl, CE_companion_mass*Msun, CE_companion_position*Rsun)
-         write(*,*) "Previous Angular momentum:", J_init, &
-                     " Final Angular momentum:", J_final, &
+         write(*,*) "Previous Angular Momentum:", J_init, &
+                     " Final Angular Momentum:", J_final, &
                      " Dissipated Angular Momentum Rate:", s% xtra(6)
 
          ! After adjusting the orbit, let's call the check_merger routine
