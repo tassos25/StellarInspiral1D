@@ -135,6 +135,9 @@
          s% xtra(28) = 0.0d0
          !s% xtra(29) -> angular component of the companion's acceleration (rad/yr^2)
          s% xtra(29) = 0.0d0
+         !s% xtra(30) -> magnitude of the drag force acting on the companion (Msun Rsun / yr^2)
+         s% xtra(30) = 0.0d0
+
 
          !s% xtra(7) -> CE_test_case
          s% ixtra(1) = s% x_integer_ctrl(1)
@@ -146,6 +149,8 @@
          ! ! s% job% relax_omega_max_yrs_dt = 1d-8
          !  s% job% set_initial_dt = .True.
          !  s% job% years_for_initial_dt = 1d-8
+
+         
       end subroutine CE_extras_controls
 
 
@@ -388,7 +393,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         CE_how_many_extra_history_columns = 20
+         CE_how_many_extra_history_columns = 25
       end function CE_how_many_extra_history_columns
 
 
@@ -452,6 +457,17 @@
          vals(19) = r_mag
          names(20) = 'i_mag'
          vals(20) = i_mag
+
+         names(21) = 'CE_companion_position_nu'
+         vals(21) = s% xtra(25)
+         names(22) = 'CE_companion_velocity_r'
+         vals(22) = s% xtra(26)
+         names(23) = 'CE_companion_velocity_nu'
+         vals(23) = s% xtra(27)
+         names(24) = 'CE_companion_acceleration_r'
+         vals(24) = s% xtra(28)
+         names(25) = 'CE_companion_acceleration_nu'
+         vals(25) = s% xtra(29)
 
          ! If a distance provided, adjust from absolute to apparent magnitude
          if (s% x_ctrl(17) .ne. -1) then
