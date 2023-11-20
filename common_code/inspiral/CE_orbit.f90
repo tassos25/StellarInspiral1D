@@ -29,12 +29,18 @@
       use const_def
       use math_lib
 
-      use orbit_cee
+      use dop853_module, wp => dop853_wp
+      use iso_fortran_env, only: output_unit
+
+      
 
 
 !      use binary_evolve, only: eval_rlobe
 
       implicit none
+
+      integer :: id_dop ! these variables cannot be arguments of this function
+      integer :: ierr_dop
 
       contains
 
@@ -70,7 +76,9 @@
          ! If the star is in the initial relaxation phase, skip orbit calculations
          if (s% doing_relax) return
          ! If companion is outside star, skip orbit calculations
-         if (CE_companion_position*Rsun > s% r(1)) return
+         if (.not. s% x_logical_ctrl(7)) then
+            if (CE_companion_position*Rsun > s% r(1)) return
+         endif 
 
          call calc_quantities_at_comp_position(id, ierr)
 
@@ -89,6 +97,7 @@
             if (s% model_number .eq. 1) then
                ! Determine the initial conditions of the velocity
                if (s% x_logical_ctrl(8)) then
+                  s% xtra(25) = s% x_ctrl(2) * s% r(1) / Rsun
                   ! Circular orbit
                   s% xtra(25) = pi    ! nu (rad)
                   s% xtra(26) = 0.0d0 ! dr/dt
@@ -97,7 +106,7 @@
                   call FindApproximateValueIndex(s% r , s% x_ctrl(2) * s% r(1) , index)
 
                   ! Obtain the circular Keplerian velocity for the companion
-                  s% xtra(27) =   2.d0*pi/AtoP(M_encl, s% xtra(4)*Msun , s% xtra(2) * Rsun) / secyer ! Compute Keplerian velocity (rad/yr)
+                  s% xtra(27) =   2.d0*pi/AtoP(M_encl, s% xtra(4)*Msun , CE_companion_position * Rsun) * secyer ! Compute Keplerian velocity (rad/yr)
 
                   init_cond = [ CE_companion_position ,s% xtra(26), s% xtra(25) , s% xtra(27)]
 
@@ -109,6 +118,7 @@
                   
                else
                   ! Velocity's components defined by de user
+                  s% xtra(25) = s% x_ctrl(2) * s% r(1) / Rsun
                   s% xtra(25) = pi            ! nu (rad)
                   s% xtra(26) = s% x_ctrl(20) ! dr/dt (Rsun/yr)
                   s% xtra(27) = s% x_ctrl(21) ! dnu/dt (rad/yr)
@@ -165,6 +175,8 @@
             magv2 = (s% xtra(26)*Rsun/secyer)*(s% xtra(26)*Rsun/secyer) + (s% xtra(2) * Rsun)*(s% xtra(2) * Rsun)*(s% xtra(27) / secyer)*(s% xtra(27) / secyer)
             E_final = (magv2/2.0 - standard_cgrav * (CE_companion_mass * Msun + M_encl) / (s% xtra(2) * Rsun) ) * (CE_companion_mass * Msun * M_final) / (CE_companion_mass * Msun + M_final) 
             
+            ! CE energy rate
+            s% xtra(1) = - (E_final - E_init) / s% dt
 
             ! Keep track of orbital energy and angular momentum
             s% xtra(8) = E_final
@@ -247,10 +259,17 @@
          write(*,*) "Total Stellar Energy = ", s% total_energy
          write(*,*) "Previous Angular momentum = ", J_init, " Final Angular momentum: ", J_final
          write(*,*) "Relative Velocity: ", v_rel, " Mach Number: ", v_rel_div_csound
-         write(*,*) "Inner accretion Radius: ", R_acc_low, " Outer accretion radius: ", R_acc_high
+         write(*,*) "Inner accretion Radius: ", R_acc_low/Rsun, " Outer accretion radius: ", R_acc_high/Rsun
          write(*,*) "Dissipated Energy Rate: ", s% xtra(1), " Dissipated Angular Momentum Rate: ", s% xtra(6)
          write(*,*) "Disipated rotational energy: ", s% xtra(6)*2.*3.14/AtoP(M_encl, &
             CE_companion_mass*Msun, CE_companion_position*Rsun), s% xtra(6) * s% omega(k)
+
+         if (s% x_logical_ctrl(7)) then
+             write(*,*) "Drag force magnitude : ", s% xtra(30)
+            write(*,*) "r (Rsun): ", s% xtra(2), " dr/dt (Rsun/yr): ", s% xtra(26), " d2r/dt2 (Rsun/yr^2): ", s% xtra(28)
+            write(*,*) "nu (rad): ", s% xtra(25), " dnu/dt (rad/yr): ", s% xtra(27), " d2nu/dt2 (rad/yr^2): ", s% xtra(29)
+            write(*,*) "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+         end if
 
          ! After adjusting the orbit, let's call the check_merger routine
          call check_merger(id, ierr)
@@ -374,10 +393,22 @@
          if (s%rotation_flag) then
             omega_at_companion = s% omega(k) + (CE_companion_position*Rsun - s% r(k)) * &
                  (s% omega(k-1)-s% omega(k)) / (s% r(k-1) - s% r(k))
-            v_rel_at_companion = 2.0 * pi * CE_companion_position*Rsun / P - &
-                 omega_at_companion * CE_companion_position*Rsun ! local rotation velocity = omega * r
+            ! check if the velocity is computed on early steps
+            if (s% x_logical_ctrl(7)) then 
+               v_rel_at_companion = sqrt( (s% xtra(26) * Rsun / secyer)**2.d0 +  &
+                  (s% xtra(27) * s% xtra(2) * Rsun / secyer - omega_at_companion * CE_companion_position*Rsun )**2.d0)
+            else
+               v_rel_at_companion = 2.0 * pi * CE_companion_position*Rsun / P - &
+                  omega_at_companion * CE_companion_position*Rsun ! local rotation velocity = omega * r
+            end if 
          else
-            v_rel_at_companion = 2.0 * pi * CE_companion_position*Rsun / P
+            ! check if the velocity is computed on early steps
+            if (s% x_logical_ctrl(7)) then 
+               v_rel_at_companion = sqrt( (s% xtra(26) * Rsun / secyer)**2.d0 +  &
+                  (s% xtra(27) * s% xtra(2) * Rsun / secyer  )**2.d0)
+            else 
+               v_rel_at_companion = 2.0 * pi * CE_companion_position*Rsun / P
+            endif
          endif
 
          rho_at_companion = s% rho(k) + (CE_companion_position*Rsun - s% r(k)) * &
@@ -476,11 +507,11 @@
          ! parsing the id and ierr integers
          call read_mesa_id(id,ierr)
 
-         x = s% star_age
+         x = s% star_age / secyer
          y = [ s% xtra(2) ,  s% xtra(26) , s% xtra(25) , s% xtra(27) ] ! [ r, dr/dt , nu , dnu/dt]
          y_old = y
 
-         xf = x +  s% dt
+         xf = (x +  s% dt)/secyer
 
 
          rtol = tol ! set tolerances
@@ -516,6 +547,210 @@
 
 
       end subroutine orbit_integration
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      subroutine read_mesa_id(id,ierr)
+         integer, intent(in) :: id
+         integer, intent(out) :: ierr
+
+         id_dop = id
+         ierr_dop = ierr
+      end subroutine read_mesa_id
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      subroutine kepler_polar(me,x,y,f)
+
+         !! Right-hand side of van der Pol's equation
+
+         !implicit none
+
+         
+
+         
+
+         class(dop853_class),intent(inout) :: me
+         real(8),intent(in)               :: x
+         real(8),dimension(:),intent(in)  :: y
+         real(8),dimension(:),intent(out) :: f
+         real(8), parameter :: G = 392512559.8496094d0   ! grav  cnt.        [ Rsun^3 / Msun / yr^2] 
+         real(8), parameter :: c0 = 13598865.132357053d0 ! light speed       [ Rsun / yr]
+
+         
+         
+         type (star_info), pointer :: s
+
+         
+
+         
+         real(8) :: M                                    ! donnor mass       [ Msun ]
+
+         real(8) :: mu                                   ! grav. parameter
+         real(8) :: PN25                                 ! 2.5 Post-Newt. terms
+         real(8) :: Fext, Fr, Fnu                           ! External force, and its components 
+
+         real(8) :: r,nu
+
+         real(8) :: magv, renv, machn, bmax, bmin, lambda
+         real(8) :: tmprho, tmp1, tmp2, tmp3
+
+         real(8) :: CE_companion_mass
+
+         
+         
+         !real(8), DIMENSION(:), ALLOCATABLE :: logrho, logr, mass, 
+         real(8), DIMENSION(:), ALLOCATABLE :: arr
+         real(8) :: rho, msunrsun3 = 0.16934021222434983d0, rsunyr = 0.0004536093143596379d0
+
+         real(8) :: value
+         INTEGER :: index
+         
+         integer :: k, k_bottom
+         real(8) :: CE_energy_rate, CE_companion_position, CE_companion_radius
+         real(8) :: CE_n_acc_radii
+         real(8) :: M2, R2
+         real(8) :: F_drag
+         real(8) :: F_DHL, f1, f2, f3, e_rho
+         real(8) :: mdot, mdot_macleod, mdot_HL, L_acc, a1, a2, a3, a4
+         real(8) :: R_acc, R_acc_low, R_acc_high
+         real(8) :: v_rel, beta, M_encl, csound
+         real(8) :: rho_at_companion, scale_height_at_companion
+         real(8) :: drag_factor, log_mdot_factor, lambda_squared
+         real(8) :: F_drag_subsonic, F_drag_supersonic, csound_at_companion, v_rel_at_companion
+
+            ierr_dop = 0
+         call star_ptr(id_dop, s, ierr_dop)
+         if (ierr_dop /= 0) return
+
+         
+
+
+         
+
+         ! Companion mass (Msun)
+         CE_companion_mass = s% xtra(4)
+         ! acretion radius (cm)
+         R_acc = s% xtra(12)
+         ! Companion radius (Rsun)
+         CE_companion_radius = s% xtra(3)
+         ! Mach number 
+         machn = s% xtra(17)
+         ! Relative velocity
+         magv =  s% xtra(16) / Rsun * secyer !sqrt( f(1)*f(1) + r*r*f(3)*f(3) )
+
+         ! r and nu
+         r =  y(1)
+         nu = y(3)
+
+         ! dr/dt and dnu/dt
+         f(1) = y(2)             !dr/dt
+         f(3) = y(4)             !dnu/dt
+
+         
+
+         arr = s% r
+         value = r * Rsun
+         ! Call the subroutine to find the index at the location of the companion
+         CALL FindApproximateValueIndex(arr, value, index)
+         DEALLOCATE(arr)
+
+         
+         ! Eclosed mass at the position of the companion
+         M = s% m(index) / Msun
+
+         ! Gravitational parameter 
+         mu = G * ( CE_companion_mass + M )
+
+         ! External force and its components
+         renv = s% r(1) / Rsun
+        
+
+         if (r.gt.renv) then
+               Fext = 0.d0
+         else
+            if (s% x_integer_ctrl(2) .eq. 4) then
+               ! Drag force as described in Ginat+(2020)
+               ! from Ostriker (1999) and Binney & Tremaine (2008).
+               tmprho = s% rho(index) / Msun * (Rsun**3.d0)
+               tmp1 = CE_companion_mass * M / (CE_companion_mass + M)
+               tmp2 = 4.d0 * pi * G*G  * tmp1 * tmprho
+               
+               if (machn.lt. 1.d0)  then
+                  tmp3 = log( (1.d0 + machn)/(1.d0 - machn) * exp(-2.d0 * machn) )
+               else
+                  bmax = 2.d0 * r
+                  bmin = R_acc / Rsun !2.d0 * G*mcomp / (magv*magv + (csound(index) * rsunyr)*(csound(index) * rsunyr))
+                  lambda = bmax / bmin
+                  tmp3 = log(lambda*lambda - (lambda*lambda / (machn*machn)))
+               endif
+               ! must be in units of Rsun / yr^2
+               Fext = - (tmp2 * tmp3 ) / (magv*magv) ! this should be in units of acceleration
+               !Fext = 0.d0
+               ! Adding hydrodynamical drag
+               Fext = Fext - pi * (CE_companion_radius )**2 * tmprho * magv**2 / CE_companion_mass
+            else
+               stop "Select x_integer_ctrl(2)=4 as the complete orbit integration is only defined for this option"
+            end if 
+
+         endif
+
+         ! Saving the magnitude of the drag force (Msun Rsun / yr^2)
+         s% xtra(30) = abs(Fext) * CE_companion_mass
+
+
+         
+         Fr  = Fext * (f(1) / magv)
+         Fnu = Fext * (r * f(3) / magv) ! be careful with the units
+
+         ! 2.5 Post Newtonian terms
+         PN25 = (magv/c0)*(magv/c0) + 1.5d0 * (magv/c0)*(magv/c0)*(magv/c0)*(magv/c0)
+
+
+
+
+
+         ! d2r/dt2 and d2nu/dt2
+         f(2) = - mu / ( y(1)*y(1) ) * (1.0 + PN25) + Fr + r * f(3)*f(3) ! d2r/dt2
+
+         f(4) = Fnu / r - (2.d0 * f(1) * f(3) / r)                             ! d2nu/dt2
+
+      
+
+      end subroutine kepler_polar
+
+
+
+      
+
+      SUBROUTINE FindApproximateValueIndex(arr, value, index)
+         IMPLICIT NONE
+         real(8), DIMENSION(:), INTENT(IN) :: arr
+         real(8), INTENT(IN) :: value
+         INTEGER, INTENT(OUT) :: index
+
+         INTEGER :: low, high, mid
+
+         ! Initialize the search boundaries
+         low = 1
+         high = SIZE(arr)
+         index = 0
+
+         ! Perform binary search
+         DO WHILE (low <= high)
+               mid = (low + high) / 2
+               IF (arr(mid) >= value) THEN
+               index = mid  ! Store the current index
+               low = mid + 1
+               ELSE
+               high = mid - 1
+               END IF
+         END DO
+
+         ! Handle the case when the value is not found
+         IF (index == 0) THEN
+               index = 1
+         END IF
+         END SUBROUTINE FindApproximateValueIndex
+
 
 
 ! ***********************************************************************
