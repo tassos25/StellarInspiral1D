@@ -47,7 +47,6 @@
       use star_def
       use const_def
       use CE_orbit, only: AtoP, TukeyWindow, calc_quantities_at_comp_position
-      use orbit_cee
 
       implicit none
 
@@ -102,6 +101,7 @@
          else if (CE_test_case == 5) then   ! Energy based on Lee & Stahler (2011)
 
             call CE_inject_case5(id, ierr)
+         
 
          endif
       end subroutine CE_inject_energy
@@ -399,7 +399,7 @@
 
          if (s% x_integer_ctrl(2) == 2) then
 
-            ! Hydrodynamic drag from MacLeod & Ramirez-Ruiz (2014)
+            ! Dynamical drag from MacLeod & Ramirez-Ruiz (2014)
             f1 = 1.91791946d0
             f2 = -1.52814698d0
             f3 = 0.75992092
@@ -442,7 +442,15 @@
 
             ! Accretion luminosity luminosity: 10% efficiency
             L_acc = 0.1 * standard_cgrav * M2 / R2 * mdot_HL
+         
+         else if (s% x_integer_ctrl(2) == 4) then
 
+            if (s% x_logical_ctrl(7)) then 
+               ! Accretion luminosity luminosity: 10% efficiency
+               L_acc = (s% xtra(30) * Msun * Rsun / (secyer**2.0) )/(s% xtra(16) * Rsun / secyer)
+            else
+               stop "The value of x_integer_ctrl(2) = 4 is only available for x_logical_ctrl(7) = .true."
+            endif
          else if (s% x_integer_ctrl(2) == 3) then
 
             lambda_squared = exp(3.0) / 16.0
@@ -481,7 +489,11 @@
          L_acc = min(L_acc, 1.26e38 * CE_companion_mass)
 
          ! Total energy rate = drag force * velocity
-         CE_energy_rate = F_drag * max(v_rel,0.0d0)
+         if (.not.(s% x_logical_ctrl(7))) then 
+            CE_energy_rate = F_drag * max(v_rel,0.0d0)
+         else 
+            CE_energy_rate = s% xtra(1)
+         end if 
 
          if (s% x_logical_ctrl(2)) then
             if (s% x_integer_ctrl(3) == 1) then
@@ -505,15 +517,6 @@
          s% xtra(1) = CE_energy_rate
          s% xtra(20) = L_acc
       end subroutine CE_inject_case5
-
-! ***********************************************************************
-      !subroutine CE_inject_case6(id, ierr)
-
-         
-
-
-
-      !end subroutine CE_inject_case6
 
 
 ! ***********************************************************************
