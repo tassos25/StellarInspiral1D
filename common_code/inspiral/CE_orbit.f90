@@ -564,46 +564,26 @@
 
          !implicit none
 
-         
-
-         
-
          class(dop853_class),intent(inout) :: me
          real(8),intent(in)               :: x
          real(8),dimension(:),intent(in)  :: y
          real(8),dimension(:),intent(out) :: f
          real(8), parameter :: G = 392512559.8496094d0   ! grav  cnt.        [ Rsun^3 / Msun / yr^2] 
          real(8), parameter :: c0 = 13598865.132357053d0 ! light speed       [ Rsun / yr]
-
-         
-         
          type (star_info), pointer :: s
-
-         
-
-         
          real(8) :: M                                    ! donnor mass       [ Msun ]
-
          real(8) :: mu                                   ! grav. parameter
          real(8) :: PN25                                 ! 2.5 Post-Newt. terms
          real(8) :: Fext, Fr, Fnu                           ! External force, and its components 
-
          real(8) :: r,nu
-
          real(8) :: magv, renv, machn, bmax, bmin, lambda
          real(8) :: tmprho, tmp1, tmp2, tmp3
-
          real(8) :: CE_companion_mass
-
-         
-         
          !real(8), DIMENSION(:), ALLOCATABLE :: logrho, logr, mass, 
          real(8), DIMENSION(:), ALLOCATABLE :: arr
          real(8) :: rho, msunrsun3 = 0.16934021222434983d0, rsunyr = 0.0004536093143596379d0
-
          real(8) :: value
          INTEGER :: index
-         
          integer :: k, k_bottom
          real(8) :: CE_energy_rate, CE_companion_position, CE_companion_radius
          real(8) :: CE_n_acc_radii
@@ -617,14 +597,10 @@
          real(8) :: drag_factor, log_mdot_factor, lambda_squared
          real(8) :: F_drag_subsonic, F_drag_supersonic, csound_at_companion, v_rel_at_companion
 
-            ierr_dop = 0
+         ierr_dop = 0
          call star_ptr(id_dop, s, ierr_dop)
          if (ierr_dop /= 0) return
 
-         
-
-
-         
 
          ! Companion mass (Msun)
          CE_companion_mass = s% xtra(4)
@@ -686,7 +662,7 @@
                Fext = - (tmp2 * tmp3 ) / (magv*magv) ! this should be in units of acceleration
                !Fext = 0.d0
                ! Adding hydrodynamical drag
-               Fext = Fext - pi * (CE_companion_radius )**2 * tmprho * magv**2 / CE_companion_mass
+               Fext = Fext - pi * CE_companion_radius**2.d0 * tmprho * magv**2 / CE_companion_mass
             else
                stop "Select x_integer_ctrl(2)=4 as the complete orbit integration is only defined for this option"
             end if 
@@ -711,7 +687,7 @@
          ! d2r/dt2 and d2nu/dt2
          f(2) = - mu / ( y(1)*y(1) ) * (1.0 + PN25) + Fr + r * f(3)*f(3) ! d2r/dt2
 
-         f(4) = Fnu / r - (2.d0 * f(1) * f(3) / r)                             ! d2nu/dt2
+         f(4) = Fnu / r - (2.d0 * f(1) * f(3) / r)                        ! d2nu/dt2
 
       
 
@@ -720,7 +696,7 @@
 
 
       
-
+! ***********************************************************************
       SUBROUTINE FindApproximateValueIndex(arr, value, index)
          IMPLICIT NONE
          real(8), DIMENSION(:), INTENT(IN) :: arr
