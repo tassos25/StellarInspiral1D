@@ -393,7 +393,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         CE_how_many_extra_history_columns = 25
+         CE_how_many_extra_history_columns = 26
       end function CE_how_many_extra_history_columns
 
 
@@ -468,6 +468,8 @@
          vals(24) = s% xtra(28)
          names(25) = 'CE_companion_acceleration_nu'
          vals(25) = s% xtra(29)
+         names(26) = 'CE_companion_drag_force_magnitude'
+         vals(26) = s% xtra(30)
 
          ! If a distance provided, adjust from absolute to apparent magnitude
          if (s% x_ctrl(17) .ne. -1) then
