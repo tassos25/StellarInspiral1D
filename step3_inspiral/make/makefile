@@ -102,9 +102,6 @@ CE_run_star_extras.o: $(COMMON_CODE_DIR)/inspiral/CE_run_star_extras.f90
 dop853_module.o: $(COMMON_CODE_DIR)/dop853/dop853_module.f90
 	$(WORK_COMPILE) $<
 
-CE_orbit_integration.o: $(COMMON_CODE_DIR)/inspiral/CE_orbit_integration.f90
-	$(WORK_COMPILE) $<
-
 #A rule of how to compile additional code in WORK_SRC_DIR
 %.o: $(WORK_SRC_DIR)/%.f90
 	$(WORK_COMPILE) $<
