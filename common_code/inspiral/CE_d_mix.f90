@@ -51,7 +51,7 @@
          real(dp) :: CE_companion_position
          real(dp) :: CE_n_acc_radii
          real(dp) :: a_tukey, enhanced_D_mix, ff
-         real(dp) :: R_acc, R_acc_low, R_acc_high
+         real(dp) :: R_acc, R_acc_low, R_acc_high, R_companion
          integer :: k
          
          ierr = 0
@@ -71,6 +71,7 @@
          endif
          
          CE_n_acc_radii = s% xtra(5)
+         R_companion = s% x_ctrl(3)
 
          call calc_quantities_at_comp_position(id, ierr)
 
@@ -87,10 +88,13 @@
             ! When we reach the core boundary we exit the loop
             if (s% m(k) < s% he_core_mass * Msun) exit
             ! Get inner or outer accretion radius
+            ! The accretion radius is compared to the physical radius of the companion and use the max of the two
+            !  so that the area where we deposit the energy and perform mixing is valid for both the when the graviational drag or 
+            ! the hydro drag is dominating
             if (s% r(k) < CE_companion_position*Rsun) then
-               R_acc = R_acc_low
+               R_acc = max(R_acc_low, R_companion * Rsun)
             else
-               R_acc = R_acc_high
+               R_acc = max(R_acc_high,R_companion * Rsun)
             end if
             ! Mix through out the accretion radius in the current time step
             enhanced_D_mix = 0.5d0*R_acc*R_acc/s% dt
