@@ -21,6 +21,7 @@
                               ! if  -1: Return absolute magnitudes
                               ! if 778: - M31 (kpc)
    x_ctrl(18) = 1             ! n_tau_to_remove. Check down to this optical depth to see if outer layers are unbound
+   x_ctrl(22) = 1.0           ! factor on the maximum enhanced mixing of 0.5*R_impact^2/delta_t
   ! extra integers
    x_integer_ctrl(1) = 5  ! if 1: Uniform heating of the whole envelope
                           ! if 2: Heating at the base of the hydrogen envelope
