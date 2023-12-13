@@ -50,7 +50,7 @@
          type (star_info), pointer :: s
          real(dp) :: CE_companion_position
          real(dp) :: CE_n_acc_radii
-         real(dp) :: a_tukey, enhanced_D_mix, ff
+         real(dp) :: a_tukey, enhanced_D_mix, maxenhancement_factor, ff
          real(dp) :: R_acc, R_acc_low, R_acc_high
          integer :: k
          
@@ -77,6 +77,9 @@
          R_acc = s% xtra(12)
          R_acc_low = s% xtra(13)
          R_acc_high = s% xtra(14)
+         
+         ! factor from inlist
+         maxenhancement_factor = s% x_ctrl(22)
 
          ! Tukey window scale
          a_tukey = 0.5d0
@@ -93,7 +96,7 @@
                R_acc = R_acc_high
             end if
             ! Mix through out the accretion radius in the current time step
-            enhanced_D_mix = 0.5d0*R_acc*R_acc/s% dt
+            enhanced_D_mix = maxenhancement_factor*0.5d0*R_acc*R_acc/s% dt
             ! Use TukeyWindow to determine where D_mix should be between the usual on and the enhanced_D_mix
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0d0 * R_acc), a_tukey)
             s% D_mix(k) = s% D_mix(k) * (1.0d0 - ff) + enhanced_D_mix * ff
