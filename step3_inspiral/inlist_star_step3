@@ -51,13 +51,11 @@
    profile_interval = 30                             ! interval for writing out profiles;              common value: 50      | write more profiles
    max_num_profile_models = 10000                    ! maximum number of saved profiles;               common value: 100     | allow to save more profiles before overwritting
 
-!!! when to stop                                                                    | additional stopping criteria set in binary_controls and run_binary_extras.f
+!!! when to stop                                                                   | additional stopping criteria set in binary_controls and run_binary_extras.f
    max_model_number = 25000  ! maximum number of models;      common value: -1     | generous maximum
 
 !!! mixing (and convection)
-   okay_to_reduce_gradT_excess = .false.  ! enable MLT++;                                                                 common value: .true.        | don't use MLT++
-   max_conv_vel_div_csound = 1            ! limit convective velocities (units of sound speed);                           common value: 1d99          | no super-sonic convection
-   max_v_div_cs_for_convection = 1        ! disable convection for fast moving layers (units of sound speed);             common value: 1d99          | disable convection in super-sonic layers
+   okay_to_reduce_gradT_excess = .false.  ! enable MLT++;                                                                 common value: .true. | don't use MLT++
 
 !!! rotation controls
    do_adjust_J_lost = .false.  ! adjustment of angular momentum because of some being carried by mass loss; common value: .true. | swtich off, because we don't have mass loss
