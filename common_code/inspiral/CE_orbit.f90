@@ -342,6 +342,7 @@
          if (ierr /= 0) return
 
          CE_companion_position = s% xtra(2)
+         CE_companion_radius = s% x_ctrl(3)
          CE_companion_mass = s% xtra(4)
          ! Calculate quantities at the position of the companion
 
@@ -428,6 +429,8 @@
          ! Accretion radius for a constant density medium
          R_acc = 2.0 * standard_cgrav * M2 / &
              ((v_rel_at_companion*v_rel_at_companion) + csound_at_companion*csound_at_companion)
+         ! Setting accretion radius as the max. between gravitational accretion radius and physical radius of the companion
+         R_acc = max( R_acc , CE_companion_radius * Rsun )
 
          ! To be done appropriately, inner R_acc needs to be calculated separately from the outer R_acc
          ! Find lower R_acc, starting at the star's position
@@ -440,6 +443,7 @@
            j = j + 1
          end do
          R_acc_low = R_rel
+         R_acc_low = max( R_acc_low , CE_companion_radius * Rsun )
 
          j = k
          do while (j > 1)
@@ -449,6 +453,7 @@
            j = j - 1
          end do
          R_acc_high = R_rel
+         R_acc_high = max( R_acc_high , CE_companion_radius * Rsun )
 
          !saving these values to xtra variable so that tey are used in different CE_inject cases,
          ! in the torque calculations, and saved in the history file
