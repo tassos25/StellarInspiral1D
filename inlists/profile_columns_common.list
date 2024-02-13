@@ -68,7 +68,7 @@
    !rmid ! radius at center by mass of zone (in Rsun units)
    !r_div_R ! fraction of total radius
 
-   !velocity   ! velocity at outer boundary of zone (cm/s) -- 0 if no velocity variable
+   velocity   ! velocity at outer boundary of zone (cm/s) -- 0 if no velocity variable
    !v_div_r ! velocity divided by radius
    !v_times_t_div_r
    !rho_times_r3 ! at face
@@ -195,8 +195,8 @@
    !prad_div_pgas_div_L_div_Ledd
    !pressure_scale_height_cm
 
-   !eps_grav_composition_term
-   !eps_grav_plus_eps_mdot
+   eps_grav_composition_term
+   eps_grav_plus_eps_mdot
 
    !chiRho_for_partials
    !chiT_for_partials
@@ -214,7 +214,7 @@
 
 
 !# Mass accretion
-   !eps_grav ! -T*ds/dt (negative for expansion)
+   eps_grav ! -T*ds/dt (negative for expansion)
    !log_abs_eps_grav_dm_div_L
    !log_abs_v ! log10(abs(velocity)) (cm/s)
    !log_mdot_cs
@@ -390,13 +390,13 @@
    !log_Lrad_div_L
    !signed_log_power ! sign(L)*log10(max(1,abs(L))) 
 
-   !lum_adv
-   !lum_conv
-   !lum_conv_MLT
-   !lum_div_Ledd
-   !lum_erg_s
-   !lum_plus_lum_adv
-   !lum_rad
+   lum_adv
+   lum_conv
+   lum_conv_MLT
+   lum_div_Ledd
+   lum_erg_s
+   lum_plus_lum_adv
+   lum_rad
 
    !log_L_div_CpTMdot
    !log_abs_lum_erg_s
