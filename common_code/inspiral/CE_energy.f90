@@ -240,7 +240,6 @@
 
          F_coef = 4.0 * pi * standard_cgrav * standard_cgrav * M2 * M2 * rho_at_companion / (v_rel*v_rel)
          F_drag = -F_coef * I
-         F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2 * rho_at_companion * v_rel**2
 
          ! Add hydrodynamic drag
          F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
