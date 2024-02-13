@@ -310,7 +310,7 @@
          ! Merge if either the companion or the core fills its rochelobe
          if ((rl_companion .le. CE_companion_radius) .or. (rl_core .le. s% he_core_radius)) then
             s% lxtra(1) = .true.
-            s% xtra(2) = 0.0
+            s% xtra(2) = s% xtra_old(2) !0.0
             write(*,*) "!!!!!!!!!!!! Either the core or the companion filled their Roche Lobe !!!!!!!!!!!!"
          else if (rl_companion_enc .le. CE_companion_radius) then 
             s% lxtra(1) = .true.
