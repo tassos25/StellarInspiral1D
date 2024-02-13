@@ -331,7 +331,7 @@
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
          integer :: j, k
-         real(dp) :: CE_companion_position, CE_companion_mass, omega_at_companion, csound_at_companion, P, M2
+         real(dp) :: CE_companion_position, CE_companion_radius, CE_companion_mass, omega_at_companion, csound_at_companion, P, M2
          real(dp) :: v_rel, v_rel_div_csound, v_rel_at_companion
          real(dp) :: R_rel, R_acc, R_acc_low, R_acc_high
          real(dp) :: M_encl, rho_at_companion, scale_height_at_companion
