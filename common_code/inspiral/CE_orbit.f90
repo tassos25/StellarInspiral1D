@@ -97,7 +97,7 @@
             if (s% model_number .eq. 1) then
                ! Determine the initial conditions of the velocity
                if (s% x_logical_ctrl(8)) then
-                  s% xtra(25) = s% x_ctrl(2) * s% r(1) / Rsun
+                  s% xtra(2) = s% x_ctrl(2) * s% r(1) / Rsun
                   ! Circular orbit
                   s% xtra(25) = pi    ! nu (rad)
                   s% xtra(26) = 0.0d0 ! dr/dt
@@ -118,7 +118,7 @@
                   
                else
                   ! Velocity's components defined by de user
-                  s% xtra(25) = s% x_ctrl(2) * s% r(1) / Rsun
+                  s% xtra(2) = s% x_ctrl(2) * s% r(1) / Rsun
                   s% xtra(25) = pi            ! nu (rad)
                   s% xtra(26) = s% x_ctrl(20) ! dr/dt (Rsun/yr)
                   s% xtra(27) = s% x_ctrl(21) ! dnu/dt (rad/yr)
