@@ -575,6 +575,7 @@
 
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0 * R_acc), a_tukey)
             s% extra_heat(k)%val = CE_energy_rate / mass_to_be_heated * ff
+            s% xtra6_array(k) = CE_energy_rate / mass_to_be_heated * ff
          end do
       end subroutine CE_set_extra_heat
 
@@ -599,6 +600,10 @@
          CE_n_acc_radii = s% xtra(5)
 
          call calc_quantities_at_comp_position(id, ierr)
+
+         do k=1, s% nz 
+            s% xtra6_array(k) = 0.d0
+         end do 
 
          R_acc = s% xtra(12)
          R_acc_low = s% xtra(13)
@@ -644,6 +649,7 @@
 
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0 * R_acc), a_tukey)
             s% extra_heat(k)%val = CE_energy_rate * (4.0d0 * pi * s% r(k) * s% r(k) * cell_dr(k) * ff / volume_to_be_heated) / s% dm(k)
+            s% xtra6_array(k) = CE_energy_rate * (4.0d0 * pi * s% r(k) * s% r(k) * cell_dr(k) * ff / volume_to_be_heated) / s% dm(k)
          end do
          deallocate(cell_dr)
       end subroutine CE_set_extra_heat2
