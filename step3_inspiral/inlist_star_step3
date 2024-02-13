@@ -62,6 +62,8 @@
 
 !!! atmosphere boundary conditions
    use_compression_outer_BC = .true.  ! enable boundary condition at surface to have vanishing compression gradient; common value: .false. | use other surface boundary condition
+   use_momentum_outer_BC = .true.      ! use P at surface to compute the velocity of the outermost cell;              common value: .false. | use other surface boundary condition
+
 
 !!! mass gain or loss
    max_wind = 1d-1                            ! maximum wind in Msun/year;                                common value: 0d0       | limit wind loss
@@ -93,6 +95,15 @@
 
 !!! debugging controls
   !report_solver_progress = .true.  ! get info about solver iterations; default: .false. | FOR DEBUGGING
+
+!!! restricting taking steps that could lead to evaluations of the EOS outside its range of validity
+   hydro_mtx_max_allowed_abs_dlogT = 1d0               ! force retry with smaller timestep if hydro solves change T by too much;       default: 99    |
+   hydro_mtx_min_allowed_logT = 1d0                    ! minimum value accepted of T;                                                  default: 12    | This controls allow to reject predicted values of T outside the range of validity of the EOS
+   hydro_mtx_max_allowed_logT = 10d0                   ! maximum value accepted of T;                                                  default: 1     |
+
+   hydro_mtx_max_allowed_abs_dlogRho = 1d0             ! force retry with smaller timestep if hydro solves change Rho by too much;     default: 99    |
+   hydro_mtx_min_allowed_logRho = -15d0                ! minimum value accepted of Rho;                                                default: -1d2  | This controls allow to reject predicted values of Rho outside the range of validity of the EOS
+   hydro_mtx_max_allowed_logRho = 10d0                 ! maximum value accepted of Rho;    
 
 !!! miscellaneous controls
  !! hooks
