@@ -491,7 +491,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         CE_how_many_extra_profile_columns = 2
+         CE_how_many_extra_profile_columns = 3
      ! previously have been 5, but the last three don't exist anymore
       end function CE_how_many_extra_profile_columns
 
@@ -523,12 +523,14 @@
 
          names(1) = 'ionization_energy'
          names(2) = 'eps_recombination'
+         names(3) = 'CE_extra_heat'
       !   names(3) = 'eps_visc'
       !   names(4) = 'eta_visc'
       !   names(5) = 'Qvisc'
          do k = 1, nz
            vals(k,1) = s% xtra1_array(k)
            vals(k,2) = s% xtra2_array(k)
+           vals(k,3) = s% xtra6_array(k)
       !     vals(k,3) = s% eps_visc(k)  ! does not exist anymore
       !     vals(k,4) = s% eta_visc(k)  ! does not exist anymore
       !     vals(k,5) = s% Qvisc(k)     ! does not exist anymore
