@@ -50,7 +50,7 @@
    trace_history_value_name(5) = 'v_div_csound_max'  ! value added as new history column;                   default: ''      | add maximum velocity in units of (local) sound speed
   !trace_history_value_name(6) = 'v_div_vesc_max'    ! value added as new history column;                   default: ''      | add maximum velocity in units of (local) escape velocity
    write_profiles_flag = .true.                      ! enables to write out profiles;                  common value: .false. | save profiles
-   profile_interval = 30                             ! interval for writing out profiles;              common value: 50      | write more profiles
+   profile_interval = 1                              ! interval for writing out profiles;              common value: 50      | write more profiles
    max_num_profile_models = 10000                    ! maximum number of saved profiles;               common value: 100     | allow to save more profiles before overwritting
 
 !!! when to stop                                                                   | additional stopping criteria set in binary_controls and run_binary_extras.f
