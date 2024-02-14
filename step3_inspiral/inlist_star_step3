@@ -14,7 +14,9 @@
    set_to_this_tau_factor = 1d-4   ! set optical depth at surface;                        common value: -1      | put surface a low optical depth
    set_tau_factor = .true.         ! enable to set an optical depth without reconverging; common value: .false. | enables previous setting
    change_v_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
-   new_v_flag = .true.             ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
+   new_v_flag = .false.            ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
+   change_u_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
+   new_u_flag = .true.            ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
    new_rotation_flag = .true.      ! enable rotation;                                     common value: .false. |
    change_rotation_flag = .true.   ! copy enabled rotation;                               common value: .false. | copy rotation flag
 
