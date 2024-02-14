@@ -289,7 +289,7 @@
 
 
    !!! when to stop 
-      star_mass_max_limit = 1.0d4   ! this should be the same as the relaxed mass (new_mass)
+   star_mass_max_limit = 1.0d4   ! this should be the same as the relaxed mass (new_mass)
 
 
 
