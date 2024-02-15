@@ -111,6 +111,7 @@
  !! hooks
    use_other_adjust_mdot = .true.             ! enable additional routine after wind and before mass adjustment; default: .false. |
    use_other_energy = .true.                  ! enable other energy prescription;                                default: .false. |
+   use_other_torque = .true.                  ! enable other torque imparted;                                    default: .false. |
    use_other_after_struct_burn_mix = .true.   ! enable additional routine after struct_burn_mix;                 default: .false. |
    use_other_before_struct_burn_mix = .true.  ! enable additional routine before struct_burn_mix;                default: .false. |
 
