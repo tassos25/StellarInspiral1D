@@ -1,7 +1,7 @@
 ! ***********************************************************************
 !
 !   This file is part of a mesa extension.
-!   Authors of this file: Tassos Fragos, Jeff J. Andrews, Matthias U. Kruckow
+!   Authors of this file: Tassos Fragos, Jeff J. Andrews, Matthias U. Kruckow, Jaime Roman-Garza
 !
 ! ***********************************************************************
 !
@@ -78,6 +78,10 @@
             s% xtra(1) = 0.0d0
             s% xtra(20) = 0.0d0
             s% xtra(22) = 0.0d0
+            do k=1, s% nz 
+               s% xtra6_array(k) = 0.d0
+               s% extra_heat(k)%val = 0.d0
+            end do 
             return
          endif
 
@@ -101,6 +105,7 @@
          else if (CE_test_case == 5) then   ! Energy based on Lee & Stahler (2011)
 
             call CE_inject_case5(id, ierr)
+         
 
          endif
       end subroutine CE_inject_energy
@@ -240,6 +245,9 @@
          F_coef = 4.0 * pi * standard_cgrav * standard_cgrav * M2 * M2 * rho_at_companion / (v_rel*v_rel)
          F_drag = -F_coef * I
 
+         ! Add hydrodynamic drag
+         F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
+
          ! Total energy rate= drag force * velocity
          CE_energy_rate = F_drag * v_rel
 
@@ -303,6 +311,10 @@
          f3 = 0.75992092
          e_rho = R_acc / scale_height_at_companion
          F_drag = F_DHL*(f1 + f2*e_rho +f3*e_rho**2)
+         F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2 * rho_at_companion * v_rel**2
+
+         ! Add hydrodynamic drag
+         F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
 
          ! Mass accretion from MacLeod & Ramirez-Ruiz (2014)
          a1 = -2.14034214
@@ -390,7 +402,7 @@
 
          if (s% x_integer_ctrl(2) == 2) then
 
-            ! Hydrodynamic drag from MacLeod & Ramirez-Ruiz (2014)
+            ! Dynamical drag from MacLeod & Ramirez-Ruiz (2014)
             f1 = 1.91791946d0
             f2 = -1.52814698d0
             f3 = 0.75992092
@@ -425,12 +437,23 @@
                F_drag = ((beta-0.9)*F_drag_supersonic + (0.99-beta)*F_drag_subsonic)/0.09
             endif
 
+            ! Add hydrodynamical drag
+            F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2 * rho_at_companion * v_rel**2
+
             mdot = mdot_HL * 10.0**log_mdot_factor
             s% xtra(23) = mdot
 
             ! Accretion luminosity luminosity: 10% efficiency
             L_acc = 0.1 * standard_cgrav * M2 / R2 * mdot_HL
+         
+         else if (s% x_integer_ctrl(2) == 4) then
 
+            if (s% x_logical_ctrl(7)) then 
+               ! Accretion luminosity luminosity: 10% efficiency
+               L_acc = (s% xtra(30) * Msun * Rsun / (secyer**2.0) )/(s% xtra(16) * Rsun / secyer)
+            else
+               stop "The value of x_integer_ctrl(2) = 4 is only available for x_logical_ctrl(7) = .true."
+            endif
          else if (s% x_integer_ctrl(2) == 3) then
 
             lambda_squared = exp(3.0) / 16.0
@@ -443,12 +466,17 @@
 
             ! Drag force
             F_drag =  beta * csound * mdot
+            ! Add hydrodynamic drag
+            F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
             ! Accretion luminosity luminosity: 10% efficiency
             L_acc = 0.1 * standard_cgrav * M2 / R2 * mdot
 
          else if (s% x_integer_ctrl(2) == 1) then
 
             F_drag = pi * R_acc**2 * rho_at_companion * v_rel**2
+
+            ! Add hydrodynamic drag
+            F_drag = F_drag + pi * (CE_companion_radius * Rsun)**2.0 * rho_at_companion * v_rel**2
 
             mdot = pi * R_acc**2 * rho_at_companion * v_rel
             s% xtra(23) = mdot
@@ -464,7 +492,11 @@
          L_acc = min(L_acc, 1.26e38 * CE_companion_mass)
 
          ! Total energy rate = drag force * velocity
-         CE_energy_rate = F_drag * max(v_rel,0.0d0)
+         if (.not.(s% x_logical_ctrl(7))) then 
+            CE_energy_rate = F_drag * max(v_rel,0.0d0)
+         else 
+            CE_energy_rate = s% xtra(1)
+         end if 
 
          if (s% x_logical_ctrl(2)) then
             if (s% x_integer_ctrl(3) == 1) then
@@ -547,6 +579,7 @@
 
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0 * R_acc), a_tukey)
             s% extra_heat(k)%val = CE_energy_rate / mass_to_be_heated * ff
+            s% xtra6_array(k) = CE_energy_rate / mass_to_be_heated * ff
          end do
       end subroutine CE_set_extra_heat
 
@@ -571,6 +604,10 @@
          CE_n_acc_radii = s% xtra(5)
 
          call calc_quantities_at_comp_position(id, ierr)
+
+         do k=1, s% nz 
+            s% xtra6_array(k) = 0.d0
+         end do 
 
          R_acc = s% xtra(12)
          R_acc_low = s% xtra(13)
@@ -616,6 +653,7 @@
 
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0 * R_acc), a_tukey)
             s% extra_heat(k)%val = CE_energy_rate * (4.0d0 * pi * s% r(k) * s% r(k) * cell_dr(k) * ff / volume_to_be_heated) / s% dm(k)
+            s% xtra6_array(k) = CE_energy_rate * (4.0d0 * pi * s% r(k) * s% r(k) * cell_dr(k) * ff / volume_to_be_heated) / s% dm(k)
          end do
          deallocate(cell_dr)
       end subroutine CE_set_extra_heat2

@@ -21,14 +21,18 @@
                               ! if  -1: Return absolute magnitudes
                               ! if 778: - M31 (kpc)
    x_ctrl(18) = 1             ! n_tau_to_remove. Check down to this optical depth to see if outer layers are unbound
+   x_ctrl(19) = 0.6          ! Mean molecular weight of the companion
+   x_ctrl(20) = 0.0           ! radial component of the companion's initial velocity [frame of reference of static donnor] (Rsun / yr)
+   x_ctrl(21) = 0.0           ! angular component of the companion's velocity [frame of reference of static donnor] (rad / yr)
   ! extra integers
    x_integer_ctrl(1) = 5  ! if 1: Uniform heating of the whole envelope
                           ! if 2: Heating at the base of the hydrogen envelope
                           ! if 3: CE_energy_rate is calculated based on the companions position and the gravitational drag prescription by Eve Ostriker (1999)
                           ! if 4: Energy based on MacLeod & Ramirez-Ruiz
                           ! if 5: Energy based on Lee & Stahler (2011)
-   x_integer_ctrl(2) = 2  ! if 1: Classic BHL drag
+   x_integer_ctrl(2) = 4  ! if 1: Classic BHL drag
                           ! if 2: Macleod & Ramirez-Ruiz (2015)
+                          ! if 4: Ostriker (1999) and Binney & Tremaine (2008)
                           ! if 3: Lee, Aaron T.; Stahler, Steven W. (2011,2014)
    x_integer_ctrl(3) = 2  ! if 1: Deposit energy and AM with constant specific energy and AM withing Racc
                           ! if 2: Follow Taam et al. (1978)
@@ -39,5 +43,8 @@
    x_logical_ctrl(4) = .false.  ! Remove supersonic outer layers
    x_logical_ctrl(5) = .true.   ! Remove outer layers when energetically unbound AND supersonic
    x_logical_ctrl(6) = .false.  ! is_it_restart: if true, then keeps companion position saved model and does not do initial synchronization. NOT WORKING CURRENTLY!!!
-
+   x_logical_ctrl(7) = .true.  ! complete_orbit_integration:  if true the eq. of motion for the companion is solved using DOP8(5,3) integrator, taking hydrodynamic and dynamical drag and 2.5 Post-Newtonian correction, 
+                                ! else, it is assumed that the companion's trayectory is tangential to the Keplerian circular orbit at its position.
+   x_logical_ctrl(8) = .true.   ! initial_circular_velocity:  if true the initial velocity of the companion is computed for a circula orbit, alse both components will be considered from x_ctrl(20), radial, and x_ctrl(21), tangencial.
+                                ! only valid if complete_orbit_integration is true
 / ! end of controls namelist

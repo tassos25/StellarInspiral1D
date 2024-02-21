@@ -54,12 +54,16 @@
 
 !!! mixing (and convection)
    okay_to_reduce_gradT_excess = .false.  ! enable MLT++;                                                                 common value: .true.        | don't use MLT++
+   max_conv_vel_div_csound = 1            ! limit convective velocities (units of sound speed);                           common value: 1d99          | no super-sonic convection
+   max_v_div_cs_for_convection = 1        ! disable convection for fast moving layers (units of sound speed);             common value: 1d99          | disable convection in super-sonic layers
+
 
 !!! rotation controls
   !do_adjust_J_lost = .false.  ! adjustment of angular momentum because of some being carried by mass loss; common value: .true. | swtich off, because we don't have mass loss
 
 !!! atmosphere boundary conditions
    use_compression_outer_BC = .true.  ! enable boundary condition at surface to have vanishing compression gradient; common value: .false. | use other surface boundary condition
+   !use_momentum_outer_BC = .true.      ! use P at surface to compute the velocity of the outermost cell;              common value: .false. | use other surface boundary condition
 
 !!! mass gain or loss
    max_wind = 1d-1                            ! maximum wind in Msun/year;                                common value: 0d0       | limit wind loss
@@ -92,7 +96,7 @@
 
 !!! debugging controls
   !report_solver_progress = .true.  ! get info about solver iterations; default: .false. | FOR DEBUGGING
-
+   
 !!! miscellaneous controls
  !! hooks
    use_other_adjust_mdot = .true.             ! enable additional routine after wind and before mass adjustment; default: .false. |
