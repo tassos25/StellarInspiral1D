@@ -78,6 +78,10 @@
             s% xtra(1) = 0.0d0
             s% xtra(20) = 0.0d0
             s% xtra(22) = 0.0d0
+            do k=1, s% nz 
+               s% xtra6_array(k) = 0.d0
+               s% extra_heat(k)%val = 0.d0
+            end do 
             return
          endif
 
