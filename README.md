@@ -1,6 +1,6 @@
 # StellarInspiral1D
 
-This is an extension for MESA to simulate an in-spiraling object in a star. Hence, you need to have an installed version of MESA (we recommend to use the MESA release r23.05.1).
+This is an extension for MESA to simulate an in-spiraling object in a star, initially described in [Fragos et al. (2019)](https://ui.adsabs.harvard.edu/abs/2019ApJ...883L..45F/abstract). Hence, you need to have an installed version of MESA (we recommend to use the MESA release r23.05.1).
 
 Its main application is meant for simulating a common envelope phase where the envelope of one star engulfs its companion. This companion can be any kind of object. While for the in-spiral it will be treated as a simple object.
 
@@ -101,6 +101,25 @@ This is the required code from the ionization branch of MESA (https://github.com
 
 This is the required data needed for the ionization code. It is copied from MESA revision r9793, which contained this the ionization code and this data set in `${MESA_DIR}/data`.
 
-## FAQ
+## Citing this work
 
-tbw
+If you use this code in your research, please cite the following paper:
+@ARTICLE{2019ApJ...883L..45F,
+       author = {{Fragos}, Tassos and {Andrews}, Jeff J. and {Ramirez-Ruiz}, Enrico and {Meynet}, Georges and {Kalogera}, Vicky and {Taam}, Ronald E. and {Zezas}, Andreas},
+        title = "{The Complete Evolution of a Neutron-star Binary through a Common Envelope Phase Using 1D Hydrodynamic Simulations}",
+      journal = {\apjl},
+         year = 2019,
+        month = oct,
+       volume = {883},
+       number = {2},
+          eid = {L45},
+        pages = {L45},
+          doi = {10.3847/2041-8213/ab40d1},
+archivePrefix = {arXiv},
+       eprint = {1907.12573},
+ primaryClass = {astro-ph.HE},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/2019ApJ...883L..45F},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}
+
+
