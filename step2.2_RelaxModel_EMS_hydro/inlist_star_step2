@@ -1,0 +1,289 @@
+&star_job
+
+!!! output
+   history_columns_file = '../inlists/history_columns_common.list'  ! a list of columns to save in the history files; common value: '' | read common list
+   profile_columns_file = '../inlists/profile_columns_common.list'  ! a list of columns to save in the profile files; common value: '' | read common list
+
+!!! starting model
+   load_saved_model = .true.                          ! enable to start from a model instead of from ZAMS; common value: .false.     | use model from other step
+   load_model_filename = '../models/step2.1_final.mod'  ! load the model specified here as initial model;    common value: 'undefined' | use final model from previous step
+
+   write_profile_when_terminate = .true.                       ! enable to write profiles on termination; common value: .false. | keep a final profile
+   filename_for_profile_when_terminate = 'final_profile.data'  ! name of the final profile file;          common value: ''      | 
+
+   save_model_when_terminate = .true.
+   save_model_filename = 'step2.2_final.mod' 
+
+  
+
+!!! modifications to model
+   set_initial_dt = .true.         ! reset initial timestep;                              common value: .false. | set the initial timestep
+   
+
+   years_for_initial_dt = 1d-5     ! set this initial timestep;                           common value: -1      | adopted to make it converge
+   
+   set_to_this_tau_factor = 1.0d-1   ! set optical depth at surface;                        common value: -1      | put surface a low optical depth
+   set_tau_factor = .true.         ! enable to set an optical depth without reconverging; common value: .false. | enables previous setting
+   
+   change_v_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
+   new_v_flag = .false.            ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
+   change_u_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
+   new_u_flag = .true.             ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
+
+   change_net = .true.
+   new_net_name = 'sagb_NeNa_MgAl.net'
+   show_net_species_info = .true.
+
+/ ! end of star_job namelist
+
+
+&eos
+
+!!! equation of state (EOS)
+
+   logT_max_FreeEOS_hi = 8.2d0 ! FreeEOS tabulations go up to here
+   logT_max_FreeEOS_lo = 8.1d0
+
+   !Best limits
+   Z_all_OPAL = 1.0d-4
+   Z_all_HELM = 1.0d-4
+   logT_min_FreeEOS_hi = 3.1d0
+   logT_min_FreeEOS_lo = 3.1d0
+   logQ_min_FreeEOS_hi = -8.0d0
+   logQ_min_FreeEOS_lo = -10.0d0
+
+   logT_low_all_HELM = 2.2d0 ! HELM for lgT <= this
+   logT_low_all_SCVH = 2.3d0 ! SCVH for lgT >= this
+/ ! end of eos namelist
+
+
+&kap
+
+!!! opacities
+   Zbase = 1d-4
+
+   kap_file_prefix = 'a09' 
+   kap_CO_prefix = 'a09_co' 
+   kap_lowT_prefix = 'lowT_fa05_a09p'
+
+   use_Type2_opacities = .true.
+   kap_Type2_full_off_X = 1.0d-3
+   kap_Type2_full_on_X = 1.0d-6
+   cubic_interpolation_in_X = .true.
+   cubic_interpolation_in_Z = .true.
+
+/ ! end of kap namelist
+
+&controls
+
+   use_dPrad_dm_form_of_T_gradient_eqn = .true.  ! enable to use a more dynimical equation to get temperature gradient; common value: .false. | hydrostatic values might not be appropriate
+
+   warn_when_large_rel_run_E_err = 1d99
+   use_gold_tolerances = .false.
+   energy_eqn_option = 'dedt'
+   max_abs_rel_run_E_err = -1
+
+   !OUTPUT OPTIONS
+   write_profiles_flag = .true.                      ! enables to write out profiles;                  common value: .false. | save profiles
+   profile_interval = 10                             ! interval for writing out profiles;              common value: 50  | write more profiles
+   max_num_profile_models = 10000                    ! maximum number of saved profiles;               common value: 100 | allow to save more profiles before overwritting
+
+!!! when to stop                                                                    | additional stopping criteria set in binary_controls and run_binary_extras.f
+   max_model_number = 100000  ! maximum number of models;      common value: -1     | generous maximum
+   max_age = 50            ! maximum age in the simulation; common value: 1.4e10 | relaxation shouldn't age the star
+
+   
+
+   star_history_dbl_format = '(1pes32.16e3, 1x)'
+   star_history_int_format = '(i32, 1x)'
+   star_history_txt_format = '(a32, 1x)'
+
+   star_history_name = 'history.data'
+
+
+   !PHYSICS
+   !atmosphere
+   Pextra_factor = 2 ! set_tau_factor * 4
+
+   ! CONVECTION + MIXING
+   use_Ledoux_criterion = .true.
+   do_conv_premix = .false.
+   conv_premix_avoid_increase = .true.
+
+   mixing_length_alpha = 1.93d0
+   mlt_option = 'Mihalas'
+   mlt_use_rotation_correction = .false.
+
+   use_superad_reduction = .false.
+   okay_to_reduce_gradT_excess = .false.
+   alpha_semiconvection = 0d0
+   mixing_D_limit_for_log = 1d-50
+
+   thermohaline_coeff = 17.5d0 ! 2/3 * 8/3 * pi^2 for aspect ratio 1 of the fingers, using eq. 4 of Charbonel+2007 and eq. 14 in Paxton+2013
+   num_cells_for_smooth_gradL_composition_term = 0
+
+   !ROTATION
+   w_div_wcrit_max = 0.9d0
+
+
+   !MASS LOSS
+   use_other_wind= .false. ! combination of Dutch and Reimers, with Z=Zbase for the scaling
+   cool_wind_full_on_T = 0.8d4  !8000<T< 12000
+   hot_wind_full_on_T = 1.2d4
+   RGB_to_AGB_wind_switch = 1.0d-4
+   hot_wind_scheme = 'Dutch' ! hot of all stars
+   cool_wind_RGB_scheme ='Dutch'! cool of high mass stars (Minit>10Msun),
+   cool_wind_AGB_scheme = 'Blocker' ! cool for low mass stars in AGB
+   Dutch_scaling_factor = 0 !1.0d0
+   Blocker_scaling_factor = 0 !0.2d0
+   Reimers_scaling_factor = 0 !0.1d0
+
+
+   
+   
+
+   !DIFFUSION
+   do_element_diffusion = .false. ! different from MIST2
+   diffusion_dt_limit = 3.15d9 !seconds
+   diffusion_min_T_at_surface = 1.0d3
+   diffusion_min_dq_at_surface = 1.0d-3
+   diffusion_gamma_full_on = 165d0
+   diffusion_gamma_full_off = 175d0
+   diffusion_use_full_net = .true.
+
+   !CORE MASS DEFINITION
+   he_core_boundary_h1_fraction = 1d-2
+   co_core_boundary_he4_fraction = 1d-1
+   one_core_boundary_he4_c12_fraction = 1d-1
+   min_boundary_fraction = 1d-1
+
+
+   !MESH AND TIMESTEP PARAMETERS
+   solver_iters_timestep_limit = 20
+
+   delta_XH_cntr_limit = 0.005d0
+   delta_XH_cntr_hard_limit = -1
+
+   delta_XHe_cntr_limit = 0.01d0
+   delta_XHe_cntr_hard_limit = -1
+
+   delta_XC_cntr_limit = 0.002d0
+   delta_XC_cntr_hard_limit = -1
+
+   ! From Frank's suggestions
+   delta_lgT_cntr_limit   = 0.005d0   ! default 0.01
+   delta_lgT_limit = 0.025d0         ! default 0.5
+   delta_lgRho_cntr_limit = 0.025d0   ! default 0.05
+   delta_lgRho_limit = 0.5d0          ! default 1.0
+
+   delta_lgL_He_limit = 0.1d0
+
+   ! time step resolution on fuel depletion
+   delta_lg_XHe_cntr_limit = 0.01d0
+   delta_lg_XHe_cntr_max   = 0.0d0
+   delta_lg_XHe_cntr_min   = -4.0d0
+   delta_lg_XHe_cntr_hard_limit = 0.02d0
+   delta_lg_XC_cntr_limit = 0.01d0
+   delta_lg_XC_cntr_max   = 0.0d0
+   delta_lg_XC_cntr_min   = -2.0d0 ! -3.0d0
+   delta_lg_XC_cntr_hard_limit = 0.02d0
+   delta_lg_XO_cntr_limit = 0.01d0
+   delta_lg_XO_cntr_max   = 0.0d0
+   delta_lg_XO_cntr_min   = -3.0d0
+   delta_lg_XO_cntr_hard_limit = 0.02d0
+
+   !limit changes in the timestep
+   timestep_factor_for_retries = 0.25d0
+
+   ! HRD, Radius resolution
+   delta_HR_ds_L = 0.125d0
+   delta_HR_ds_Teff = 2.0d0
+   delta_HR_limit = 0.1d0
+   delta_HR_hard_limit = 0.2d0
+
+
+
+
+   use_other_adjust_mdot = .true.             ! enable additional routine after wind and before mass adjustment; default: .false. |
+   use_other_after_struct_burn_mix = .true.   ! enable additional routine after struct_burn_mix;                 default: .false. |
+   use_other_before_struct_burn_mix = .true.  ! enable additional routine before struct_burn_mix;                default: .false. |
+
+   use_momentum_outer_BC = .true.      ! use P at surface to compute the velocity of the outermost cell;              common value: .false. | use other surface boundary condition
+
+   max_years_for_timestep = 1d-1
+
+   
+
+   hydro_mtx_max_allowed_abs_dlogRho = 3.0d0
+   hydro_mtx_max_allowed_abs_dlogT = 3.0d0
+
+   restore_mesh_on_retry = .true.
+
+   do_adjust_J_lost = .false.
+
+   use_flux_limiting_with_dPrad_dm_form = .true.
+
+
+   opacity_min = 1.0d-10
+
+   ! mesh controls
+   okay_to_remesh = .true.
+   max_dq = 1d-3 
+   mesh_delta_coeff = 0.8d0 
+
+   !! this one is turned on in run_star_extras
+   use_split_merge_amr = .true.
+   !split_merge_amr_log_zoning = .true.
+   split_merge_amr_nz_baseline = 2000 ! RECOMMENDED 6000
+   split_merge_amr_MaxLong = 1.25d0
+   split_merge_amr_MaxShort = 2.5d0
+   split_merge_amr_max_iters = 50
+   split_merge_amr_okay_to_split_nz = .false.
+   split_merge_amr_mesh_delta_coeff = 1d0
+
+
+   split_merge_amr_logtau_zoning = .true.
+   split_merge_amr_log_zoning = .false.
+   split_merge_amr_hybrid_zoning = .false.
+   split_merge_amr_flipped_hybrid_zoning = .false.
+
+
+   !prevent surface from going crazy during remesh and when hydro turns on
+   merge_amr_ignore_surface_cells = .true.
+   merge_amr_k_for_ignore_surface_cells = 2
+
+   merge_amr_max_abs_du_div_cs = 0.05d0
+   merge_amr_du_div_cs_limit_only_for_compression = .true.
+   split_merge_amr_avoid_repeated_remesh = .true.
+
+   max_abs_du_div_cs_for_convection = 0.03d0
+   max_v_div_cs_for_convection = 1d1
+   !max_v_for_convection = 5d3
+
+   use_split_merge_amr = .true.
+
+   max_surface_cell_dq = 1d0
+   split_merge_amr_dq_min = 1d-16
+
+   max_mdot_redo_cnt = 0
+
+   restore_mesh_on_retry = .true.
+   num_steps_to_hold_mesh_after_retry = 5
+
+   ! debugging
+   report_ierr = .false.
+   show_mesh_changes = .false.
+   trace_evolve = .false.
+   trace_split_merge_amr = .false.
+   report_solver_progress = .false.
+
+
+   
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   retry_for_v_above_clight = .false.
+   scale_max_correction = 1d0
+   ignore_too_large_correction = .true.
+
+   
+
+/ ! end of controls namelist
