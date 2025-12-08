@@ -1,0 +1,15 @@
+#!/bin/bash
+
+NEW_MODEL=$(ls -t *.mod | head -n1)
+
+if [[ -e ../models/step3_final.mod ]];then
+	cp ../models/step3_final.mod ../models/step3_final.mod.old
+fi
+
+if [[ -e ${NEW_MODEL} ]];then
+	echo "copy" ${NEW_MODEL} "to ../models/step3_final.mod" 
+	scp ${NEW_MODEL} ../models/step3_final.mod
+else
+	echo "no model to copy"
+	exit 1
+fi
