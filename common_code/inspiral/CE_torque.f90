@@ -71,6 +71,8 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
 
+         s% xtra3_array = 0.d0
+
          CE_companion_position = s% xtra(2)
          CE_companion_mass = s% xtra(4)
 
@@ -131,6 +133,7 @@
             end if
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0 * R_acc), a_tukey)
             s% extra_jdot(k) = CE_torque / mass_to_be_spun * ff
+            s% xtra3_array(k) = CE_torque / mass_to_be_spun * ff
          end do
       end subroutine CE_inject_am
 
@@ -152,6 +155,8 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
+
+         s% xtra3_array = 0.d0
 
          CE_companion_position = s% xtra(2)
          CE_companion_mass = s% xtra(4)
@@ -220,6 +225,7 @@
             end if
             ff = TukeyWindow((s% r(k) - CE_companion_position*Rsun)/(CE_n_acc_radii * 2.0 * R_acc), a_tukey)
             s% extra_jdot(k) = CE_torque * (4.0d0 * pi * s% r(k) * s% r(k) * cell_dr(k) * ff / volume_to_be_spun) / s% dm(k)
+            s% xtra3_array(k) = CE_torque * (4.0d0 * pi * s% r(k) * s% r(k) * cell_dr(k) * ff / volume_to_be_spun) / s% dm(k)
          end do
          deallocate(cell_dr)
       end subroutine CE_inject_am2

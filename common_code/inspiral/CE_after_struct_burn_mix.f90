@@ -106,7 +106,7 @@
 
             k=k+1
          enddo
-         s% xtra(11) = total_envelope_binding_energy ! In erg
+         !s% xtra(11) = total_envelope_binding_energy ! In erg ! This output is not supported
 
          CE_mdot = - (mass_to_remove) / dt !In gr/s
 
@@ -119,7 +119,7 @@
             write (*,*)"*", s%dt, s% mass_change_full_off_dt, s% mass_change_full_on_dt
          endif
 
-         s% xtra(7) = CE_mdot
+         s% xtra(7) = CE_mdot 
 
          res = keep_going
 
@@ -129,6 +129,11 @@
                integer, intent(in) :: k
                real(dp) :: val, f_energy, vrot
                logical :: include_internal_energy
+               logical :: CE_remove_supersonic_layers, CE_remove_escaping_layers, CE_remove_unb_and_supers
+
+               CE_remove_supersonic_layers   = s% x_logical_ctrl(4) 
+               CE_remove_escaping_layers     = s% x_logical_ctrl(10)
+               CE_remove_unb_and_supers      = s% x_logical_ctrl(5)
 
 
                include_internal_energy = s% x_logical_ctrl(1)
@@ -161,10 +166,29 @@
                   is_bound = .true.
                endif
 
-               if (s% x_logical_ctrl(4) .and. (s% v(k)/s% csound(k) .gt. 1.0d0)) is_bound = .false.
 
-               !In order to remove material, the shell should have energetically unbound AND supersonic
-               if (s% x_logical_ctrl(5) .and. (s% v(k)/s% csound(k) .lt. 1.0d0)) is_bound = .true.
+               if (CE_remove_supersonic_layers) then
+                  if (v_rad/s% csound(k) .ge. 1.0d0) then
+                     is_bound = .false.
+                  else
+                     is_bound = .true.
+                  endif
+                  
+               elseif (CE_remove_escaping_layers) then
+                  if (v_rad/(sqrt(2*s% cgrav(k)*s% m(k)/(s% r(k)))) .ge. 1.0d0) then
+                     is_bound = .false.
+                  else
+                     is_bound = .true.
+                  endif
+
+               elseif (CE_remove_unb_and_supers) then
+                  if ((v_rad/s% csound(k) .ge. 1.0d0) .and. (v_rad/(sqrt(2*s% cgrav(k)*s% m(k)/(s% r(k)))) .ge. 1.0d0)) then 
+                     is_bound = .false.
+                  else
+                     is_bound = .true.
+                  endif
+               endif 
+
 
             end function is_bound
 

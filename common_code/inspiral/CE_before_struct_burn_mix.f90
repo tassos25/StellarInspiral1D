@@ -25,9 +25,11 @@
 
       module CE_before_struct_burn_mix
 
-      use const_def, only: dp,ln10
+      use const_def, only: dp,ln10, clight
       use star_def
       use ionization_def
+      use star_lib, only: star_remove_surface_at_cell_k
+
 
       implicit none
 
@@ -64,10 +66,19 @@
          real(dp) :: erg_in_ev, Eion_HII_pp, Eion_HeII_pp, Eion_HeIII_pp, e_charge, He_mass, H_mass
          real(dp) :: N_H, N_He, N_HII, N_HeII, N_HeIII
          real(dp) :: avg_charge_H, avg_charge_He, neutral_fraction_H, neutral_fraction_He
-
+         real(dp) :: v_surf, CE_factor_clight, v_esc_surf, v_rad, v_surf_new, CE_BC_fixed_Psurf
+         logical :: CE_change_BC_vsurf, CE_remove_superlum_surf, CE_change_BC_Psurf
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
+
+         CE_change_BC_vsurf = s% x_logical_ctrl(11)      ! if true: change BC to fixed vsurf if vsurf >= vesc 
+         CE_remove_superlum_surf = s% x_logical_ctrl(12) ! if true: remove cells with velocity x_ctrl(22) * c_light
+         CE_change_BC_Psurf = s% x_logical_ctrl(13)        ! if true: change atm BC to fixed P_surf if vsurf >= vesc (avoid atm. BC pressure to prevent expelling material)
+
+         CE_factor_clight = s% x_ctrl(24) ! to remove surface cells with v >= CE_factor_clight * clight
+         CE_BC_fixed_Psurf = s% x_ctrl(23) ! fixed surface pressure if v_surf >= v_esc_surf
+
 
          erg_in_ev =1.60217657d-12 !# ergs in 1 eV
          Eion_HII_pp = 13.5924d0 * erg_in_ev !# Ionization energy HI -> HII of one atom in ergs
@@ -113,6 +124,112 @@
             s% xtra5_array(k) = N_HeIII*(Eion_HeII_pp+Eion_HeIII_pp) / s% dm(k)
 
          end do
+
+         ! Options to remove outer cells that satisfy
+         !  given conditions. This code was ported from the one used in Farag et al. 2022.
+         ! check expanding surface
+         if (s% u_flag .or. s% v_flag) then
+            if (CE_remove_superlum_surf) then
+               ! This is necessary depending on the velocity version used
+               if (s% u_flag) then
+                  v_surf = s% u(1)
+               else
+                  v_surf = s% v(1)
+               endif
+
+               write(*,*) 'v_surf / c_light = ',v_surf/clight
+               write(*,*) 'v_surf / c_light * CE_factor_clight = ',v_surf/(clight * CE_factor_clight)
+               write(*,*) 'CE_factor_clight = ',CE_factor_clight
+               write(*,*) '(v_surf >= CE_factor_clight * clight) = ',v_surf >= CE_factor_clight * clight
+
+               if (v_surf >= CE_factor_clight * clight) then
+                  
+                  do k = 1, s% nz
+                     if (s% u_flag) then
+                        v_rad = s% u(k)
+                        
+                     else
+                        v_rad = s% v(k)
+                     endif
+                     if (v_rad < CE_factor_clight * clight) exit
+                  end do 
+
+                  if (k > 1) then
+                     write(*,*) 'Removing the outer ',k, 'cells with superluminal motion'
+                     
+                     !s% use_fixed_Psurf_outer_BC = .true.
+                     !s% fixed_Psurf = s% Peos(k)
+
+                     !s% atm_option = 'fixed_Tsurf'
+                     !s% atm_fixed_Tsurf = s% T(k)
+
+                     ! Remove superluminal cells
+                     call star_remove_surface_at_cell_k(s% id, k, ierr)
+                     if (ierr /= 0) return
+                  end if
+
+               end if 
+
+            end if
+
+            if (CE_change_BC_vsurf) then
+               if (CE_change_BC_Psurf) then
+                  write(*,*) 'Can not set up fixed surf. vel. BC if CE_change_BC_Psurf = true '
+               else
+                  ! This is necessary depending on the velocity version used
+                  if (s% u_flag) then
+                     v_surf = s% u(1)
+                  else
+                     v_surf = s% v(1)
+                  endif
+
+                  v_esc_surf = sqrt(2*s% cgrav(1)*s% m(1)/(s% r(1)))
+
+                  if (v_surf/v_esc_surf .ge. 1.0d0 .or. s% use_fixed_vsurf_outer_BC) then
+                     s% use_fixed_vsurf_outer_BC = .true.
+                     s% use_momentum_outer_BC = .false.
+                     v_surf_new = v_surf - s% cgrav(1)*s% m(1)/(s% r(1)*s% r(1)) * s% dt
+                     s% fixed_vsurf = max( v_surf_new,v_esc_surf)
+                     write(*,*) 'Setting up fixed surf. vel. BC'
+                  end if 
+               endif
+            end if 
+
+
+            if (CE_change_BC_Psurf) then
+               if (CE_change_BC_vsurf) then
+                  write(*,*) 'Can not set up fixed surf. pressure atm. BC if CE_change_BC_vsurf = true '
+               else
+                  ! This is necessary depending on the velocity version used
+                  if (s% u_flag) then
+                     v_surf = s% u(1)
+                  else
+                     v_surf = s% v(1)
+                  endif
+
+                  v_esc_surf = sqrt(2*s% cgrav(1)*s% m(1)/(s% r(1)))
+
+                  if (s% use_fixed_Psurf_outer_BC .and. v_surf/v_esc_surf .lt. 1.0d0 ) then
+                     s% use_fixed_vsurf_outer_BC = .true.
+                     s% use_momentum_outer_BC = .false.
+                     s% fixed_vsurf = v_esc_surf
+
+                  else if (v_surf/v_esc_surf .ge. 1.0d0 .or. s% use_fixed_Psurf_outer_BC) then
+                     s% use_fixed_Psurf_outer_BC = .true.
+                     s% fixed_Psurf = CE_BC_fixed_Psurf
+                     write(*,*) 'Setting up fixed surf. pressure atm. BC'
+                  end if 
+
+                  
+          
+
+                  
+
+
+               end if
+            end if
+
+         end if 
 
          res = keep_going
 
