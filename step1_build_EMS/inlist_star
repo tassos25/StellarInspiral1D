@@ -20,7 +20,7 @@
 &controls
 
 !!! output controls
-   photo_directory = 'photos1'  ! where to save photos;          common value: 'photos' | use a different directory for each star
-   log_directory = 'LOGS1'      ! where to save logs;            common value: 'LOGS'   | use a different directory for each star
+   photo_directory = 'photos'  ! where to save photos;          common value: 'photos' | use a different directory for each star
+   log_directory = 'LOGS'      ! where to save logs;            common value: 'LOGS'   | use a different directory for each star
 
 / ! end of controls namelist
