@@ -6,7 +6,7 @@
 
 !!! starting model
    load_saved_model = .true.                          ! enable to start from a model instead of from ZAMS; common value: .false.     | use model from other step
-   load_model_filename = '../models/ste2.2_final.mod'  ! load the model specified here as initial model;    common value: 'undefined' | use final model from previous step
+   load_model_filename = '../models/step2.2_final.mod'  ! load the model specified here as initial model;    common value: 'undefined' | use final model from previous step
 
 !!! modifications to model
    !set_initial_dt = .true.         ! reset initial timestep;                              common value: .false. | set the initial timestep
