@@ -211,12 +211,10 @@
    x_logical_ctrl(2) = .false.
    ! turn on eq.8 Belczynski+2010 LBV2 winds  with factor 1 (10-4 Msun/yr) to replace other winds for postMS stars in Humphreys-Davidson limit
    x_logical_ctrl(3) = .false.
-   ! allaow accretion from Haemmerlé et al.(2016)
+
+   ! allows accretion from Haemmerlé et al.(2016)
    x_logical_ctrl(4) = .true. 
    use_other_adjust_mdot = .true.
-   ! allow for energy injection during accretion
-   use_other_energy = .false.
-
    ! multiplicative factor for the accretion rate given by Haemmerle et al. (2016)
    x_ctrl(6) = 10.0d0 
 
@@ -226,6 +224,8 @@
    x_ctrl(5) = 0.0d0  
    ! minimum radial coord. [Rsun] to deposit the heat from the accreted material          
    x_ctrl(7) = 10.0d0
+   ! allow for energy injection during accretion
+   use_other_energy = .false.
    
 
 / ! end of controls namelist
