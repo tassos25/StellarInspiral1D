@@ -65,7 +65,18 @@
     
         !s% other_mlt => my_other_mlt
         s% other_am_mixing => TSF
+
         s% other_wind => other_set_mdot
+
+        ! to take into account hot and cold accretion 
+        s% other_energy => accretion_other_energy
+
+        ! Check if gas accretion is active 
+        if (s% x_logical_ctrl(4)) then
+         s% other_adjust_mdot => SMS_adjust_mdot
+        endif
+
+        
     
         s% extras_startup => extras_startup
         s% extras_check_model => extras_check_model
@@ -163,7 +174,7 @@
        ierr = 0
        call star_ptr(id, s, ierr)
        if (ierr /= 0) return
-       how_many_extra_history_header_items = 3
+       how_many_extra_history_header_items = 6
       end function how_many_extra_history_header_items
     
      ! subroutine data_for_extra_history_header_items( &
@@ -215,14 +226,15 @@
          integer, intent(out) :: ierr
          integer :: i
          real(dp) :: Initial_X, Initial_Y, Initial_Z, initial_m
+
          ierr = 0
          call star_ptr(id,s,ierr)
          if(ierr/=0) return
     
-         initial_X = 0._dp
-         initial_Y = 0._dp
-         initial_Z = 0._dp
-         initial_m = 0._dp
+         initial_X = 0.0
+         initial_Y = 0.0
+         initial_Z = 0.0
+         initial_m = 0.0
          do i=1,s% species
              !write(*,*) chem_isos% name(s% chem_id(i)), s% xa(i,1)
              if( trim(chem_isos% name(s% chem_id(i))) == 'prot' .or. trim(chem_isos% name(s% chem_id(i))) == 'neut')then
@@ -236,12 +248,14 @@
              endif
           enddo
           initial_m = s% initial_mass
-          names(1) = 'initial_Z'
-          vals(1) = initial_Z
-          names(2) = 'initial_Y'
-          vals(2) =  initial_Y
-          names(3) = 'initial_m'
-          vals(3) =  initial_m
+          names(4) = 'initial_Z'
+          vals(4) = initial_Z
+          names(5) = 'initial_Y'
+          vals(5) =  initial_Y
+          names(6) = 'initial_m'
+          vals(6) =  initial_m
+
+        
       ! here is an example for adding an extra history header item
       ! also set how_many_extra_history_header_items
       ! names(1) = 'mixing_length_alpha'
@@ -299,7 +313,8 @@
         logical :: sticking_to_energy_without_recombination_corr
         real(dp) :: XplusY_CO_core_mass_threshold
         logical :: have_30_value, have_10_value, have_1_value, have_co_value
-    
+        real(dp) :: Patm, dgrav, dPsurf, dv_nonHSE, area
+
         ierr = 0
         call star_ptr(id, s, ierr)
         if (ierr /= 0) return
@@ -671,7 +686,6 @@
        vals(25) = he_core_radius_10cent
        names(26) = 'he_core_radius_30cent'
        vals(26) = he_core_radius_30cent
-    
     
        deallocate(adjusted_energy)
       end subroutine data_for_extra_history_columns
@@ -2023,6 +2037,169 @@
                    end  if
                 end if
              end subroutine check_TP
+
+      !Function Accretion of mass as in Haemmerlé et al.(2016)
+          subroutine SMS_adjust_mdot(id, ierr) 
+            use star_def
+            integer, intent(in) :: id
+            integer, intent(out) :: ierr
+            real(dp) :: f, w, log_mdot_out, mdot_out, m2r
+            real(dp) :: accretion_factor
+            logical :: accretion_scheme 
+    
+            type (star_info), pointer :: s
+    
+            ierr = 0
+            call star_ptr(id, s, ierr)
+            if (ierr /= 0) then
+              write(*,*) 'failed in star_ptr'
+               return
+            end if
+
+            accretion_scheme = s% x_logical_ctrl(4)
+            accretion_factor = s% x_ctrl(6) 
+         
+            s% mstar_dot = 0.0d0
+            w = 0.0d0
+            s% explicit_mstar_dot = s% mstar_dot
+            ! Mass to reach 
+            m2r = 2.0d4
+            if (accretion_scheme) then
+              if (s% star_mass <= 5.0d0) then
+              
+                f = 1.0/3.0
+                
+              else if (s% star_mass > 5.0 .and. s% star_mass <= m2r) then
+              
+                f = 1.0/11.0
+              end if
+
+              log_mdot_out = -5.28d0 + s% log_surface_luminosity *(0.752d0 - 0.0278d0*s% log_surface_luminosity) ![M_sun/yr]
+              mdot_out = 10.d0**(log_mdot_out) * (Msun/secyer) *  accretion_factor  ![gr/s]  10 for high accretion
+    
+              w = f/(1-f)*mdot_out 
+                 
+            endif
+            
+            s% mstar_dot = (s% mstar_dot + w)
+            s% explicit_mstar_dot = s% mstar_dot 
+
+    
+      end subroutine SMS_adjust_mdot  
+
+      subroutine accretion_other_energy(id, ierr)
+            use star_def
+            
+
+            integer, intent(in) :: id
+            integer, intent(out) :: ierr
+            real(dp) :: mass, mdot, mdot_msun, alpha, radius, mcumul
+            real(dp) :: Lacc, extra_heat_var
+            real(dp), parameter :: mdot_break = 6.2e-6
+            real(dp), parameter :: alpha_high = 0.5
+            real(dp), parameter :: alpha_low = 0.005
+            real(dp), parameter :: delta_break = 5.95e-6
+            real(dp) :: numerator, denominator, epsilon_accretion
+            real(dp), parameter :: secyer = 3.1558149984d7 ! seconds per year
+            real(dp), parameter :: msun   = 1.9892e33      ! solar mass (g)
+            integer :: k
+            
+            type (star_info), pointer :: s
+
+            ierr  = 0
+            call star_ptr(id, s, ierr)
+            if (ierr /= 0) then ! OOPS
+                return
+            end if
+
+            epsilon_accretion = s% x_ctrl(5)
+
+            if ((.not. s% x_logical_ctrl(4)) .or. (epsilon_accretion .le. 0.d0)) then
+               return
+            endif
+
+
+            mass = s% mstar
+            mdot = s% mstar_dot
+            
+
+            if (mdot == 0.0d0) return
+
+            radius = s% r(1)
+            ! ----------------------------------------------------------
+            ! x_ctrl(1) is the default alpha parameter from inlist.
+            !alpha = s% x_ctrl(1)
+
+            ! ----------------------------------------------------------
+            ! Time varying alpha, alpha = 0.25 if mdot > 1e-5
+            ! crossover for alpha in range mdot [1e-5, 1e-6]
+            ! settle at alpha = 0.01 when mdot < 1e-6
+      	   mdot_msun = mdot*(secyer/msun)
+    	      numerator = alpha_high * exp(mdot_msun/delta_break) + alpha_low * exp(mdot_break/delta_break)
+    	      denominator = exp(mdot_break/delta_break) + exp(mdot_msun/delta_break)
+
+    	      alpha = numerator / denominator
+
+            if (s% x_logical_ctrl(5)) then
+               mcumul = 0.0d0
+               k = 0
+               Lacc = epsilon_accretion * (s% cgrav(1) * (mdot) * (mass)) / radius
+               extra_heat_var = Lacc * alpha
+               !s% x_ctrl(6) = extra_heat_var
+               !s% x_ctrl(5) = Lacc * (1-alpha)
+               do while ((mcumul < mdot*s% dt .or. extra_heat_var / max(mcumul,1.0d0) > 1e4) .and. mcumul < 0.8 * mass)
+               k = k + 1
+               mcumul = mcumul + s% dm(k)
+               enddo
+
+               extra_heat_var = Lacc * alpha / mcumul
+            else
+               !k = s% nz 
+               !extra_heat_var = Lacc * alpha / mass
+
+               mcumul = 0.0d0
+               k = 1
+               !s% x_ctrl(6) = extra_heat_var
+               !s% x_ctrl(5) = Lacc * (1-alpha)
+               do while ((s% xa(s% net_iso(ih1),k) >= 0.99d0 * s% xa(s% net_iso(ih1),1)).and.(s% r(k).gt. s% x_ctrl(7)* rsun))
+               k = k + 1
+               !mcumul = mcumul + s% dm(k)
+               enddo
+
+               mcumul = s% m(1) - s% m(k+1)
+
+               Lacc = epsilon_accretion * (s% cgrav(1) * (mdot) * (mass)) / s% r(k)
+               !extra_heat_var = Lacc * alpha
+
+               !if (mcumul .gt. mass) then
+               !   mcumul = mass
+               !endif
+
+               if (k .gt. s% nz) then
+                  k = s% nz
+               endif
+
+               !write (*,*) 'nz = ', s% nz, '; k = ', k
+               !write (*,*) 'mass = ', mass, '; mcumul = ', mcumul
+               write (*,*) 'inner radius for por. energy = ', s% r(k) / rsun
+
+               extra_heat_var = Lacc / mcumul
+
+            endif
+
+            !write(*,*) 'extra heat = ', extra_heat_var         
+            s% extra_heat(1:k)%val = extra_heat_var
+            !write(*,*) 'Extra heat from acc: ',extra_heat_var
+            
+            
+
+            !write(*,*) "k = ", k
+            !write(*,*) "Radius(k): " , s% r(k)
+            !write(*,*) "Ratio, r(k) / r(1), Heat mass / mass : " , s% r(k) / radius, mcumul / mass
+            !write(*,*) "Extra heat: " , extra_heat_var
+            !write(*,*) "alpha_acc: " , alpha
+
+        end subroutine accretion_other_energy
 
 
            ! ************************************************

@@ -1,0 +1,171 @@
+&star_job
+
+!!! output
+   history_columns_file = '../inlists/history_columns_common.list'  ! a list of columns to save in the history files; common value: '' | read common list
+   profile_columns_file = '../inlists/profile_columns_common.list'  ! a list of columns to save in the profile files; common value: '' | read common list
+
+!!! starting model
+   load_saved_model = .true.                          ! enable to start from a model instead of from ZAMS; common value: .false.     | use model from other step
+   load_model_filename = '../models/step2.1_final.mod'  ! load the model specified here as initial model;    common value: 'undefined' | use final model from previous step
+
+   write_profile_when_terminate = .true.                       ! enable to write profiles on termination; common value: .false. | keep a final profile
+   filename_for_profile_when_terminate = 'final_profile.data'  ! name of the final profile file;          common value: ''      | 
+
+   save_model_when_terminate = .true.
+   save_model_filename = 'step2.2_final.mod' 
+
+  
+
+!!! modifications to model
+   set_initial_dt = .true.         ! reset initial timestep;                              common value: .false. | set the initial timestep
+   
+
+   years_for_initial_dt = 1d-5     ! set this initial timestep;                           common value: -1      | adopted to make it converge
+   
+   set_to_this_tau_factor = 1.0d-1   ! set optical depth at surface;                        common value: -1      | put surface a low optical depth
+   set_tau_factor = .true.         ! enable to set an optical depth without reconverging; common value: .false. | enables previous setting
+   
+   change_v_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
+   new_v_flag = .false.            ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
+   change_u_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
+   new_u_flag = .true.             ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
+
+   change_net = .true.
+   new_net_name = 'sagb_NeNa_MgAl.net'
+   show_net_species_info = .true.
+
+/ ! end of star_job namelist
+
+
+&eos
+
+!!! equation of state (EOS)
+   !Best limits
+   Z_all_OPAL = 1.0d-4
+   Z_all_HELM = 1.0d-4
+
+/ ! end of eos namelist
+
+
+&kap
+
+!!! opacities
+   Zbase = 1d-4
+
+   kap_file_prefix = 'a09' 
+   kap_CO_prefix = 'a09_co' 
+   kap_lowT_prefix = 'lowT_fa05_a09p'
+
+/ ! end of kap namelist
+
+&controls
+
+   use_dPrad_dm_form_of_T_gradient_eqn = .true.  ! enable to use a more dynimical equation to get temperature gradient; common value: .false. | hydrostatic values might not be appropriate
+
+!!! output options
+   write_profiles_flag = .true.                       ! enables to write out profiles;                  common value: .false. | save profiles
+   profile_interval = 10                              ! interval for writing out profiles;              common value: 50  | write more profiles
+   max_num_profile_models = 10000                     ! maximum number of saved profiles;               common value: 100 | allow to save more profiles before overwritting
+
+!!! convection + mixing
+   do_conv_premix = .false.
+   use_superad_reduction = .false.
+   okay_to_reduce_gradT_excess = .false.              ! enable MLT++;                                                                           default: .false. | use MLT++
+
+
+!!! mass loss
+   use_other_wind= .false.                            ! enable other wind prescription;                                  default: .false. |
+   Dutch_scaling_factor = 0                           ! scaling factor for Dutch wind scheme;                                                                   default: 0d0     |
+   Blocker_scaling_factor = 0                         ! scaling factor for Blocker wind scheme;                                                                 default: 0       |
+   Reimers_scaling_factor = 0                         ! scaling factor for Reimers wind scheme;                                                                 default: 0       |
+
+
+
+
+!!! diffusion
+   do_element_diffusion = .false. ! different from MIST2
+   diffusion_dt_limit = 3.15d9 !seconds
+   diffusion_min_T_at_surface = 1.0d3
+   diffusion_min_dq_at_surface = 1.0d-3
+   diffusion_gamma_full_on = 165d0
+   diffusion_gamma_full_off = 175d0
+   diffusion_use_full_net = .true.
+
+!!! core mass definition
+   he_core_boundary_h1_fraction = 1d-2
+
+   solver_iters_timestep_limit = 20
+
+!!! limit changes in the timestep
+   timestep_factor_for_retries = 0.25d0
+
+   use_momentum_outer_BC = .true.                  ! use P at surface to compute the velocity of the outermost cell;              common value: .false. | use other surface boundary condition
+   use_flux_limiting_with_dPrad_dm_form = .true.   ! enable to use flux limited difussion radiation transport;             common value: .false. | 
+
+   hydro_mtx_max_allowed_abs_dlogRho = 3.0d0
+   hydro_mtx_max_allowed_abs_dlogT = 3.0d0
+
+   restore_mesh_on_retry = .true.
+   do_adjust_J_lost = .false.                      ! adjustment of angular momentum because of some being carried by mass loss;                 default: .true.  |
+   
+   opacity_min = 1.0d-10
+
+!!!  mesh controls
+   okay_to_remesh = .true.
+   max_dq = 1d-3                                   ! maximum mass in a zone relative to total mass;                                             default: 1d-2  | the star has at least 1/max_dq zones
+   mesh_delta_coeff = 0.8d0                        ! coefficient to determine the difference between two zones before a new zone is requested;  default: 1.0d0 |
+
+   use_split_merge_amr = .true.
+   split_merge_amr_nz_baseline = 2000 
+   split_merge_amr_MaxLong = 1.25d0
+   split_merge_amr_MaxShort = 2.5d0
+   split_merge_amr_max_iters = 50
+   split_merge_amr_okay_to_split_nz = .false.
+   split_merge_amr_mesh_delta_coeff = 1d0
+
+   split_merge_amr_logtau_zoning = .true.
+   split_merge_amr_log_zoning = .false.
+   split_merge_amr_hybrid_zoning = .false.
+   split_merge_amr_flipped_hybrid_zoning = .false.
+
+   merge_amr_ignore_surface_cells = .true.
+   merge_amr_k_for_ignore_surface_cells = 2
+
+   merge_amr_max_abs_du_div_cs = 0.05d0
+   merge_amr_du_div_cs_limit_only_for_compression = .true.
+   split_merge_amr_avoid_repeated_remesh = .true.
+
+   max_abs_du_div_cs_for_convection = 0.03d0
+   max_v_div_cs_for_convection = 1d1
+   
+   max_surface_cell_dq = 1d0
+   split_merge_amr_dq_min = 1d-16
+
+   max_mdot_redo_cnt = 0
+
+   restore_mesh_on_retry = .true.
+   num_steps_to_hold_mesh_after_retry = 5
+
+   retry_for_v_above_clight = .false.
+   scale_max_correction = 1d0
+   ignore_too_large_correction = .true.
+
+   use_other_adjust_mdot = .true.             ! enable additional routine after wind and before mass adjustment; default: .false. |
+   use_other_after_struct_burn_mix = .true.   ! enable additional routine after struct_burn_mix;                 default: .false. |
+   use_other_before_struct_burn_mix = .true.  ! enable additional routine before struct_burn_mix;                default: .false. |
+
+   max_years_for_timestep = 1d-1
+
+!!! debugging
+   report_ierr = .false.
+   show_mesh_changes = .false.
+   trace_evolve = .false.
+   trace_split_merge_amr = .false.
+   report_solver_progress = .false.
+
+!!! when to stop                                                                    | additional stopping criteria set in binary_controls and run_binary_extras.f
+   max_model_number = 100000  ! maximum number of models;      common value: -1     | generous maximum
+   max_age = 50               ! maximum age in the simulation; common value: 1.4e10 | relaxation shouldn't age the star
+
+
+/ ! end of controls namelist

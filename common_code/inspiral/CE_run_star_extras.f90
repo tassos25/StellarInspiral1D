@@ -72,6 +72,9 @@
          s% how_many_extra_profile_columns => CE_how_many_extra_profile_columns
          s% data_for_extra_profile_columns => CE_data_for_extra_profile_columns
 
+         s% how_many_other_mesh_fcns => CE_how_many_other_mesh_fcns
+         s% other_mesh_fcn_data => CE_other_mesh_fcn_data
+
          !s% how_many_extra_history_header_items => CE_how_many_extra_history_header_items
          !s% data_for_extra_history_header_items => CE_data_for_extra_history_header_items
          !s% how_many_extra_profile_header_items => CE_how_many_extra_profile_header_items
@@ -86,6 +89,7 @@
          ! e.g., other_wind, other_mixing, other_energy (see star_data.inc)
 
          ! Here we should point to the names of the "other_" functions to be used
+         
          s% other_energy => CE_inject_energy
          if (s% x_integer_ctrl(3)==1) then
             s% other_torque => CE_inject_am
@@ -97,6 +101,7 @@
          s% other_before_struct_burn_mix => calc_recombination_before_struct_burn_mix
          s% other_after_struct_burn_mix => CE_other_after_struct_burn_mix
          s% other_adjust_mdot => CE_other_adjust_mdot
+        
          !s% other_eosDT_get => my_other_eosDT_get      !does not exist anymore, see old_hooks.f90
          !s% other_eosDT_get_T => my_other_eosDT_get_T  !does not exist anymore, see old_hooks.f90
 
@@ -123,6 +128,23 @@
          s% xtra(22) = 0.0d0
          !s% xtra(23) -> mdot_macleod. Macleod & Ramirez-Ruiz accretion rate onto compact object. Calculated in CE_energy_rate
          s% xtra(23) = 0.0d0
+         !s% xtra(24) -> temperature of the star at the position of the companion
+         s% xtra(24) = 0.0d0
+         !s% xtra(25) -> angular position of the companion (rad)
+         s% xtra(25) = 0.0d0
+         !s% xtra(26) -> radial component of the companion's velocity (Rsun/yr)
+         s% xtra(26) = 0.0d0
+         !s% xtra(27) -> angular component of the companion's velocity (rad/yr)
+         s% xtra(27) = 0.0d0
+         !s% xtra(28) -> radial component of the companion's acceleration (Rsun/yr^2)
+         s% xtra(28) = 0.0d0
+         !s% xtra(29) -> angular component of the companion's acceleration (rad/yr^2)
+         s% xtra(29) = 0.0d0
+         !s% xtra(30) -> magnitude of the drag force acting on the companion (Msun Rsun / yr^2)
+         s% xtra(30) = 0.0d0
+         !s% xtra(11)  -> Work done by the drag force in the complete orbital integration scheme
+         s% xtra(11) = 0.0d0
+
 
          !s% xtra(7) -> CE_test_case
          s% ixtra(1) = s% x_integer_ctrl(1)
@@ -134,10 +156,46 @@
          ! ! s% job% relax_omega_max_yrs_dt = 1d-8
          !  s% job% set_initial_dt = .True.
          !  s% job% years_for_initial_dt = 1d-8
+
+         
       end subroutine CE_extras_controls
 
 
 ! ***********************************************************************
+      subroutine CE_how_many_other_mesh_fcns(id, n)
+         integer, intent(in) :: id
+         integer, intent(out) :: n
+         n = 1
+      end subroutine CE_how_many_other_mesh_fcns
+      
+      
+      subroutine CE_other_mesh_fcn_data( &
+            id, nfcns, names, gval_is_xa_function, vals1, ierr)
+         integer, intent(in) :: id
+         integer, intent(in) :: nfcns
+         character (len=*) :: names(:)
+         logical, intent(out) :: gval_is_xa_function(:) ! (nfcns)
+         real(dp), pointer :: vals1(:) ! =(nz, nfcns)
+         integer, intent(out) :: ierr
+         integer :: nz, k
+         real(dp), pointer :: vals(:,:)
+         real(dp), parameter :: weight = 5.0d0
+         type (star_info), pointer :: s
+         ierr = 0
+         call star_ptr(id, s, ierr)
+         if (ierr /= 0) return
+         names(1) = 'kap_function'
+         gval_is_xa_function(1) = .false.
+         nz = s% nz
+         vals(1:nz,1:nfcns) => vals1(1:nz*nfcns)
+         do k=1,nz
+            vals(k,1) = s% x_ctrl(22) * log10(s% rho(k))
+         end do
+      end subroutine CE_other_mesh_fcn_data
+   
+! ***********************************************************************
+
+
       subroutine CE_extras_startup(id, restart, ierr)
          integer, intent(in) :: id
          logical, intent(in) :: restart
@@ -212,7 +270,11 @@
          s% xtra(2) = s% x_ctrl(2) * s% r(1) / Rsun
 
          ! s% lxtra(1) -> has the binary merged
-         s% lxtra(1) = .false.
+         if (s% use_other_energy) then
+            s% lxtra(1) = .false.
+         else
+            s% lxtra(1) = .true.
+         endif
 
             !s% job% relax_omega = .true. ! don't change omega
             s% job% new_omega = s% x_ctrl(15) * 2.*pi/AtoP(s% m(1),s% xtra(4)*Msun,s% xtra(2) * Rsun)
@@ -308,7 +370,12 @@
          if (s% x_integer_ctrl(1) .ne. 1 .and. s% x_integer_ctrl(1) .ne. 2) then
             ! Adjust orbital separation based on energy deposited
             ! unless system has merged
-            if (.not. s% lxtra(1)) call CE_orbit_adjust(id, ierr)
+            if (.not. s% lxtra(1)) then 
+               call CE_orbit_adjust(id, ierr)
+            else
+               s% use_other_energy = .false. 
+               s% use_other_torque = .false.
+            endif
             ! Added timestep controls
             result = worst_result(result, CE_pick_next_timestep(s))
          endif
@@ -376,7 +443,9 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         CE_how_many_extra_history_columns = 20
+         CE_how_many_extra_history_columns = 42
+
+      
       end function CE_how_many_extra_history_columns
 
 
@@ -387,7 +456,9 @@
          real(dp) :: vals(n)
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
+         integer :: k
          real(dp) :: b_mag, u_mag, v_mag, r_mag, i_mag
+         real(dp) :: Patm, dgrav, dP, dv_nonHSE, area, tmp_int, v_rad, vesc, vrad_div_vesc, vrot
 
          ierr = 0
          call star_ptr(id, s, ierr)
@@ -399,6 +470,7 @@
          !note: do NOT add the extras names to history_columns.list
          ! the history_columns.list is only for the built-in log column options.
          ! it must not include the new column names you are adding here.
+         call calc_quantities_at_comp_position(id, ierr)
 
          names(1) = 'CE_energy_rate'
          vals(1) = s% xtra(1)
@@ -416,7 +488,7 @@
          vals(7) = s% xtra(9)
          names(8) = 'CE_ang_mom_transferred'
          vals(8) = s% xtra(6)
-         names(9) = 'envelope_binding_energy'
+         names(9) = 'CE_drag_work' !'envelope_binding_energy'
          vals(9) = s% xtra(11)
          names(10) = 'R_acc'
          vals(10) = s% xtra(12)
@@ -441,6 +513,243 @@
          names(20) = 'i_mag'
          vals(20) = i_mag
 
+         names(21) = 'CE_companion_position_nu'
+         vals(21) = s% xtra(25)
+         names(22) = 'CE_companion_velocity_r'
+         vals(22) = s% xtra(26)
+         names(23) = 'CE_companion_velocity_nu'
+         vals(23) = s% xtra(27)
+         names(24) = 'CE_companion_acceleration_r'
+         vals(24) = s% xtra(28)
+         names(25) = 'CE_companion_acceleration_nu'
+         vals(25) = s% xtra(29)
+         names(26) = 'CE_companion_drag_force_magnitude'
+         vals(26) = s% xtra(30)
+
+         names(27) = 'CE_mdot'
+         vals(27) = s% xtra(7)
+
+         names(28) = 'CE_rho_at_comp'
+         vals(28) = s% xtra(18)
+
+         names(29) = 'tot_kin_energy'
+         tmp_int = 0.0d0
+         if (s% u_flag) then
+            do k = 1, s% nz
+               tmp_int = tmp_int + 0.5 * s% dm(k) * s% u(k)*s% u(k)
+            end do
+         else if (s% v_flag) then
+            do k = 1, s% nz
+               tmp_int = tmp_int + 0.5 * s% dm(k) * s% v(k)*s% v(k)
+            end do
+         else
+            tmp_int = 0.0d0 
+         end if 
+         vals(29) = tmp_int
+
+
+         names(30) = 'tot_grav_energy'
+         tmp_int = 0.0d0
+         do k = 1, s% nz
+            tmp_int = tmp_int - s% cgrav(k) * s% m_grav(k) * s% dm(k) / s% r(k)
+         end do
+         vals(30) = tmp_int
+
+         names(31) = 'tot_thermal_energy'
+         tmp_int = 0.0d0
+         do k = 1, s% nz
+            tmp_int = tmp_int + s% cp(k) * s% T(k) * s% dm(k) 
+         end do
+         vals(31) = tmp_int
+
+         names(32) = 'tau1_r'
+         names(33) = 'tau1_m'
+         if (s% tau(1) <= 1) then 
+            do k = 1, s% nz
+               if (s% tau(k) > 1.0d0 ) exit
+            end do
+            vals(32) = s% r(k-1)
+            vals(33) = s% m(k-1)
+         else 
+            vals(32) = -1
+            vals(33) = -1
+         end if
+
+         names(34) = 'tau10_r'
+         names(35) = 'tau10_m'
+         if (s% tau(1) <= 10) then 
+            do k = 1, s% nz
+               if (s% tau(k) > 10.0d0 ) exit
+            end do
+            vals(34) = s% r(k-1)
+            vals(35) = s% m(k-1)
+         else
+            vals(34) = -1
+            vals(35) = -1
+         end if
+
+         names(36) = 'tau100_r'
+         names(37) = 'tau100_m'
+         if (s% tau(1) <= 100) then 
+            names(36) = 'tau100_r'
+            names(37) = 'tau100_m'
+            do k = 1, s% nz
+               if (s% tau(k) > 100.0d0 ) exit
+            end do
+            vals(36) = s% r(k-1)
+            vals(37) = s% m(k-1)
+         else
+            vals(36) = 0
+            vals(37) = 0
+         end if
+
+
+
+         names(38) = 'unbound_mass'
+         tmp_int = 0.0d0
+         do k = 1, s% nz
+
+            ! This is necessary depending on the velocity version used
+            if (s% u_flag) then
+               v_rad = s% u(k)
+            else
+               v_rad = s% v(k)
+            endif
+
+            if (s% rotation_flag) then
+               vrot = s% omega(k) * s% r(k)
+               tmp_int = tmp_int + &
+                              (s% energy(k) - s% cgrav(k)*s% m_grav(k)/s% r(k) + &
+                              0.5d0*v_rad*v_rad + 0.5d0*vrot*vrot) * s% dm(k)
+            else
+               tmp_int = tmp_int + &
+                              (s% energy(k) - s% cgrav(k)*s% m_grav(k)/s% r(k) + &
+                              0.5d0*v_rad*v_rad) * s% dm(k)
+            endif
+
+            if (tmp_int < 0.0d0) exit
+         enddo
+         vals(38) = s% m(1) - s% m(k)
+
+
+         names(39) = 'escaping_mass'
+         do k = 1, s% nz
+            ! This is necessary depending on the velocity version used
+            if (s% u_flag) then
+               v_rad = s% u(k)
+            else
+               v_rad = s% v(k)
+            endif
+
+            vesc = sqrt(2d0*s% cgrav(k)*s% m(k)/s% r(k))
+            vrad_div_vesc = v_rad / vesc
+
+            if (vrad_div_vesc < 1.0d0) exit
+            
+         end do
+         vals(39) = s% m(1) - s% m(k)
+
+         names(40) = 'binding_energy'
+         tmp_int = 0.0d0
+         do k = 1, s% nz
+
+            ! This is necessary depending on the velocity version used
+            if (s% u_flag) then
+               v_rad = s% u(k)
+            else
+               v_rad = s% v(k)
+            endif
+
+            if (s% rotation_flag) then
+               vrot = s% omega(k) * s% r(k)
+               tmp_int = tmp_int + &
+                              (s% energy(k) - s% cgrav(k)*s% m_grav(k)/s% r(k) + &
+                              0.5d0*v_rad*v_rad + 0.5d0*vrot*vrot) * s% dm(k)
+            else
+               tmp_int = tmp_int + &
+                              (s% energy(k) - s% cgrav(k)*s% m_grav(k)/s% r(k) + &
+                              0.5d0*v_rad*v_rad) * s% dm(k)
+            endif
+
+         enddo
+         vals(40) = tmp_int
+
+         names(41) = 'tot_internal_energy'
+         tmp_int = 0.0d0
+         do k = 1, s% nz
+            tmp_int = tmp_int + s% energy(k) * s% dm(k) 
+         end do
+         vals(41) = tmp_int
+
+         names(42) = 'tot_rotational_energy'
+         tmp_int = 0.0d0
+         if (s% rotation_flag) then
+            do k = 1, s% nz
+               vrot = s% omega(k) * s% r(k)
+               tmp_int = tmp_int + 0.5d0*vrot*vrot * s% dm(k)
+            end do
+         else 
+            tmp_int = 0.0d0
+         end if
+         vals(42) = tmp_int
+
+
+
+
+
+         
+
+         !Patm = s% tau(1) * s% grav(1) / s% opacity(1) * (1.d0 + s% Pextra_factor * (s% opacity(1)/s% tau(1)) * (s% L(1)/s% M(1)) / (6.d0*pi*clight*s% cgrav(1)) )
+         !names(28) = 'Patm'
+         !vals(28) = Patm
+         !names(29) = 'Psurf'
+         !vals(29) = s% P_surf
+         !names(30) = 'dPsurf'
+         !vals(30) = s% cgrav(1)*s% m_grav(1)*s% dm(1)/(8*pi*pow4(s% r(1)))
+         !names(31) = 'v(1)'
+         !vals(31) = s% v(1)
+         !names(32) = 'dv_P'
+         !vals(32) = 0.5d0 * s% dt * (4.d0 * pi * s% r(2) *s% r(2) ) / s% dm(1) * s% cgrav(1)*s% m_grav(1)*s% dm(1)/(8*pi*pow4(s% r(1)))
+         !names(33) = 'dv'
+         !vals(33) = -0.5 * s% dt  * ( s% cgrav(1) * s% m_grav(1) / pow2(s% r(1)) - s% cgrav(2) * s% m_grav(2) / pow2(s% r(2)) ) + 0.5d0 * s% dt * (4.d0 * pi * s% r(2) *s% r(2) ) / s% dm(1) * s% cgrav(1)*s% m_grav(1)*s% dm(1)/(8*pi*pow4(s% r(1)))
+         !names(34) = 'dv_Peos'
+         !vals(34) = 0.5d0 * s% dt * (4.d0 * pi * s% r(2) *s% r(2) ) / s% dm(1) * s% Peos(1)
+         !names(35) = 'v(1)+dv'
+         !vals(35) = s% v(1) - 0.5 * s% dt * ( s% cgrav(1) * s% m_grav(1) / pow2(s% r(1)) ) + s% dt * (4.d0 * pi * s% r(2) *s% r(2) ) / s% dm(1) * s% cgrav(1)*s% m_grav(1)*s% dm(1)/(8*pi*pow4(s% r(1))) 
+         !names(36) = 'dv_alt'
+         !vals(36) = - 0.5 * s% dt * ( 1.5 * s% cgrav(1) * s% m_grav(1) / pow2(s% r(1)) - s% cgrav(2) * s% m_grav(2) / pow2(s% r(2)) ) 
+         
+
+         !dv_nonHSE = 0.d0 !s% dxh_v(1)/s% dt
+         !dgrav = ( s% cgrav(1) * s% m_grav(1) / (s% r_start(1) * s% r(1)) ) 
+         !dgrav = ( s% cgrav(1) * s% m_grav(1) / (s% r(1) * s% r(1)) ) 
+         !area = 4.d0 / 3.d0 * pi  * (s% r(1) * s% r(1) + s% r(1) * s% r_start(1) + s% r_start(1) *s% r_start(1))
+         !area = 4.0 * pi * s% r(1) * s% r(1) 
+
+         !names(37) = 'dv_Peos-Patm'
+         !vals(37) = s% v(1) -  s% dt   *( dgrav - dv_nonHSE + ( (area  ) ) / (s% dm(1) * 0.5) *( s% P_surf - s% Peos(1) ) )
+
+         !dP = s% cgrav(1)*s% m_grav(1)*s% dm(1)/(8*pi*pow4(s% r(1)))
+         !names(38) = 'dv_Peos-Patm-dP'
+         !vals(38) = s% v(1) -  s% dt  *( dgrav  - dv_nonHSE+ ((area  ) ) / (s% dm(1) * 0.5) *( s% P_surf + dP - s% Peos(1) ) )
+         
+         !names(39) = 'v1+dvdt_solver'
+         !vals(39) = s% v(1)  + s% dxh_v(1)
+
+         !names(40) = 'Peos(1)'
+         !vals(40) = s% Peos(1)
+
+         !names(40) = 'dgrav'
+         !vals(40) = dgrav
+
+         !names(41) = 'dm1'
+         !vals(41) = s% dm(1)
+
+         !names(42) = 'area'
+         !vals(42) = area
+
+
+
          ! If a distance provided, adjust from absolute to apparent magnitude
          if (s% x_ctrl(17) .ne. -1) then
             vals(16) = vals(16) + 5.0*(log10(s% x_ctrl(17) * 1000.0) - 1.0)
@@ -461,7 +770,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         CE_how_many_extra_profile_columns = 2
+         CE_how_many_extra_profile_columns = 5
      ! previously have been 5, but the last three don't exist anymore
       end function CE_how_many_extra_profile_columns
 
@@ -493,12 +802,18 @@
 
          names(1) = 'ionization_energy'
          names(2) = 'eps_recombination'
+         names(3) = 'CE_extra_heat'
+         names(4) = 'CE_extra_jdot'
+         names(5) = 'CE_Pvsc'
       !   names(3) = 'eps_visc'
       !   names(4) = 'eta_visc'
       !   names(5) = 'Qvisc'
          do k = 1, nz
            vals(k,1) = s% xtra1_array(k)
            vals(k,2) = s% xtra2_array(k)
+           vals(k,3) = s% xtra6_array(k)
+           vals(k,4) = s% xtra3_array(k)
+           vals(k,5) = s% Pvsc(k)
       !     vals(k,3) = s% eps_visc(k)  ! does not exist anymore
       !     vals(k,4) = s% eta_visc(k)  ! does not exist anymore
       !     vals(k,5) = s% Qvisc(k)     ! does not exist anymore

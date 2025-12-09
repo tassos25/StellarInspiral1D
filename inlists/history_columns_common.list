@@ -75,13 +75,13 @@
 
    !## mass change
 
-      !star_mdot ! d(star_mass)/dt (in msolar per year)
+      star_mdot ! d(star_mass)/dt (in msolar per year)
       log_abs_mdot ! log10(abs(star_mdot)) (in msolar per year)
 
    !## imposed surface conditions
-      !Tsurf_factor
-      !tau_factor
-      !tau_surface
+      Tsurf_factor
+      tau_factor
+      tau_surface
 
    !## imposed center conditions
       !m_center
@@ -473,19 +473,19 @@
       !photosphere_black_body_T
       !photosphere_cell_T ! temperature at model location closest to the photosphere, not necessarily Teff
       !photosphere_cell_log_T
-      !photosphere_cell_density
+      photosphere_cell_density
       !photosphere_cell_log_density
       !photosphere_cell_opacity
       !photosphere_cell_log_opacity
-      !photosphere_L ! Lsun units
+      photosphere_L ! Lsun units
       !photosphere_log_L ! Lsun units
       !photosphere_r ! Rsun units
       !photosphere_log_r ! Rsun units
       !photosphere_m ! Msun units
-      !photosphere_v_km_s
+      photosphere_v_km_s
       !photosphere_cell_k
       !photosphere_column_density
-      !photosphere_csound
+      photosphere_csound
       !photosphere_log_column_density
       !photosphere_opacity
       !photosphere_v_div_cs
@@ -514,23 +514,23 @@
       !log_surf_optical_depth
       !surface_optical_depth
 
-      !log_surf_cell_opacity ! old name was log_surf_opacity
-      !log_surf_cell_P ! old name was log_surf_P
-      !log_surf_cell_pressure ! old name was log_surf_pressure
-      !log_surf_cell_density ! old name was log_surf_density
-      !log_surf_cell_temperature ! old name was log_surf_temperature
-      !surface_cell_temperature ! old name was surface_temperature
-      !log_surf_cell_z ! old name was log_surf_z
-      !surface_cell_entropy ! in units of kerg per baryon
+      log_surf_cell_opacity ! old name was log_surf_opacity
+      log_surf_cell_P ! old name was log_surf_P
+      log_surf_cell_pressure ! old name was log_surf_pressure
+      log_surf_cell_density ! old name was log_surf_density
+      log_surf_cell_temperature ! old name was log_surf_temperature
+      surface_cell_temperature ! old name was surface_temperature
+      log_surf_cell_z ! old name was log_surf_z
+      surface_cell_entropy ! in units of kerg per baryon
           ! old name was surface_entropy
 
-      !v_surf ! (cm/s)
-      !v_surf_km_s ! (km/s)
+      v_surf ! (cm/s)
+      v_surf_km_s ! (km/s)
       v_div_csound_surf ! velocity divided by sound speed at outermost grid point
-      !v_div_csound_max ! max value of velocity divided by sound speed at face
-      !v_div_vesc
-      !v_phot_km_s
-      !v_surf_div_escape_v
+      v_div_csound_max ! max value of velocity divided by sound speed at face
+      v_div_vesc
+      v_phot_km_s
+      v_surf_div_escape_v
 
       !v_surf_div_v_kh ! v_surf/(photosphere_r/kh_timescale)
 
@@ -848,13 +848,13 @@
 
  !# rotation
 
-      !total_angular_momentum
-      !log_total_angular_momentum
-      !i_rot_total ! moment of inertia
+      total_angular_momentum
+      log_total_angular_momentum
+      i_rot_total ! moment of inertia
 
-      !total_rotational_kinetic_energy
-      !log_total_rotational_kinetic_energy
-      !total_rotational_kinetic_energy_after_adjust_mass
+      total_rotational_kinetic_energy
+      log_total_rotational_kinetic_energy
+      total_rotational_kinetic_energy_after_adjust_mass
 
 !----------------------------------------------------------------------------------------------
 
@@ -953,21 +953,21 @@
 
 !# accretion
 
-      !k_below_const_q
-      !q_below_const_q
-      !logxq_below_const_q
+      k_below_const_q
+      q_below_const_q
+      logxq_below_const_q
 
-      !k_const_mass
-      !q_const_mass
-      !logxq_const_mass
+      k_const_mass
+      q_const_mass
+      logxq_const_mass
 
       !k_below_just_added
       !q_below_just_added
       !logxq_below_just_added
 
-      !k_for_test_CpT_absMdot_div_L
-      !q_for_test_CpT_absMdot_div_L
-      !logxq_for_test_CpT_absMdot_div_L
+      k_for_test_CpT_absMdot_div_L
+      q_for_test_CpT_absMdot_div_L
+      logxq_for_test_CpT_absMdot_div_L
 
 !----------------------------------------------------------------------------------------------
 

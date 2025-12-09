@@ -1,0 +1,62 @@
+&star_job
+   history_columns_file = '../inlists/history_columns_common.list'  ! a list of columns to save in the history files; common value: '' | read common list
+   profile_columns_file = '../inlists/profile_columns_common.list'  ! a list of columns to save in the profile files; common value: '' | read common list
+
+   create_pre_main_sequence_model = .true.                           ! create a starting model with uniform composition, a core temperature below 10^6 K;         default: .false.  |
+   write_profile_when_terminate = .true.                             ! enable to write profiles on termination;                   default: .false.     | for step1: this is done in the POSYDON_run_binary_extras.f90
+   filename_for_profile_when_terminate = 'step1_final_profile.data'  ! name of the final profile file;                            default: ''          | for step1: this is done in the POSYDON_run_binary_extras.f90
+
+   save_model_filename = 'step1_final.mod'         ! filename to save model;                                    default: 'undefined' | name get changed from Scotti's script
+   
+   new_net_name = 'sagb_NeNa_MgAl.net'             ! name of predefined reaction network; default: ''      |
+
+   new_rotation_flag = .true.                      ! enable rotation;                                      default: .false. |
+   change_rotation_flag = .true.                   ! copy enabled rotation;                                default: .false. | copy rotation flag
+   set_initial_surface_rotation_v = .true.         ! enable to set the initial rotation;                   default: .false. |
+
+/ ! end of star_job namelist
+
+&controls
+   use_dPrad_dm_form_of_T_gradient_eqn = .true.  ! enable to use a more dynimical equation to get temperature gradient; common value: .false. | hydrostatic values might not be appropriate
+
+   okay_to_reduce_gradT_excess = .false.             ! enable MLT++;                                                                           default: .false. | use MLT++
+
+   he_core_boundary_h1_fraction = 1d-2        ! helium-core boundary at outermost location;                  default: 0.1d0 | requires X_H1<=this value
+
+   initial_mass = 0.7d0       ! initial mass in Msun;     default: 1      | only need for single star models
+   initial_z = 1d-4           ! initial metallicity;      default: 0.02d0 | can be any value in the range [0,0.04]
+   initial_y = -1             ! initial helium abundance; default: -1     | <0 means initial_y=0.24+2*initial_z
+
+   history_interval = 1       ! interval for writing to star's history;         default: 5                   | save all steps in history
+   profile_interval = 10      ! interval for writing out profiles;              default: 50                  |
+   terminal_interval = 10     ! interval for terminal outputs;                  default: 1                   |
+   photo_digits = 4           ! number of digits in photo's filename;           default: 3                   | set in binary_controls
+   photo_interval = 100       ! interval for writing photos;                    default: 50                  | set in binary_controls
+
+   Pextra_factor = 2.0d0      ! allows additional radiation pressure at tau=0;                               default: 1           | double it
+   w_div_wcrit_max = 0.9d0    ! limit fp and ft at when this value is reached;                                             default: 0.90d0  | at 90% critical rotation
+
+   use_other_wind= .false.    ! enable other wind prescription;                                  default: .false. |               
+   Dutch_scaling_factor = 0   ! scaling factor for Dutch wind scheme;                                                                   default: 0d0     |
+   Blocker_scaling_factor = 0 ! scaling factor for Blocker wind scheme;                                                                 default: 0       |
+   Reimers_scaling_factor = 0 ! scaling factor for Reimers wind scheme;                                                                 default: 0       |
+
+   do_element_diffusion = .false.   ! enables element diffusion;                                                                                    default: .false. | different from MIST2
+
+   star_mass_max_limit = 1.0d3      ! stop when star mass in Msun units;                        default: 0  | 
+
+   x_logical_ctrl(1) = .true.       ! for single stars stars, the control below needs to be true
+   x_logical_ctrl(2) = .false.      ! for formation of He single stars
+   x_logical_ctrl(3) = .false.      ! turn on eq.8 Belczynski+2010 LBV2 winds
+   
+   x_logical_ctrl(4) = .true.       ! allow accretion from Haemmerlé et al.(2016)
+   use_other_adjust_mdot = .true.   ! use a costume made mass accretion/loss scheme               
+   x_ctrl(6) = 10.0d0               ! multiplicative factor for the accretion rate by Haemmerlé et al.(2016)
+
+   x_logical_ctrl(5) = .false.      ! turn on the hot accretion scheme by Kuffmeier et al. 2018, see eq. (1) there
+   x_ctrl(5) = 0.0d0                ! value of the epsilon parameter
+   x_ctrl(7) = 10.0d0               ! minimum radial coord. [Rsun] to deposit accretion heat
+   use_other_energy = .false.       ! allow for energy injection during accretion
+
+/ ! end of controls namelist
+
