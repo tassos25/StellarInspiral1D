@@ -47,6 +47,15 @@ step2.1_RelaxModel_EMS_hydro/make/*.mod
 step2.2_RelaxModel_EMS_hydro/make/*.mod
 step3_Inspiral_EMS/make/*.mod
 
+step1_HMS-CO/make/*.old
+step1_build_EMS/make/*.old
+step1_HMS-HMS/make/*.old
+step1_HMS-single/make/*.old
+step2_RelaxModel/make/*.old
+step2.1_RelaxModel_EMS_hydro/make/*.old
+step2.2_RelaxModel_EMS_hydro/make/*.old
+step3_Inspiral_EMS/make/*.old
+
 step1_HMS-CO/make/*.smod
 step1_build_EMS/make/*.smod
 step1_HMS-HMS/make/*.smod
