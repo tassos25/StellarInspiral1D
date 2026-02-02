@@ -1026,4 +1026,67 @@
       end subroutine move_extra_info
 
 
+! ***********************************************************************
+      ! Subroutine for accretion of mass as in Haemmerlé et al.(2016)
+          subroutine SMS_adjust_mdot(id, ierr) 
+            use star_def
+            integer, intent(in) :: id
+            integer, intent(out) :: ierr
+            real(dp) :: f, w, log_mdot_out, mdot_out, m2r
+    
+            type (star_info), pointer :: s
+    
+            ierr = 0
+            call star_ptr(id, s, ierr)
+            if (ierr /= 0) then
+              write(*,*) 'failed in star_ptr'
+               return
+            end if
+         
+            s% mstar_dot = 0.0d0
+            w = 0.0d0
+            s% explicit_mstar_dot = s% mstar_dot
+            ! Mass to reach 
+            m2r = 2.0d4
+            if (s% x_logical_ctrl(9)) then
+              if (s% star_mass <= 5.0d0) then
+              
+                f = 1.0/3.0
+                
+              else if (s% star_mass > 5.0 .and. s% star_mass <= m2r) then
+              
+                f = 1.0/11.0
+              end if
+
+              log_mdot_out = -5.28d0 + s% log_surface_luminosity *(0.752d0 - 0.0278d0*s% log_surface_luminosity) ![M_sun/yr]
+              mdot_out = 10.d0**(log_mdot_out) * (Msun/secyer) * 10.d0  ![gr/s]  10 for high accretion
+    
+              w = f/(1-f)*mdot_out 
+                 
+            endif
+            
+            if (s% star_mass <= m2r ) then
+              s% mstar_dot = (s% mstar_dot + w)
+              s% explicit_mstar_dot = s% mstar_dot 
+              !write(*,*) 'M<1e4  mstar_dot= ', s% mstar_dot
+             
+            
+            else if(s% star_mass > m2r) then 
+              s% mstar_dot = 0.0d0
+              s% x_logical_ctrl(9) = .false.
+              s% use_other_adjust_mdot = .false. !Turn off the  accretion
+              s% use_other_wind = .false.  !No winds during accretion
+              write(*,*) 'use_other_wind =.false. '
+              s% Dutch_scaling_factor = 1.0d0
+              s% Blocker_scaling_factor = 0.2d0
+              s% Reimers_scaling_factor = 0.1d0
+              !write(*,*) 'Dutch_scaling_factor= ', s% Dutch_scaling_factor
+              !write(*,*) 'Blocker_scaling_factor= ', s% Blocker_scaling_factor 
+              !write(*,*) 'Reimers_scaling_factor= ',s% Reimers_scaling_factor 
+
+            end if
+    
+      end subroutine SMS_adjust_mdot  
+
+
       end module CE_run_star_extras
