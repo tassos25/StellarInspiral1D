@@ -53,6 +53,14 @@
 
   !use_other_eos = .false.                   ! enable other equation of state;                         default: .false. |
 
+   use_simple_Skye_blends = .true.           ! replace the polygon blend with simple Rho/T blends;     default: .false. | following controls ensure that the star will follow the FreeEOS only, this makes a difference for very massive stars.
+
+   logT_min_for_any_Skye = 7.9               ! no Skye EOS below this T value;                         default: 7.2     |
+   logT_min_for_all_Skye = 8.0               ! only Skye EOS above this T value;                       default: 7.4     |
+
+   logT_max_FreeEOS_hi = 8.2d0               ! no FreeEOS above this value;                            default: 8.2     |
+   logT_max_FreeEOS_lo = 8.1d0               ! only FreeEOS below this value;                          default: 8.1     |
+
 / ! end of eos namelist
 
 &kap
@@ -265,5 +273,6 @@
    use_other_wind = .false.                    ! enable other wind prescription;                                  default: .false. |
    use_other_after_struct_burn_mix = .false.   ! enable additional routine after struct_burn_mix;                 default: .false. |
    use_other_before_struct_burn_mix = .false.  ! enable additional routine before struct_burn_mix;                default: .false. |
+
 
 / ! end of controls namelist

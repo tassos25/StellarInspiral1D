@@ -123,6 +123,21 @@
          s% xtra(22) = 0.0d0
          !s% xtra(23) -> mdot_macleod. Macleod & Ramirez-Ruiz accretion rate onto compact object. Calculated in CE_energy_rate
          s% xtra(23) = 0.0d0
+         !s% xtra(24) -> temperature of the star at the position of the companion
+         s% xtra(24) = 0.0d0
+         !s% xtra(25) -> angular position of the companion (rad)
+         s% xtra(25) = 0.0d0
+         !s% xtra(26) -> radial component of the companion's velocity (Rsun/yr)
+         s% xtra(26) = 0.0d0
+         !s% xtra(27) -> angular component of the companion's velocity (rad/yr)
+         s% xtra(27) = 0.0d0
+         !s% xtra(28) -> radial component of the companion's acceleration (Rsun/yr^2)
+         s% xtra(28) = 0.0d0
+         !s% xtra(29) -> angular component of the companion's acceleration (rad/yr^2)
+         s% xtra(29) = 0.0d0
+         !s% xtra(30) -> magnitude of the drag force acting on the companion (Msun Rsun / yr^2)
+         s% xtra(30) = 0.0d0
+
 
          !s% xtra(7) -> CE_test_case
          s% ixtra(1) = s% x_integer_ctrl(1)
@@ -134,6 +149,8 @@
          ! ! s% job% relax_omega_max_yrs_dt = 1d-8
          !  s% job% set_initial_dt = .True.
          !  s% job% years_for_initial_dt = 1d-8
+
+         
       end subroutine CE_extras_controls
 
 
@@ -376,7 +393,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         CE_how_many_extra_history_columns = 20
+         CE_how_many_extra_history_columns = 26
       end function CE_how_many_extra_history_columns
 
 
@@ -441,6 +458,19 @@
          names(20) = 'i_mag'
          vals(20) = i_mag
 
+         names(21) = 'CE_companion_position_nu'
+         vals(21) = s% xtra(25)
+         names(22) = 'CE_companion_velocity_r'
+         vals(22) = s% xtra(26)
+         names(23) = 'CE_companion_velocity_nu'
+         vals(23) = s% xtra(27)
+         names(24) = 'CE_companion_acceleration_r'
+         vals(24) = s% xtra(28)
+         names(25) = 'CE_companion_acceleration_nu'
+         vals(25) = s% xtra(29)
+         names(26) = 'CE_companion_drag_force_magnitude'
+         vals(26) = s% xtra(30)
+
          ! If a distance provided, adjust from absolute to apparent magnitude
          if (s% x_ctrl(17) .ne. -1) then
             vals(16) = vals(16) + 5.0*(log10(s% x_ctrl(17) * 1000.0) - 1.0)
@@ -461,7 +491,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         CE_how_many_extra_profile_columns = 2
+         CE_how_many_extra_profile_columns = 3
      ! previously have been 5, but the last three don't exist anymore
       end function CE_how_many_extra_profile_columns
 
@@ -493,12 +523,14 @@
 
          names(1) = 'ionization_energy'
          names(2) = 'eps_recombination'
+         names(3) = 'CE_extra_heat'
       !   names(3) = 'eps_visc'
       !   names(4) = 'eta_visc'
       !   names(5) = 'Qvisc'
          do k = 1, nz
            vals(k,1) = s% xtra1_array(k)
            vals(k,2) = s% xtra2_array(k)
+           vals(k,3) = s% xtra6_array(k)
       !     vals(k,3) = s% eps_visc(k)  ! does not exist anymore
       !     vals(k,4) = s% eta_visc(k)  ! does not exist anymore
       !     vals(k,5) = s% Qvisc(k)     ! does not exist anymore

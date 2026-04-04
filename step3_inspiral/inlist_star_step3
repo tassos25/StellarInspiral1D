@@ -10,11 +10,13 @@
 
 !!! modifications to model
   !set_initial_dt = .true.         ! reset initial timestep;                              common value: .false. | set the initial timestep
-  !years_for_initial_dt = 1d-4     ! set this initial timestep;                           common value: -1      | may adopted to make first models converge
+   years_for_initial_dt = 1d-8     ! set this initial timestep;                           common value: -1      | may adopted to make first models converge
    set_to_this_tau_factor = 1d-4   ! set optical depth at surface;                        common value: -1      | put surface a low optical depth
    set_tau_factor = .true.         ! enable to set an optical depth without reconverging; common value: .false. | enables previous setting
    change_v_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
-   new_v_flag = .true.             ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
+   new_v_flag = .false.            ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
+   change_u_flag = .true.          ! copy enable velocity for each shell;                 common value: .false. | enables next setting
+   new_u_flag = .true.             ! enable velocity for each shell;                      common value: .false. | enable differential rotation taken from previous model
    new_rotation_flag = .true.      ! enable rotation;                                     common value: .false. |
    change_rotation_flag = .true.   ! copy enabled rotation;                               common value: .false. | copy rotation flag
 
@@ -48,7 +50,7 @@
    trace_history_value_name(5) = 'v_div_csound_max'  ! value added as new history column;                   default: ''      | add maximum velocity in units of (local) sound speed
   !trace_history_value_name(6) = 'v_div_vesc_max'    ! value added as new history column;                   default: ''      | add maximum velocity in units of (local) escape velocity
    write_profiles_flag = .true.                      ! enables to write out profiles;                  common value: .false. | save profiles
-   profile_interval = 30                             ! interval for writing out profiles;              common value: 50      | write more profiles
+   profile_interval = 1                              ! interval for writing out profiles;              common value: 50      | write more profiles
    max_num_profile_models = 10000                    ! maximum number of saved profiles;               common value: 100     | allow to save more profiles before overwritting
 
 !!! when to stop                                                                   | additional stopping criteria set in binary_controls and run_binary_extras.f
@@ -61,7 +63,9 @@
    do_adjust_J_lost = .false.  ! adjustment of angular momentum because of some being carried by mass loss; common value: .true. | swtich off, because we don't have mass loss
 
 !!! atmosphere boundary conditions
-   use_compression_outer_BC = .true.  ! enable boundary condition at surface to have vanishing compression gradient; common value: .false. | use other surface boundary condition
+   use_compression_outer_BC = .false.  ! enable boundary condition at surface to have vanishing compression gradient; common value: .false. | use other surface boundary condition
+   use_momentum_outer_BC = .true.      ! use P at surface to compute the velocity of the outermost cell;              common value: .false. | use other surface boundary condition
+
 
 !!! mass gain or loss
    max_wind = 1d-1                            ! maximum wind in Msun/year;                                common value: 0d0       | limit wind loss
@@ -94,10 +98,20 @@
 !!! debugging controls
   !report_solver_progress = .true.  ! get info about solver iterations; default: .false. | FOR DEBUGGING
 
+!!! restricting taking steps that could lead to evaluations of the EOS outside its range of validity
+   hydro_mtx_max_allowed_abs_dlogT = 1d0               ! force retry with smaller timestep if hydro solves change T by too much;       default: 99    |
+   hydro_mtx_min_allowed_logT = 1d0                    ! minimum value accepted of T;                                                  default: 12    | This controls allow to reject predicted values of T outside the range of validity of the EOS
+   hydro_mtx_max_allowed_logT = 10d0                   ! maximum value accepted of T;                                                  default: 1     |
+
+   hydro_mtx_max_allowed_abs_dlogRho = 1d0             ! force retry with smaller timestep if hydro solves change Rho by too much;     default: 99    |
+   hydro_mtx_min_allowed_logRho = -15d0                ! minimum value accepted of Rho;                                                default: -1d2  | This controls allow to reject predicted values of Rho outside the range of validity of the EOS
+   hydro_mtx_max_allowed_logRho = 10d0                 ! maximum value accepted of Rho;    
+
 !!! miscellaneous controls
  !! hooks
    use_other_adjust_mdot = .true.             ! enable additional routine after wind and before mass adjustment; default: .false. |
    use_other_energy = .true.                  ! enable other energy prescription;                                default: .false. |
+   use_other_torque = .true.                  ! enable other torque imparted;                                    default: .false. |
    use_other_after_struct_burn_mix = .true.   ! enable additional routine after struct_burn_mix;                 default: .false. |
    use_other_before_struct_burn_mix = .true.  ! enable additional routine before struct_burn_mix;                default: .false. |
 

@@ -44,6 +44,7 @@
             CE_pick_next_timestep = worst_result(CE_pick_next_timestep, CE_check_energy(s))
             CE_pick_next_timestep = worst_result(CE_pick_next_timestep, CE_check_separation(s))
             CE_pick_next_timestep = worst_result(CE_pick_next_timestep, CE_check_ang_mom(s))
+            !CE_pick_next_timestep = worst_result(CE_pick_next_timestep, CE_check_comp_period(s))
          endif
       end function CE_pick_next_timestep
 
@@ -128,6 +129,28 @@
             end if
          end if
       end function CE_check_ang_mom
+
+! ***********************************************************************
+      integer function CE_check_comp_period(s)
+         type (star_info), pointer :: s
+         real(dp) :: comp_period
+
+         ! Fractional energy change
+         comp_period = (2.0d0 * pi  / s% xtra(27)) * secyer
+
+
+         ! Calculate next timestep
+         if (s% dt .gt. (comp_period / 10.d0)) then
+            CE_check_comp_period = retry
+            if (s% job% report_retries) then
+               write(*,*) ' retry reason: Companion perios > 10*', s% dt
+            end if
+         else
+            CE_check_comp_period = keep_going
+         end if
+      end function CE_check_comp_period
+
+
 
 
 ! ***********************************************************************
