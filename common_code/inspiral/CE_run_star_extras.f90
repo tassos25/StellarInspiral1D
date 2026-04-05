@@ -41,6 +41,7 @@
       use CE_orbit
       use CE_energy
       use CE_torque
+      use CE_d_mix
       use CE_after_struct_burn_mix
       use CE_before_struct_burn_mix
       use CE_adjust_mdot
@@ -94,6 +95,7 @@
          else
             stop "s% x_integer_ctrl(3) is not defined"
          endif
+         s% other_D_mix => CE_enhance_D_mix
          s% other_before_struct_burn_mix => calc_recombination_before_struct_burn_mix
          s% other_after_struct_burn_mix => CE_other_after_struct_burn_mix
          s% other_adjust_mdot => CE_other_adjust_mdot

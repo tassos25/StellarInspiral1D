@@ -262,6 +262,7 @@
   !use_other_am_mixing = .true.                ! enable other mixing by angular momentum;                         default: .false. | use this if you want to use the enhanced FULLER et al. TAYLER-SPRUIT
    use_other_energy = .false.                  ! enable other energy prescription;                                default: .false. |
    use_other_torque = .false.                  ! enable other torque imparted;                                    default: .false. |
+   use_other_D_mix = .false.                   ! enable enhanced mixing prescription;                             default: .false. |
    use_other_wind = .false.                    ! enable other wind prescription;                                  default: .false. |
    use_other_after_struct_burn_mix = .false.   ! enable additional routine after struct_burn_mix;                 default: .false. |
    use_other_before_struct_burn_mix = .false.  ! enable additional routine before struct_burn_mix;                default: .false. |
