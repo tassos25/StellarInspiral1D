@@ -21,7 +21,7 @@ endif
 # STAR_WORK_OBJS defined in makefile_header
 # added more code located in WORK_SRC_DIR
 IONIZATION_OBJS = ionization_def.o ion_tables_load.o mod_tables.o mod_ionization.o ion_tables_eval.o ion_table_plot.o ionization_lib.o
-INSPIRAL_OBJS = CE_orbit.o CE_energy.o CE_torque.o CE_adjust_mdot.o CE_before_struct_burn_mix.o CE_after_struct_burn_mix.o CE_timestep.o CE_run_star_extras.o
+INSPIRAL_OBJS = CE_lagrange_points.o CE_orbit.o CE_energy.o CE_torque.o CE_adjust_mdot.o CE_before_struct_burn_mix.o CE_after_struct_burn_mix.o CE_timestep.o CE_run_star_extras.o
 OBJS = $(IONIZATION_OBJS) $(INSPIRAL_OBJS) $(RUN_STAR_EXTRA_OBJS) $(STAR_WORK_OBJS) run.o
 
 WORK_DIR = ..
@@ -75,6 +75,9 @@ mod_tables.o: $(COMMON_CODE_DIR)/ionization/mod_tables.f90
 	$(WORK_COMPILE) $<
 
 #Added rules of how to compile the inspiral code
+CE_lagrange_points.o: $(COMMON_CODE_DIR)/inspiral/CE_lagrange_points.f90
+	$(WORK_COMPILE) $<
+
 CE_orbit.o: $(COMMON_CODE_DIR)/inspiral/CE_orbit.f90
 	$(WORK_COMPILE) $<
 

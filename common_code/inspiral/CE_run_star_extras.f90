@@ -34,10 +34,12 @@
       use const_lib
       use colors_lib
       use colors_def
+      use math_lib
       
       use ionization_lib
 
       ! Add here all the external modules for CE_mesa here
+      use CE_lagrange_points
       use CE_orbit
       use CE_energy
       use CE_torque
@@ -144,9 +146,12 @@
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
          real(dp) :: CE_companion_position, R_acc, CE_n_acc_radii
-         integer :: CE_test_case
+         real(dp) :: J_tmp, J_to_sync, rl2, dl2
+         real(dp), pointer :: j_new(:), xq(:)
+         integer :: k, CE_test_case
          integer, parameter :: n_colors=11
          logical, parameter :: use_cache=.true.
+         logical :: tide_cont
          ierr = 0
          
          call star_ptr(id, s, ierr)
@@ -214,12 +219,14 @@
          ! s% lxtra(1) -> has the binary merged
          s% lxtra(1) = .false.
 
-            !s% job% relax_omega = .true. ! don't change omega
+         if (s% x_ctrl(15) .ge. 0) then
+            !s% job% relax_omega = .true. ! don't change omega to get a solid body rotator
             s% job% new_omega = s% x_ctrl(15) * 2.*pi/AtoP(s% m(1),s% xtra(4)*Msun,s% xtra(2) * Rsun)
             ! We set a very small timestep during the relaxation phase, so that the star does not evolve significantly
             s% job% relax_omega_max_yrs_dt = 1d-8
             !s% job% set_initial_dt = .True. ! moved to inlist
             !s% job% years_for_initial_dt = 3.78d-8 ! moved to inlist
+         endif
 
          ! We are calling here the relax_omega, because we want to first have loaded the model so that we know its radius, and mass.
          if (s% rotation_flag .and. s% job% relax_omega) then
@@ -229,6 +236,51 @@
                s% job% relax_omega_max_yrs_dt, ierr)
             if (failed('star_relax_uniform_omega',ierr)) return
             s% job% relax_omega = .false.
+         else if (s% rotation_flag .and.(s% job% years_for_initial_dt .ge. 0.0d0).and. &
+                  (s% x_ctrl(2) .lt. 1.0d0).and.(s% x_ctrl(15) .ge. 0.0d0)) then
+            ! Get orbital angular momentum available to spin up the star
+            ! Use the difference between orbit at L2 overflow and actual placement
+            rl2 = min(get_L2_surface(s% m(1), s% xtra(4) * Msun, 1.0d0, 1, 1), get_distance_LP_comp(s% m(1), s% xtra(4) * Msun, 1.0d0, 2, 1, 2))
+            J_tmp = (s% xtra(4) * Msun)**2 * s% m(1)**2 / (s% xtra(4) * Msun + s% m(1))
+            J_to_sync = (sqrt(1.0d0/rl2) - sqrt(s% x_ctrl(2))) * sqrt(standard_cgrav * J_tmp * s% r(1))
+            !write(*,*) " m1=", s% m(1), "g    m2=", s% xtra(4) * Msun, "g    a=", s% r(1), "cm  "
+            write(*,*) 'new_omega =', s% job% new_omega, &
+                        ' available angular momentum = ', J_to_sync
+            tide_cont = .true.
+            allocate(j_new(s% nz), stat=ierr)
+            allocate(xq(s% nz), stat=ierr)
+            do k=1,s% nz
+               if (tide_cont .and.(k .gt. 1)) then
+                  ! Check for barrier in omega and stop there with sync
+                  J_tmp = (s% j_rot(k)/s% i_rot(k)% val)/(s% j_rot(k-1)/s% i_rot(k-1)% val)
+                  if ((J_tmp .lt. 0.9).or.(J_tmp .gt. 1.1)) then
+                     tide_cont = .false.
+                     write(*,*) 'Barrier between k=', k, ' omega=', s% j_rot(k)/s% i_rot(k)% val, &
+                                 ' and k=', k-1, ' omega=', s% j_rot(k-1)/s% i_rot(k-1)% val
+                  endif
+               endif
+               xq(k) = 1.0d0 - s% q(k)
+               ! Get desired cell's angular momentum
+               J_tmp = s% job% new_omega*s% i_rot(k)% val
+               if (tide_cont .and.(J_to_sync .ge. 0)) then
+                  j_new(k) = J_tmp
+                  ! Reduce angular momentum budget
+                  J_to_sync = J_to_sync - abs(s% j_rot(k) - J_tmp) * s% dm(k)
+                  if (J_to_sync .lt. 0) then
+                     write(*,*) 'All angular momentum used, stop at k=', k
+                     j_new(k) = j_new(k) + J_to_sync/s% dm(k)
+                  endif
+               else
+                  j_new(k) = s% j_rot(k)
+               endif
+            enddo
+            if (J_to_sync .gt. 0) then
+               write(*,*) 'Used angular momentum =', J_to_sync
+            endif
+            call star_relax_angular_momentum(id, s% job% num_steps_to_relax_rotation, s% nz, j_new, xq, ierr)
+            deallocate(j_new)
+            deallocate(xq)
+            if (failed('star_relax_angular_momentum',ierr)) return
          else
             !call star_relax_num_steps(id, 100, 1d-8 * secyer, ierr)
          endif
