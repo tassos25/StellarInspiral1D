@@ -88,46 +88,58 @@
          E_tmp = 0d0
          k = 1
          do while (E_tmp > E_final)
+            k = k + 1
             M_inner = s% m(k)
             R_inner = s% r(k)
             E_tmp = -standard_cgrav * CE_companion_mass * Msun * M_inner / (2.0 * R_inner)
-            k = k + 1
          end do
 
-         ! If companion is outside star, set k to 3
-         if (k < 3) k=3
+         ! If companion is outside star, set k to 2
+         if (k < 2) k = 2
 
          ! save end points of cell containing companion
-         M_inner = s% m(k-2)
-         R_inner = s% r(k-2)
+         M_inner = s% m(k)
+         R_inner = s% r(k)
          M_outer = s% m(k-1)
          R_outer = s% r(k-1)
 
          ! We could choose to interpolate for R using M as the independent variable. Instead, here we
          ! linearly interpolate across cell (using k as the independent variable)
-         M_slope = (M_outer - M_inner) / real((k-1) - (k-2))
-         M_int = s% m(k-1) - M_slope * real(k-1)
-         R_slope = (R_outer - R_inner) / real((k-1) - (k-2))
-         R_int = s% r(k-1) - R_slope * real(k-1)
+         ! M_slope = (m(k) - m(k-1))/((k) - (k-1)) = m(k) - m(k-1) = M_inner - M_outer
+         ! R_slope = (r(k) - r(k-1))/((k) - (k-1)) = r(k) - r(k-1) = R_inner - R_outer
+         M_slope = M_inner - M_outer
+         R_slope = R_inner - R_outer
+         ! The final values will be:
+         ! M_final = m(k) - (k - k_final)/((k) - (k-1)) * (m(k) - m(k-1)) = M_inner - (k - k_final) * M_slope
+         ! R_final = r(k) - (k - k_final)/((k) - (k-1)) * (r(k) - r(k-1)) = R_inner - (k - k_final) * R_slope
 
          ! Given the final energy, E_final, determine the resulting k that solves the equation
+         ! 0 = 2*E_final*R_final + G*M_2*M_final = 2*E_final*(R_inner - (k - k_final)*R_slope) + G*M_2*(M_inner - (k - k_final)*M_slope)
+         ! k_final = -(2*E_final*(R_inner - k*R_slope) + G*M_2*(M_inner - k*M_slope))/(2*E_final*R_slope + G*M_2*M_slope)
+         !         = -(2*E_final*R_int + G*M_2*M_int)/(2*E_final*R_slope + G*M_2*M_slope)
+         ! where M_int = M_inner - k*M_slope and R_int = R_inner - k*R_slope
+         M_int = M_inner - real(k)*M_slope
+         R_int = R_inner - real(k)*R_slope
          top = 2.0 * E_final * R_int + standard_cgrav * CE_companion_mass * Msun * M_int
          bottom = 2.0 * E_final * R_slope + standard_cgrav * CE_companion_mass * Msun * M_slope
          k_final = -top / bottom
 
-         ! Now use the interpolations and the derived k_final, determine the resulting separation and enclosed mass
-         R_final = R_slope * k_final + R_int
-         M_final = M_slope * k_final + M_int
+         ! Now use the interpolations and the derived k_final, determine the resulting enclosed mass and separation
+         ! M_final = M_inner - (k - k_final)*M_slope = M_int + k_final*M_slope
+         ! R_final = R_inner - (k - k_final)*R_slope = R_int + k_final*R_slope
+         M_final = M_int + M_slope * k_final
+         R_final = R_int + R_slope * k_final
 
+         ! save enclosed mass and separation in xtra(9) and xtra(2), respectively
+         ! so that we output it in the history data
          s% xtra(2) = R_final/Rsun
-         !Saving as s% xtra(9) the enclosed mass so that we output it in the history data
          s% xtra(9) = M_final/Msun
 
          ! Calculate the angular momentum lost to the star's envelope
          J_tmp = (CE_companion_mass * Msun)**2 * M_final**2 / (CE_companion_mass * Msun + M_final)
          J_final = sqrt(standard_cgrav * J_tmp * R_final)
 
-         !The angular momentum that is lost from the orbit of the companion
+         ! The angular momentum that is lost from the orbit of the companion
          ! is added to the envelope of the donor.
          orbital_ang_mom_lost = J_final - J_init
          !We save in s% xtra(6) the total torque that will be applied to the Envelope
@@ -139,18 +151,26 @@
 
          ! For diagnostics
 
-         write(*,*) "Final k: ", k_final
-         write(*,*) "Previous Enclosed Mass: ", M_encl/Msun, " Final Enclosed Mass: ", M_final/Msun
-         write(*,*) "Previous Separation = ", CE_companion_position, " Final Separation: ", R_final/Rsun, &
-                     " Stellar Radius: ", s% r(1)/Rsun
-         write(*,*) "Previous Orbital Energy = ", E_init, " Final Orbital Energy: ", E_final
-         write(*,*) "Total Stellar Energy = ", s% total_energy
-         write(*,*) "Previous Angular momentum = ", J_init, " Final Angular momentum: ", J_final
-         write(*,*) "Relative Velocity: ", v_rel, " Mach Number: ", v_rel_div_csound
-         write(*,*) "Inner accretion Radius: ", R_acc_low, " Outer accretion radius: ", R_acc_high
-         write(*,*) "Dissipated Energy Rate: ", s% xtra(1), " Dissipated Angular Momentum Rate: ", s% xtra(6)
-         write(*,*) "Disipated rotational energy: ", s% xtra(6)*2.*3.14/AtoP(M_encl, &
-            CE_companion_mass*Msun, CE_companion_position*Rsun), s% xtra(6) * s% omega(k)
+         write(*,*) "Final k:                  ", k_final, &
+                     " Step Time:             ", s% dt
+         write(*,*) "Previous Enclosed Mass:   ", M_encl/Msun, &
+                     " Final Enclosed Mass:   ", M_final/Msun
+         write(*,*) "Previous Separation:      ", CE_companion_position, &
+                     " Final Separation:      ", R_final/Rsun, &
+                     " Stellar Radius:", s% r(1)/Rsun
+         write(*,*) "Inner Accretion Radius:   ", R_acc_low/Rsun, &
+                     " Outer Accretion Radius:", R_acc_high/Rsun
+         write(*,*) "Relative Velocity:        ", v_rel, &
+                     " Mach Number:           ", v_rel_div_csound
+         write(*,*) "Previous Orbital Energy:  ", E_init, &
+                     " Final Orbital Energy:  ", E_final, &
+                     " Dissipated Energy Rate:", s% xtra(1)
+         write(*,*) "Total Stellar Energy:     ", s% total_energy, "                   ", &
+                     " Dissipated Rotational Energy:", s% xtra(6) * s% omega(k), &
+                     s% xtra(6)*2.*3.14/AtoP(M_encl, CE_companion_mass*Msun, CE_companion_position*Rsun)
+         write(*,*) "Previous Angular Momentum:", J_init, &
+                     " Final Angular Momentum:", J_final, &
+                     " Dissipated Angular Momentum Rate:", s% xtra(6)
 
          ! After adjusting the orbit, let's call the check_merger routine
          call check_merger(id, ierr)
