@@ -217,12 +217,12 @@
             return
          end if
 
-         call colors_init(1,(/trim(mesa_dir)//'/colors/data/lcb98cor.dat'/),(/n_colors/),ierr)
-
-         if (ierr /= 0) then
-            write(*,*) 'colors_init failed during initialization'
-            return
-         end if
+         ! Not supported in MESA release > 24.08.1
+         !call colors_init(1,(/trim(mesa_dir)//'/colors/data/lcb98cor.dat'/),(/n_colors/),ierr)
+         !if (ierr /= 0) then
+         !   write(*,*) 'colors_init failed during initialization'
+         !   return
+         !end if
 
          if (.not. restart) then
             call alloc_extra_info(s)
@@ -464,6 +464,7 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
 
+         ! Not supported in MESA release > 24.08.1
          ! Call function to get rs
          !call get_magnitudes(id, b_mag, u_mag, v_mag, r_mag, i_mag, ierr)
 
